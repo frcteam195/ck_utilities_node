@@ -65,10 +65,12 @@ install(DIRECTORY include/${LIBRARY_NAME}/
 #############
 ## Testing ##
 #############
-## Add gtest based cpp test target and link libraries.
-catkin_add_gtest(${LIBRARY_NAME}-test ${test_sources})
-if(TARGET ${LIBRARY_NAME}-test)
-  target_link_libraries(${LIBRARY_NAME}-test ${LIBRARY_NAME})
-  target_include_directories(${LIBRARY_NAME}-test PUBLIC "include" "test/include")
-  add_dependencies(${LIBRARY_NAME}-test ${LIBRARY_NAME} ${${LIBRARY_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+if (CATKIN_ENABLE_TESTING)
+  ## Add gtest based cpp test target and link libraries.
+  catkin_add_gtest(${LIBRARY_NAME}-test ${test_sources})
+  if(TARGET ${LIBRARY_NAME}-test)
+    target_link_libraries(${LIBRARY_NAME}-test ${LIBRARY_NAME})
+    target_include_directories(${LIBRARY_NAME}-test PUBLIC "include" "test/include")
+    add_dependencies(${LIBRARY_NAME}-test ${LIBRARY_NAME} ${${LIBRARY_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+  endif()
 endif()
