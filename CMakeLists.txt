@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(${PROJECT_NAME})
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
+  roscpp rio_control_node
 )
 
 catkin_package(
