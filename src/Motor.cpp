@@ -11,7 +11,6 @@
 extern ros::NodeHandle* node;
 
 static std::mutex motor_mutex;
-static std::map<uint8_t, MotorConfig *> configuration_map;
 
 class MotorMaster
 {
@@ -79,10 +78,10 @@ public:
     }
 
 private:
-    static std::map<int, MotorData> registered_motors;
     static std::thread * motor_master_thread;
     static ros::Publisher config_publisher;
     static ros::Publisher control_publisher;
+    static std::map<uint8_t, MotorConfig *> configuration_map;
 
     static void send_motor_configs()
     {
@@ -90,11 +89,11 @@ private:
 
         rio_control_node::Motor_Configuration config_list;
 
-        for(std::map<int, MotorData>::iterator i = registered_motors.begin();
-            i != registered_motors.end();
+        for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
+            i != configuration_map.end();
             i++)
         {
-            config_list.motors.push_back((*i).second.motor_config);
+            config_list.motors.push_back((*i).second->active_config.motor_config);
         }
 
         config_publisher.publish(config_list);
@@ -106,18 +105,18 @@ private:
 
         rio_control_node::Motor_Control motor_control_list;
 
-        for(std::map<int, MotorData>::iterator i = registered_motors.begin();
-            i != registered_motors.end();
+        for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
+            i != configuration_map.end();
             i++)
         {
-            if((*i).second.motor_config.controller_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
-               (*i).second.motor_config.controller_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
+            if((*i).second->active_config.motor_config.controller_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
+               (*i).second->active_config.motor_config.controller_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
             {
                 rio_control_node::Motor motor;
-                motor.controller_type = (*i).second.motor_config.controller_type;
-                motor.id = (*i).second.motor_config.id;
+                motor.controller_type = (*i).second->active_config.motor_config.controller_type;
+                motor.id = (*i).second->active_config.motor_config.id;
                 motor.control_mode = rio_control_node::Motor::FOLLOWER;
-                motor.output_value = (*i).second.master_id;
+                motor.output_value = (*i).second->active_config.master_id;
                 motor_control_list.motors.push_back(motor);
             }
         }
@@ -140,7 +139,7 @@ friend class Motor;
 friend class MotorConfig;
 };
 
-std::map<int, MotorData> MotorMaster::registered_motors;
+std::map<uint8_t, MotorConfig *> MotorMaster::configuration_map;
 std::thread * MotorMaster::motor_master_thread;
 ros::Publisher MotorMaster::config_publisher;
 ros::Publisher MotorMaster::control_publisher;
