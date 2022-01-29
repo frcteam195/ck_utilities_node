@@ -11,16 +11,39 @@
 extern ros::NodeHandle* node;
 
 static std::mutex motor_mutex;
+static std::map<uint8_t, MotorConfig *> configuration_map;
 
 class MotorMaster
 {
 public:
 
-    static void register_motor_data(MotorData motor_data)
+    static void create_motor_config(uint8_t id, Motor::Motor_Type type)
     {
         std::lock_guard<std::mutex> lock(motor_mutex);
-        registered_motors[motor_data.motor_id] = motor_data;
+        if (configuration_map.find(id) != configuration_map.end())
+        {
+            return;
+        }
+        configuration_map[id] = new MotorConfig();
+        configuration_map[id]->motor_id = id;
+        configuration_map[id]->active_config.motor_id = id;
+        configuration_map[id]->pending_config.motor_id = id;
+        configuration_map[id]->active_config.motor_config.controller_type = (uint8_t) type;
+        configuration_map[id]->pending_config.motor_config.controller_type = (uint8_t) type;
+        configuration_map[id]->set_defaults();
+        configuration_map[id]->apply();
     }
+
+    static MotorConfig * retrieve_configuration(uint8_t id)
+    {
+        std::lock_guard<std::mutex> lock(motor_mutex);
+        if(configuration_map.find(id) == configuration_map.end())
+        {
+            return nullptr;
+        }
+        return configuration_map[id];
+    }
+
     MotorMaster()
     {
         std::lock_guard<std::mutex> lock(motor_mutex);
@@ -32,6 +55,22 @@ public:
 
     ~MotorMaster()
     {
+        try
+        {
+            std::lock_guard<std::mutex> lock(motor_mutex);
+            for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
+                i != configuration_map.end();
+                i++)
+            {
+                delete (*i).second;
+                (*i).second = nullptr;
+            }
+            configuration_map.clear();
+
+            motor_master_thread->join();
+        }
+        catch ( ... ) { }
+
         try
         {
             motor_master_thread->join();
@@ -110,12 +149,13 @@ static MotorMaster motor_master;
 
 void MotorConfig::apply()
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->active_config = this->pending_config;
-    motor_master.register_motor_data(this->active_config);
 }
 
 void MotorConfig::set_fast_master(bool enable)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     if(enable)
     {
         this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::FAST_MASTER;
@@ -128,91 +168,109 @@ void MotorConfig::set_fast_master(bool enable)
 
 void MotorConfig::set_kP(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.kP = value;
 }
 
 void MotorConfig::set_kI(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.kI = value;
 }
 
 void MotorConfig::set_kD(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.kD = value;
 }
 
 void MotorConfig::set_kF(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.kF = value;
 }
 
 void MotorConfig::set_i_zone(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.iZone = value;
 }
 
 void MotorConfig::set_max_i_accum(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.max_i_accum = value;
 }
 
 void MotorConfig::set_allowed_closed_loop_error(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.allowed_closed_loop_error = value;
 }
 
 void MotorConfig::set_max_closed_loop_peak_output(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.max_closed_loop_peak_output = value;
 }
 
 void MotorConfig::set_motion_cruise_velocity(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.motion_cruise_velocity = value;
 }
 
 void MotorConfig::set_motion_acceleration(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.motion_acceleration = value;
 }
 
 void MotorConfig::set_motion_s_curve_strength(int32_t value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.motion_s_curve_strength = value;
 }
 
 void MotorConfig::set_forward_soft_limit(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.forward_soft_limit = value;
 }
 
 void MotorConfig::set_forward_soft_limit_enable(bool enabled)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.forward_soft_limit_enable = enabled;
 }
 
 void MotorConfig::set_reverse_soft_limit(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.reverse_soft_limit = value;
 }
 
 void MotorConfig::set_reverse_soft_limit_enable(bool enabled)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.reverse_soft_limit_enable = enabled;
 }
 
 void MotorConfig::set_feedback_sensor_coefficient(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.feedback_sensor_coefficient = value;
 }
 
 void MotorConfig::set_voltage_compensation_saturation(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.voltage_compensation_saturation = value;
 }
 
 void MotorConfig::set_inverted(bool enabled)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     if(this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
        this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
     {
@@ -225,26 +283,31 @@ void MotorConfig::set_inverted(bool enabled)
 
 void MotorConfig::set_sensor_phase_inverted(bool enabled)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.sensor_phase_inverted = enabled;
 }
 
 void MotorConfig::set_neutral_mode(MotorConfig::NeutralMode mode)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.neutral_mode = (uint8_t) mode;
 }
 
 void MotorConfig::set_open_loop_ramp(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.open_loop_ramp = value;
 }
 
 void MotorConfig::set_closed_loop_ramp(double value)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.closed_loop_ramp = value;
 }
 
 void MotorConfig::set_supply_current_limit(bool enabled, double current_limit, double trigger_current, double trigger_time)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.supply_current_limit_config.enable = enabled;
     this->pending_config.motor_config.supply_current_limit_config.current_limit = current_limit;
     this->pending_config.motor_config.supply_current_limit_config.trigger_threshold_current = trigger_current;
@@ -253,6 +316,7 @@ void MotorConfig::set_supply_current_limit(bool enabled, double current_limit, d
 
 void MotorConfig::set_stator_current_limit(bool enabled, double current_limit, double trigger_current, double trigger_time)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     this->pending_config.motor_config.stator_current_limit_config.enable = enabled;
     this->pending_config.motor_config.stator_current_limit_config.current_limit = current_limit;
     this->pending_config.motor_config.stator_current_limit_config.trigger_threshold_current = trigger_current;
@@ -261,6 +325,7 @@ void MotorConfig::set_stator_current_limit(bool enabled, double current_limit, d
 
 void MotorConfig::set_follower(bool enabled, uint8_t master_id)
 {
+    std::lock_guard<std::mutex> lock(motor_mutex);
     if(enabled)
     {
         this->pending_config.master_id = master_id;
@@ -284,15 +349,39 @@ void MotorConfig::set_follower(bool enabled, uint8_t master_id)
 }
 
 void MotorConfig::set_defaults()
-{
-
+{    
+    this->set_fast_master(false);
+    this->set_kP(0.0);
+    this->set_kI(0.0);
+    this->set_kD(0.0);
+    this->set_kF(0.0);
+    this->set_i_zone(0.0);
+    this->set_max_i_accum(0.0);
+    this->set_allowed_closed_loop_error(0.0);
+    this->set_max_closed_loop_peak_output(0.0);
+    this->set_motion_cruise_velocity(0.0);
+    this->set_motion_acceleration(0.0);
+    this->set_motion_s_curve_strength(0);
+    this->set_forward_soft_limit(0.0);
+    this->set_forward_soft_limit_enable(false);
+    this->set_reverse_soft_limit(0.0);
+    this->set_reverse_soft_limit_enable(false);
+    this->set_feedback_sensor_coefficient(0.0);
+    this->set_voltage_compensation_saturation(0.0);
+    this->set_inverted(false);
+    this->set_sensor_phase_inverted(false);
+    this->set_neutral_mode(MotorConfig::NeutralMode::COAST);
+    this->set_open_loop_ramp(0.0);
+    this->set_closed_loop_ramp(0.0);
+    this->set_supply_current_limit(false, 0.0, 0.0, 0.0);
+    this->set_stator_current_limit(false, 0.0, 0.0, 0.0);
+    this->set_follower(false, 0);
 }
 
 Motor::Motor(uint8_t id, Motor_Type type)
 {
-    this->config().pending_config.motor_config.controller_type = (uint8_t) type;
-    this->config().pending_config.motor_config.id = id;
-    this->config().set_defaults();
+    this->id = id;
+    motor_master.create_motor_config(id, type);
 }
 
 void Motor::set(Control_Mode mode, double output, double arbitrary_feedforward)
@@ -311,5 +400,5 @@ void Motor::set(Control_Mode mode, double output, double arbitrary_feedforward)
 
 MotorConfig& Motor::config()
 {
-    return this->config_structure;
+    return *(motor_master.retrieve_configuration(this->id));
 }

@@ -56,6 +56,7 @@ public:
 protected:
     MotorConfig() { };
 
+friend class MotorMaster;
 friend class Motor;
 };
 
@@ -88,5 +89,5 @@ public:
 
 private:
     Motor() = delete;
-    MotorConfig config_structure;
+    uint8_t id;
 };
