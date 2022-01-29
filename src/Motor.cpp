@@ -10,7 +10,7 @@
 
 extern ros::NodeHandle* node;
 
-static std::mutex motor_mutex;
+static std::recursive_mutex motor_mutex;
 
 class MotorMaster
 {
@@ -18,7 +18,7 @@ public:
 
     static void create_motor_config(uint8_t id, Motor::Motor_Type type)
     {
-        std::lock_guard<std::mutex> lock(motor_mutex);
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
         if (configuration_map.find(id) != configuration_map.end())
         {
             return;
@@ -27,6 +27,8 @@ public:
         configuration_map[id]->motor_id = id;
         configuration_map[id]->active_config.motor_id = id;
         configuration_map[id]->pending_config.motor_id = id;
+        configuration_map[id]->active_config.motor_config.id = id;
+        configuration_map[id]->pending_config.motor_config.id = id;
         configuration_map[id]->active_config.motor_config.controller_type = (uint8_t) type;
         configuration_map[id]->pending_config.motor_config.controller_type = (uint8_t) type;
         configuration_map[id]->set_defaults();
@@ -35,7 +37,7 @@ public:
 
     static MotorConfig * retrieve_configuration(uint8_t id)
     {
-        std::lock_guard<std::mutex> lock(motor_mutex);
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
         if(configuration_map.find(id) == configuration_map.end())
         {
             return nullptr;
@@ -45,9 +47,9 @@ public:
 
     MotorMaster()
     {
-        std::lock_guard<std::mutex> lock(motor_mutex);
-        control_publisher = node->advertise<rio_control_node::Motor_Control>("MotorControl", 50);
-        config_publisher = node->advertise<rio_control_node::Motor_Configuration>("MotorConfiguration", 50);
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+        control_publisher = node->advertise<rio_control_node::Motor_Control>("/MotorControl", 50);
+        config_publisher = node->advertise<rio_control_node::Motor_Configuration>("/MotorConfiguration", 50);
 
         motor_master_thread = new std::thread(motor_master_loop);
     }
@@ -56,7 +58,7 @@ public:
     {
         try
         {
-            std::lock_guard<std::mutex> lock(motor_mutex);
+            std::lock_guard<std::recursive_mutex> lock(motor_mutex);
             for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
                 i != configuration_map.end();
                 i++)
@@ -85,7 +87,7 @@ private:
 
     static void send_motor_configs()
     {
-        std::lock_guard<std::mutex> lock(motor_mutex);
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
 
         rio_control_node::Motor_Configuration config_list;
 
@@ -101,7 +103,7 @@ private:
 
     static void send_follower_controls()
     {
-        std::lock_guard<std::mutex> lock(motor_mutex);
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
 
         rio_control_node::Motor_Control motor_control_list;
 
@@ -144,17 +146,17 @@ std::thread * MotorMaster::motor_master_thread;
 ros::Publisher MotorMaster::config_publisher;
 ros::Publisher MotorMaster::control_publisher;
 
-static MotorMaster motor_master;
+static MotorMaster * motor_master = nullptr;
 
 void MotorConfig::apply()
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->active_config = this->pending_config;
 }
 
 void MotorConfig::set_fast_master(bool enable)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     if(enable)
     {
         this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::FAST_MASTER;
@@ -167,115 +169,115 @@ void MotorConfig::set_fast_master(bool enable)
 
 void MotorConfig::set_kP(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.kP = value;
 }
 
 void MotorConfig::set_kI(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.kI = value;
 }
 
 void MotorConfig::set_kD(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.kD = value;
 }
 
 void MotorConfig::set_kF(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.kF = value;
 }
 
 void MotorConfig::set_i_zone(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.iZone = value;
 }
 
 void MotorConfig::set_max_i_accum(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.max_i_accum = value;
 }
 
 void MotorConfig::set_allowed_closed_loop_error(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.allowed_closed_loop_error = value;
 }
 
 void MotorConfig::set_max_closed_loop_peak_output(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.max_closed_loop_peak_output = value;
 }
 
 void MotorConfig::set_motion_cruise_velocity(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.motion_cruise_velocity = value;
 }
 
 void MotorConfig::set_motion_acceleration(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.motion_acceleration = value;
 }
 
 void MotorConfig::set_motion_s_curve_strength(int32_t value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.motion_s_curve_strength = value;
 }
 
 void MotorConfig::set_forward_soft_limit(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.forward_soft_limit = value;
 }
 
 void MotorConfig::set_forward_soft_limit_enable(bool enabled)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.forward_soft_limit_enable = enabled;
 }
 
 void MotorConfig::set_reverse_soft_limit(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.reverse_soft_limit = value;
 }
 
 void MotorConfig::set_reverse_soft_limit_enable(bool enabled)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.reverse_soft_limit_enable = enabled;
 }
 
 void MotorConfig::set_feedback_sensor_coefficient(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.feedback_sensor_coefficient = value;
 }
 
 void MotorConfig::set_voltage_compensation_saturation(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.voltage_compensation_saturation = value;
 }
 
 void MotorConfig::set_voltage_compensation_enabled(bool enabled)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.voltage_compensation_enabled = enabled;
 }
 
 void MotorConfig::set_inverted(bool enabled)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     if(this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
        this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
     {
@@ -288,31 +290,31 @@ void MotorConfig::set_inverted(bool enabled)
 
 void MotorConfig::set_sensor_phase_inverted(bool enabled)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.sensor_phase_inverted = enabled;
 }
 
 void MotorConfig::set_neutral_mode(MotorConfig::NeutralMode mode)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.neutral_mode = (uint8_t) mode;
 }
 
 void MotorConfig::set_open_loop_ramp(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.open_loop_ramp = value;
 }
 
 void MotorConfig::set_closed_loop_ramp(double value)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.closed_loop_ramp = value;
 }
 
 void MotorConfig::set_supply_current_limit(bool enabled, double current_limit, double trigger_current, double trigger_time)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.supply_current_limit_config.enable = enabled;
     this->pending_config.motor_config.supply_current_limit_config.current_limit = current_limit;
     this->pending_config.motor_config.supply_current_limit_config.trigger_threshold_current = trigger_current;
@@ -321,7 +323,7 @@ void MotorConfig::set_supply_current_limit(bool enabled, double current_limit, d
 
 void MotorConfig::set_stator_current_limit(bool enabled, double current_limit, double trigger_current, double trigger_time)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     this->pending_config.motor_config.stator_current_limit_config.enable = enabled;
     this->pending_config.motor_config.stator_current_limit_config.current_limit = current_limit;
     this->pending_config.motor_config.stator_current_limit_config.trigger_threshold_current = trigger_current;
@@ -330,7 +332,7 @@ void MotorConfig::set_stator_current_limit(bool enabled, double current_limit, d
 
 void MotorConfig::set_follower(bool enabled, uint8_t master_id)
 {
-    std::lock_guard<std::mutex> lock(motor_mutex);
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     if(enabled)
     {
         this->pending_config.master_id = master_id;
@@ -385,8 +387,13 @@ void MotorConfig::set_defaults()
 
 Motor::Motor(uint8_t id, Motor_Type type)
 {
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    if(motor_master == nullptr)
+    {
+        motor_master = new MotorMaster();
+    }
     this->id = id;
-    motor_master.create_motor_config(id, type);
+    motor_master->create_motor_config(id, type);
 }
 
 void Motor::set(Control_Mode mode, double output, double arbitrary_feedforward)
@@ -405,5 +412,5 @@ void Motor::set(Control_Mode mode, double output, double arbitrary_feedforward)
 
 MotorConfig& Motor::config()
 {
-    return *(motor_master.retrieve_configuration(this->id));
+    return *(motor_master->retrieve_configuration(this->id));
 }
