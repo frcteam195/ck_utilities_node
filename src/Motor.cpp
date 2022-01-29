@@ -111,8 +111,8 @@ private:
             i != configuration_map.end();
             i++)
         {
-            if((*i).second->active_config.motor_config.controller_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
-               (*i).second->active_config.motor_config.controller_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
+            if((*i).second->active_config.motor_config.invert_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
+               (*i).second->active_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
             {
                 rio_control_node::Motor motor;
                 motor.controller_type = (*i).second->active_config.motor_config.controller_type;
@@ -128,7 +128,7 @@ private:
 
     static void motor_master_loop()
     {
-        ros::Rate timer(100);
+        ros::Rate timer(10);
         while(ros::ok())
         {
             send_motor_configs();
