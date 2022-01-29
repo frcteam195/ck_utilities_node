@@ -268,6 +268,12 @@ void MotorConfig::set_voltage_compensation_saturation(double value)
     this->pending_config.motor_config.voltage_compensation_saturation = value;
 }
 
+void MotorConfig::set_voltage_compensation_enabled(bool enabled)
+{
+    std::lock_guard<std::mutex> lock(motor_mutex);
+    this->pending_config.motor_config.voltage_compensation_enabled = enabled;
+}
+
 void MotorConfig::set_inverted(bool enabled)
 {
     std::lock_guard<std::mutex> lock(motor_mutex);

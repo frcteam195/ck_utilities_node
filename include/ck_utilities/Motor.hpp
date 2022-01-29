@@ -43,6 +43,7 @@ public:
     void set_reverse_soft_limit_enable(bool enabled);
     void set_feedback_sensor_coefficient(double value);
     void set_voltage_compensation_saturation(double value);
+    void set_voltage_compensation_enabled(bool enabled);
     void set_inverted(bool enabled);
     void set_sensor_phase_inverted(bool enabled);
     void set_neutral_mode(NeutralMode mode);
