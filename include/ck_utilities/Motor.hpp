@@ -24,6 +24,22 @@ public:
         BRAKE=2,
     };
 
+    enum class LimitSwitchSource
+    {
+        FeedbackConnector = 0,
+        RemoteTalon = 1,
+        RemoteTalonSRX = 1,
+        RemoteCANifier = 2,
+        Deactivated = 3
+    };
+
+    enum class LimitSwitchNormal
+    {
+        NormallyOpen = 0,
+        NormallyClosed = 1,
+        Disabled = 2
+    };
+
     void apply();
     void set_fast_master(bool enable);
     void set_kP(double value);
@@ -52,6 +68,8 @@ public:
     void set_supply_current_limit(bool enabled, double current_limit, double trigger_current, double trigger_time);
     void set_stator_current_limit(bool enabled, double current_limit, double trigger_current, double trigger_time);
     void set_follower(bool enabled, uint8_t master_id);
+    void set_forward_limit_switch(LimitSwitchSource forward_limit_switch_source, LimitSwitchNormal forward_limit_switch_normal);
+    void set_reverse_limit_switch(LimitSwitchSource reverse_limit_switch_source, LimitSwitchNormal reverse_limit_switch_normal);
     void set_defaults();
 
 protected:

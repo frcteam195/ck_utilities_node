@@ -355,6 +355,20 @@ void MotorConfig::set_follower(bool enabled, uint8_t master_id)
     this->pending_config.motor_config.invert_type = rio_control_node::Motor_Config::NONE;
 }
 
+void MotorConfig::set_forward_limit_switch(LimitSwitchSource forward_limit_switch_source, LimitSwitchNormal forward_limit_switch_normal)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.forward_limit_switch_source = (int8_t)forward_limit_switch_source;
+    this->pending_config.motor_config.forward_limit_switch_normal = (int8_t)forward_limit_switch_normal;
+}
+
+void MotorConfig::set_reverse_limit_switch(LimitSwitchSource reverse_limit_switch_source, LimitSwitchNormal reverse_limit_switch_normal)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.reverse_limit_switch_source = (int8_t)reverse_limit_switch_source;
+    this->pending_config.motor_config.reverse_limit_switch_normal = (int8_t)reverse_limit_switch_normal;
+}
+
 void MotorConfig::set_defaults()
 {    
     this->set_fast_master(false);
@@ -383,6 +397,8 @@ void MotorConfig::set_defaults()
     this->set_supply_current_limit(false, 0.0, 0.0, 0.0);
     this->set_stator_current_limit(false, 0.0, 0.0, 0.0);
     this->set_follower(false, 0);
+    this->set_forward_limit_switch(LimitSwitchSource::FeedbackConnector, LimitSwitchNormal::NormallyOpen);
+    this->set_reverse_limit_switch(LimitSwitchSource::FeedbackConnector, LimitSwitchNormal::NormallyOpen);
 }
 
 Motor::Motor(uint8_t id, Motor_Type type)
