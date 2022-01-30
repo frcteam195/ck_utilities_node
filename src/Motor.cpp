@@ -163,7 +163,7 @@ void MotorConfig::set_fast_master(bool enable)
     }
     else
     {
-        this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::FAST_MASTER;
+        this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::MASTER;
     }
 }
 
@@ -343,9 +343,11 @@ void MotorConfig::set_follower(bool enabled, uint8_t master_id)
             return;
         }
         this->pending_config.motor_config.invert_type = rio_control_node::Motor_Config::FOLLOW_MASTER;
+        this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::FOLLOWER;
         return;
     }
     this->pending_config.master_id = 0;
+    this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::MASTER;
     if(this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER ||
        this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::INVERT_MOTOR_OUTPUT)
     {
