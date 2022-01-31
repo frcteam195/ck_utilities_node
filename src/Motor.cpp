@@ -371,6 +371,18 @@ void MotorConfig::set_reverse_limit_switch(LimitSwitchSource reverse_limit_switc
     this->pending_config.motor_config.reverse_limit_switch_normal = (int8_t)reverse_limit_switch_normal;
 }
 
+void MotorConfig::set_peak_output_forward(double value)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.peak_output_forward = value;
+}
+
+void MotorConfig::set_peak_output_reverse(double value)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.peak_output_reverse = value;
+}
+
 void MotorConfig::set_defaults()
 {    
     this->set_fast_master(false);
@@ -401,6 +413,8 @@ void MotorConfig::set_defaults()
     this->set_follower(false, 0);
     this->set_forward_limit_switch(LimitSwitchSource::FeedbackConnector, LimitSwitchNormal::NormallyOpen);
     this->set_reverse_limit_switch(LimitSwitchSource::FeedbackConnector, LimitSwitchNormal::NormallyOpen);
+    this->set_peak_output_forward(0);
+    this->set_peak_output_reverse(0);
 }
 
 Motor::Motor(uint8_t id, Motor_Type type)

@@ -70,6 +70,8 @@ public:
     void set_follower(bool enabled, uint8_t master_id);
     void set_forward_limit_switch(LimitSwitchSource forward_limit_switch_source, LimitSwitchNormal forward_limit_switch_normal);
     void set_reverse_limit_switch(LimitSwitchSource reverse_limit_switch_source, LimitSwitchNormal reverse_limit_switch_normal);
+    void set_peak_output_forward(double value);
+    void set_peak_output_reverse(double value);
     void set_defaults();
 
 protected:
