@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${LIBRARY_NAME}
-  CATKIN_DEPENDS roscpp
+  CATKIN_DEPENDS roscpp rio_control_node
 #  DEPENDS system_lib
 )
 
