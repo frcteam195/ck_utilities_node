@@ -1,41 +1,22 @@
 #include "ck_utilities/Joystick.hpp"
 #include "ck_utilities/CKMath.hpp"
 
-extern ros::NodeHandle* node;
-
-JoystickHelper::JoystickHelper()
-{
-    std::lock_guard<std::recursive_mutex> lock(mJoystickMutex);
-    mJoystickSubscriber = node->subscribe("JoystickStatus", 10, &JoystickHelper::joystickReceiveCallback, this);
-    
-}
-
-void JoystickHelper::joystickReceiveCallback(const rio_control_node::Joystick_Status& msg)
-{
-    std::lock_guard<std::recursive_mutex> lock(mJoystickMutex);
-    mJoystickStatus = msg;
-}
-
-rio_control_node::Joystick JoystickHelper::getJoystick(uint joystickID)
-{
-    if (mJoystickStatus.joysticks.size() > (joystickID + 1))
-    {
-        return mJoystickStatus.joysticks[joystickID];
-    }
-    ROS_WARN("Joystick ID: %d not found!", joystickID);
-    return rio_control_node::Joystick();
-}
-
+rio_control_node::Joystick_Status* Joystick::joystick_status;
 
 Joystick::Joystick(uint joystickID)
 : mJoystickID(joystickID)
 {
-    JoystickHelper::getInstance();
+    
+}
+
+void Joystick::update(const rio_control_node::Joystick_Status& joystick_status_msg)
+{
+    joystick_status = &((rio_control_node::Joystick_Status&)joystick_status_msg);
 }
 
 double Joystick::getRawAxis(uint axisID)
 {
-    return JoystickHelper::getInstance().getJoystick(mJoystickID).axes[axisID];
+    return joystick_status->joysticks[mJoystickID].axes[axisID];
 }
 
 double Joystick::getFilteredAxis(uint axisID, float deadband)
@@ -53,33 +34,33 @@ double Joystick::getFilteredAxis(uint axisID, float deadband)
 
 bool Joystick::getAxisActuated(uint axisID, float threshold)
 {
-    return JoystickHelper::getInstance().getJoystick(mJoystickID).axes[axisID] > threshold;
+    return joystick_status->joysticks[mJoystickID].axes[axisID] > threshold;
 }
 
 bool Joystick::getButton(uint buttonID)
 {
-    bool retVal = JoystickHelper::getInstance().getJoystick(mJoystickID).buttons[buttonID];
+    bool retVal = joystick_status->joysticks[mJoystickID].buttons[buttonID];
     mPrevButtonValues[buttonID] = retVal;
     return retVal;
 }
 
 bool Joystick::getRisingEdgeButton(uint buttonID)
 {
-    bool currVal = JoystickHelper::getInstance().getJoystick(mJoystickID).buttons[buttonID];
+    bool currVal = joystick_status->joysticks[mJoystickID].buttons[buttonID];
     bool retVal = currVal && (currVal != mPrevButtonValues[buttonID]);
-    mPrevButtonValues[buttonID] = retVal;
+    mPrevButtonValues[buttonID] = currVal;
     return retVal;
 }
 
 bool Joystick::getFallingEdgeButton(uint buttonID)
 {
-    bool currVal = JoystickHelper::getInstance().getJoystick(mJoystickID).buttons[buttonID];
+    bool currVal = joystick_status->joysticks[mJoystickID].buttons[buttonID];
     bool retVal = !currVal && (currVal != mPrevButtonValues[buttonID]);
-    mPrevButtonValues[buttonID] = retVal;
+    mPrevButtonValues[buttonID] = currVal;
     return retVal;
 }
 
 int Joystick::getPOV(uint povID)
 {
-    return JoystickHelper::getInstance().getJoystick(mJoystickID).povs[povID];
+    return joystick_status->joysticks[mJoystickID].povs[povID];
 }

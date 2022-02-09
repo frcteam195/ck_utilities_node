@@ -2,32 +2,15 @@
 
 #include <rio_control_node/Joystick.h>
 #include <rio_control_node/Joystick_Status.h>
-#include <ros/ros.h>
-#include <ck_utilities/Singleton.hpp>
 #include <thread>
 #include <map>
 #include <mutex>
-
-class JoystickHelper : public Singleton<JoystickHelper>
-{
-    friend Singleton;
-public:
-
-private:
-    JoystickHelper();
-    void joystickReceiveCallback(const rio_control_node::Joystick_Status& msg);
-    rio_control_node::Joystick getJoystick(uint joystickID);
-    ros::Subscriber mJoystickSubscriber;
-    rio_control_node::Joystick_Status mJoystickStatus;
-    std::recursive_mutex mJoystickMutex;
-
-friend class Joystick;
-};
 
 class Joystick
 {
 public:
     Joystick(uint joystickID);
+    static void update(const rio_control_node::Joystick_Status& joystick_status_msg);
     double getRawAxis(uint axisID);
     double getFilteredAxis(uint axisID, float deadband);
     bool getAxisActuated(uint axisID, float threshold);
@@ -36,7 +19,7 @@ public:
     bool getFallingEdgeButton(uint buttonID);
     int getPOV(uint povID);
 private:
-
+    static rio_control_node::Joystick_Status* joystick_status;
     bool mPrevButtonValues[16] = {0};
     int mPrevPOV = 0;
     int mJoystickID;
