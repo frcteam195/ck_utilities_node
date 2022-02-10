@@ -19,7 +19,8 @@ public:
     bool getFallingEdgeButton(uint buttonID);
     int getPOV(uint povID);
 private:
-    static rio_control_node::Joystick_Status* joystick_status;
+    static rio_control_node::Joystick_Status joystick_status;
+    static std::map<int, rio_control_node::Joystick>  joystick_map;
     bool mPrevButtonValues[16] = {0};
     int mPrevPOV = 0;
     int mJoystickID;
