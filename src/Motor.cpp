@@ -1,12 +1,14 @@
 #include <cstdint>
 #include "rio_control_node/Motor_Control.h"
 #include "rio_control_node/Motor_Configuration.h"
+#include "rio_control_node/Robot_Status.h"
 #include "ck_utilities/Motor.hpp"
 
 #include "ros/ros.h"
 #include <mutex>
 #include <map>
 #include <thread>
+#include <atomic>
 
 extern ros::NodeHandle* node;
 
@@ -15,6 +17,11 @@ static std::recursive_mutex motor_mutex;
 class MotorMaster
 {
 public:
+
+    static void robot_status_callback(const rio_control_node::Robot_Status& msg)
+    {
+        robot_mode = msg.robot_state;
+    }
 
     static void create_motor_config(uint8_t id, Motor::Motor_Type type)
     {
@@ -50,6 +57,9 @@ public:
         std::lock_guard<std::recursive_mutex> lock(motor_mutex);
         control_publisher = node->advertise<rio_control_node::Motor_Control>("/MotorControl", 50);
         config_publisher = node->advertise<rio_control_node::Motor_Configuration>("/MotorConfiguration", 50);
+        robot_mode = 0;
+        robot_data_subscriber = node->subscribe("RobotStatus", 10, robot_status_callback);
+
 
         motor_master_thread = new std::thread(motor_master_loop);
     }
@@ -83,6 +93,8 @@ private:
     static std::thread * motor_master_thread;
     static ros::Publisher config_publisher;
     static ros::Publisher control_publisher;
+    static ros::Subscriber robot_data_subscriber;
+    static std::atomic<int8_t> robot_mode;
     static std::map<uint8_t, MotorConfig *> configuration_map;
 
     static void send_motor_configs()
@@ -99,6 +111,33 @@ private:
         }
 
         config_publisher.publish(config_list);
+    }
+
+    static void send_master_controls_disabled()
+    {
+        if (robot_mode == rio_control_node::Robot_Status::DISABLED)
+        {
+            std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+            rio_control_node::Motor_Control motor_control_list;
+
+            for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
+                i != configuration_map.end();
+                i++)
+            {
+                if((*i).second->active_config.motor_config.invert_type != rio_control_node::Motor_Config::FOLLOW_MASTER &&
+                (*i).second->active_config.motor_config.invert_type != rio_control_node::Motor_Config::OPPOSE_MASTER)
+                {
+                    rio_control_node::Motor motor;
+                    motor.controller_type = (*i).second->active_config.motor_config.controller_type;
+                    motor.id = (*i).second->active_config.motor_config.id;
+                    motor.control_mode = rio_control_node::Motor::PERCENT_OUTPUT;
+                    motor.output_value = 0;
+                    motor_control_list.motors.push_back(motor);
+                }
+            }
+
+            control_publisher.publish(motor_control_list);
+        }
     }
 
     static void send_follower_controls()
@@ -132,6 +171,7 @@ private:
         while(ros::ok())
         {
             send_motor_configs();
+            send_master_controls_disabled();
             send_follower_controls();
             timer.sleep();
         }
@@ -145,6 +185,8 @@ std::map<uint8_t, MotorConfig *> MotorMaster::configuration_map;
 std::thread * MotorMaster::motor_master_thread;
 ros::Publisher MotorMaster::config_publisher;
 ros::Publisher MotorMaster::control_publisher;
+ros::Subscriber MotorMaster::robot_data_subscriber;
+std::atomic<int8_t> MotorMaster::robot_mode;
 
 static MotorMaster * motor_master = nullptr;
 
