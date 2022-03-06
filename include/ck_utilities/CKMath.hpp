@@ -2,6 +2,7 @@
 
 #include "CKMathConstants.hpp"
 #include "Units.hpp"
+#include <cmath>
 #include <map>
 
 namespace ck
@@ -39,15 +40,15 @@ namespace ck
         }
 
         template <typename T>
-        inline T limit(T v, T maxMagnitude)
-        {
-            return limit(v, -maxMagnitude, maxMagnitude);
-        }
-
-        template <typename T>
         inline T limit(T v, T minVal, T maxVal)
         {
             return min(maxVal, max(minVal, v));
+        }
+
+        template <typename T>
+        inline T limit(T v, T maxMagnitude)
+        {
+            return limit(v, -maxMagnitude, maxMagnitude);
         }
 
         template <typename T>
@@ -55,6 +56,23 @@ namespace ck
         {
             x = limit(x, 0.0, 1.0);
             return a + (b - a) * x;
+        }
+
+        template <typename T>
+        inline T handleDeadband(T val, T deadband) {
+            return (std::fabs(val) > std::fabs(deadband)) ? val : 0.0;
+        };
+
+        template <typename T>
+        T normalizeWithDeadband(T val, T deadband) {
+            val = handleDeadband(val, deadband);
+
+            if (val != 0)
+            {
+                val = signum(val) * ((std::fabs(val) - deadband) / (1.0 - deadband));
+            }
+
+            return val;
         }
 
         template <typename K, typename V>

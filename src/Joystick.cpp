@@ -32,17 +32,9 @@ double Joystick::getRawAxis(uint axisID)
     return 0;
 }
 
-double Joystick::getFilteredAxis(uint axisID, float deadband)
+double Joystick::getFilteredAxis(uint axisID, double deadband)
 {
-    double val = getRawAxis(axisID);
-    val = (std::fabs(val) > std::fabs(deadband)) ? val : 0.0;
-
-    if (val != 0)
-    {
-        val = ck::math::signum(val) * ((std::fabs(val) - deadband) / (1.0 - deadband));
-    }
-
-    return (std::fabs(val) > std::fabs(deadband)) ? val : 0.0;
+    return ck::math::normalizeWithDeadband(getRawAxis(axisID), deadband);
 }
 
 bool Joystick::getAxisActuated(uint axisID, float threshold)

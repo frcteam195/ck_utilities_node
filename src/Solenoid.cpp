@@ -1,27 +1,26 @@
-#include "ck_utilities/Piston.hpp"
+#include "ck_utilities/Solenoid.hpp"
 
 #include <thread>
 #include <map>
 #include <mutex>
 #include "ros/ros.h"
-
 #include "rio_control_node/Solenoid_Control.h"
 
-static std::map<uint8_t, Piston *> piston_map;
-static std::recursive_mutex piston_mutex;
+static std::map<uint8_t, Solenoid *> solenoid_map;
+static std::recursive_mutex solenoid_mutex;
 
 extern ros::NodeHandle * node;
 
-Piston::Piston(uint8_t id, Piston::PistonType type)
+Solenoid::Solenoid(uint8_t id, Solenoid::SolenoidType type)
 {
     this->id = id;
     this->type = type;
 }
 
-void Piston::set(Piston::PistonState state)
+void Solenoid::set(Solenoid::SolenoidState state)
 {
-    std::lock_guard<std::recursive_mutex> lock(piston_mutex);
-    static ros::Publisher piston_publisher = node->advertise<rio_control_node::Solenoid_Control>("/SolenoidControl", 1);
+    std::lock_guard<std::recursive_mutex> lock(solenoid_mutex);
+    static ros::Publisher solenoid_publisher = node->advertise<rio_control_node::Solenoid_Control>("/SolenoidControl", 1);
 
     rio_control_node::Solenoid_Control solenoid_control;
     rio_control_node::Solenoid solenoid;
@@ -31,5 +30,5 @@ void Piston::set(Piston::PistonState state)
     solenoid.output_value = (int8_t) state;
     solenoid_control.solenoids.push_back(solenoid);
 
-    piston_publisher.publish(solenoid_control);
+    solenoid_publisher.publish(solenoid_control);
 }
