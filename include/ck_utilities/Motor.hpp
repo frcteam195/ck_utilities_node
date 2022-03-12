@@ -1,6 +1,10 @@
 #include <cstdint>
 #include "rio_control_node/Motor_Control.h"
 #include "rio_control_node/Motor_Configuration.h"
+#include <atomic>
+#include <mutex>
+
+class MotorMaster;
 
 class MotorData
 {
@@ -91,7 +95,7 @@ public:
         TALON_SRX=1,
     };
 
-    enum class Control_Mode
+    enum class Control_Mode : int
     {
         PERCENT_OUTPUT=0,
         POSITION=1,
@@ -111,4 +115,11 @@ public:
 private:
     Motor() = delete;
     uint8_t id;
+
+    std::recursive_mutex mValueLock;
+    Control_Mode mControlMode {Control_Mode::PERCENT_OUTPUT};
+    double mOutput = 0;
+    double mArbFF = 0;
+
+friend class MotorMaster;
 };

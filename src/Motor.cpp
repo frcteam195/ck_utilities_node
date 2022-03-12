@@ -23,6 +23,12 @@ public:
         robot_mode = msg.robot_state;
     }
 
+    static void store_motor_pointer(uint8_t id, Motor* motor)
+    {
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+        motor_map[id] = motor;
+    }
+
     static void create_motor_config(uint8_t id, Motor::Motor_Type type)
     {
         std::lock_guard<std::recursive_mutex> lock(motor_mutex);
@@ -52,6 +58,16 @@ public:
         return configuration_map[id];
     }
 
+    static Motor * retrieve_motor(uint8_t id)
+    {
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+        if(motor_map.find(id) == motor_map.end())
+        {
+            return nullptr;
+        }
+        return motor_map[id];
+    }
+
     MotorMaster()
     {
         std::lock_guard<std::recursive_mutex> lock(motor_mutex);
@@ -76,7 +92,15 @@ public:
                 delete (*i).second;
                 (*i).second = nullptr;
             }
+            for(std::map<uint8_t, Motor *>::iterator i = motor_map.begin();
+                i != motor_map.end();
+                i++)
+            {
+                delete (*i).second;
+                (*i).second = nullptr;
+            }
             configuration_map.clear();
+            motor_map.clear();
 
             motor_master_thread->join();
         }
@@ -96,6 +120,7 @@ private:
     static ros::Subscriber robot_data_subscriber;
     static std::atomic<int8_t> robot_mode;
     static std::map<uint8_t, MotorConfig *> configuration_map;
+    static std::map<uint8_t, Motor *> motor_map;
 
     static void send_motor_configs()
     {
@@ -113,31 +138,37 @@ private:
         config_publisher.publish(config_list);
     }
 
-    static void send_master_controls_disabled()
+    static void send_master_controls_periodic()
     {
-        if (robot_mode == rio_control_node::Robot_Status::DISABLED)
-        {
-            std::lock_guard<std::recursive_mutex> lock(motor_mutex);
-            rio_control_node::Motor_Control motor_control_list;
+        std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+        static rio_control_node::Motor_Control motor_control_list;
+        motor_control_list.motors.clear();
 
-            for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
-                i != configuration_map.end();
-                i++)
+        for(std::map<uint8_t, Motor *>::iterator i = motor_map.begin();
+            i != motor_map.end();
+            i++)
+        {
+            Motor* m = (*i).second;
+            if (m->mValueLock.try_lock())
             {
-                if((*i).second->active_config.motor_config.invert_type != rio_control_node::Motor_Config::FOLLOW_MASTER &&
-                (*i).second->active_config.motor_config.invert_type != rio_control_node::Motor_Config::OPPOSE_MASTER)
+                if(m->config().active_config.motor_config.controller_mode == rio_control_node::Motor_Config::MASTER ||
+                m->config().active_config.motor_config.controller_mode == rio_control_node::Motor_Config::FAST_MASTER)
                 {
                     rio_control_node::Motor motor;
-                    motor.controller_type = (*i).second->active_config.motor_config.controller_type;
-                    motor.id = (*i).second->active_config.motor_config.id;
-                    motor.control_mode = rio_control_node::Motor::PERCENT_OUTPUT;
-                    motor.output_value = 0;
+                    motor.controller_type = m->config().active_config.motor_config.controller_type;
+                    motor.id = m->id;
+                    Motor::Control_Mode tmpCtrl = m->mControlMode;
+                    motor.control_mode = (int8_t)tmpCtrl;
+                    motor.output_value = m->mOutput;
+                    motor.arbitrary_feedforward = m->mArbFF;
+
                     motor_control_list.motors.push_back(motor);
                 }
+                m->mValueLock.unlock();
             }
-
-            control_publisher.publish(motor_control_list);
         }
+
+        control_publisher.publish(motor_control_list);
     }
 
     static void send_follower_controls()
@@ -171,7 +202,7 @@ private:
         while(ros::ok())
         {
             send_motor_configs();
-            send_master_controls_disabled();
+            send_master_controls_periodic();
             send_follower_controls();
             timer.sleep();
         }
@@ -182,6 +213,7 @@ friend class MotorConfig;
 };
 
 std::map<uint8_t, MotorConfig *> MotorMaster::configuration_map;
+std::map<uint8_t, Motor *> MotorMaster::motor_map;
 std::thread * MotorMaster::motor_master_thread;
 ros::Publisher MotorMaster::config_publisher;
 ros::Publisher MotorMaster::control_publisher;
@@ -468,14 +500,20 @@ Motor::Motor(uint8_t id, Motor_Type type)
     }
     this->id = id;
     motor_master->create_motor_config(id, type);
+    motor_master->store_motor_pointer(id, this);
 }
 
 void Motor::set(Control_Mode mode, double output, double arbitrary_feedforward)
 {
+    std::lock_guard<std::recursive_mutex> lock(mValueLock);
+    mControlMode = mode;
+    mOutput = output;
+    mArbFF = arbitrary_feedforward;
+
     rio_control_node::Motor_Control motors;
     rio_control_node::Motor motor;
     motor.controller_type = this->config().active_config.motor_config.controller_type;
-    motor.id = this->config().active_config.motor_id;
+    motor.id = id;
     motor.control_mode = (uint8_t) mode;
     motor.output_value = output;
     motor.arbitrary_feedforward = arbitrary_feedforward;
