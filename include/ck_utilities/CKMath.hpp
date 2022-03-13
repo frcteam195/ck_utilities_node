@@ -28,6 +28,18 @@ namespace ck
         }
 
         template <typename T>
+        inline bool inRange(T val, T delta)
+        {
+            return val >= -delta && val <= delta;
+        }
+
+        template <typename T>
+        inline bool inRange(T val, T minVal, T maxVal)
+        {
+            return val >= minVal && val <= maxVal;
+        }
+
+        template <typename T>
         inline bool epsilonEquals(T const &a, T const &b, T epsilon)
         {
             return (a - epsilon <= b) && (a + epsilon >= b);
