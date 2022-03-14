@@ -26,7 +26,7 @@ void Solenoid::set(Solenoid::SolenoidState state)
     rio_control_node::Solenoid solenoid;
     solenoid.id = (int32_t) this->id;
     solenoid.solenoid_type = (int8_t) this->type;
-    solenoid.module_type = rio_control_node::Solenoid::REVPH;
+    solenoid.module_type = rio_control_node::Solenoid::CTREPCM;
     solenoid.output_value = (int8_t) state;
     solenoid_control.solenoids.push_back(solenoid);
 
