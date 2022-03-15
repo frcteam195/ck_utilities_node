@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+class SolenoidMaster;
+
 class Solenoid
 {
 public:
@@ -24,6 +26,7 @@ public:
 private:
     uint8_t id;
     SolenoidType type = SolenoidType::SINGLE;
+    SolenoidState mOutput = SolenoidState::OFF;
     Solenoid() = delete;
-    friend class SolenoidManager;
+friend class SolenoidMaster;
 };
