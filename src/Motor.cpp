@@ -476,17 +476,18 @@ void MotorConfig::set_defaults()
     this->set_reverse_soft_limit(0.0);
     this->set_reverse_soft_limit_enable(false);
     this->set_feedback_sensor_coefficient(0.0);
-    this->set_voltage_compensation_saturation(0.0);
+    this->set_voltage_compensation_saturation(12.0);
+    this->set_voltage_compensation_enabled(true);
     this->set_inverted(false);
     this->set_sensor_phase_inverted(false);
     this->set_neutral_mode(MotorConfig::NeutralMode::COAST);
     this->set_open_loop_ramp(0.0);
     this->set_closed_loop_ramp(0.0);
-    this->set_supply_current_limit(false, 0.0, 0.0, 0.0);
+    this->set_supply_current_limit(true, 40.0, 0.0, 0.0);
     this->set_stator_current_limit(false, 0.0, 0.0, 0.0);
     this->set_follower(false, 0);
-    this->set_forward_limit_switch(LimitSwitchSource::FeedbackConnector, LimitSwitchNormal::NormallyOpen);
-    this->set_reverse_limit_switch(LimitSwitchSource::FeedbackConnector, LimitSwitchNormal::NormallyOpen);
+    this->set_forward_limit_switch(LimitSwitchSource::Deactivated, LimitSwitchNormal::Disabled);
+    this->set_reverse_limit_switch(LimitSwitchSource::Deactivated, LimitSwitchNormal::Disabled);
     this->set_peak_output_forward(0);
     this->set_peak_output_reverse(0);
 }
