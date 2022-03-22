@@ -1,8 +1,8 @@
 #include "ck_utilities/ValueRamper.hpp"
 #include "ros/ros.h"
 
-ValueRamper::ValueRamper(double accelRampRate, double decelRampRate, double minValue, double maxValue)
-: mAccelRampRate(accelRampRate), mDecelRampRate(decelRampRate), mMinValue(minValue), mMaxValue(maxValue)
+ValueRamper::ValueRamper(double accelRampRate, double decelRampRate, double zeroValue, double maxValue)
+: mAccelRampRate(accelRampRate), mDecelRampRate(decelRampRate), mZeroValue(zeroValue), mMaxValue(maxValue)
 {}
 
 double ValueRamper::calculateOutput(double currValue)
@@ -12,35 +12,33 @@ double ValueRamper::calculateOutput(double currValue)
     if (prevTime != ros::Time(0))
     {
         double dt = (timeNow - prevTime).toSec();
+        double accelStep = (mMaxValue - mZeroValue) * dt / mAccelRampRate;
+        double decelStep = (mMaxValue - mZeroValue) * dt / mDecelRampRate;
         if (currValue > mPrevValue && currValue > 0)
         {
             //accelerating
-            double stepSize = dt * mAccelRampRate;
-            mPrevValue += stepSize;
+            mPrevValue += accelStep;
             mPrevValue = std::min(mPrevValue, currValue);
             return mPrevValue;
         }
         else if(currValue < mPrevValue && currValue > 0)
         {
             //decelerating
-            double stepSize = dt * mDecelRampRate;
-            mPrevValue -= stepSize;
+            mPrevValue -= decelStep;
             mPrevValue = std::max(mPrevValue, currValue);
             return mPrevValue;
         }
         else if (currValue < mPrevValue && currValue < 0)
         {
             //accelerating
-            double stepSize = dt * mAccelRampRate;
-            mPrevValue -= stepSize;
+            mPrevValue -= accelStep;
             mPrevValue = std::max(mPrevValue, currValue);
             return mPrevValue;
         }
         else if (currValue > mPrevValue && currValue < 0)
         {
             //decelerating
-            double stepSize = dt * mDecelRampRate;
-            mPrevValue += stepSize;
+            mPrevValue += decelStep;
             mPrevValue = std::min(mPrevValue, currValue);
             return mPrevValue;
         }
