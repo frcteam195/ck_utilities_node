@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ros/ros.h"
+
 /**
  * @brief A class to ramp a value from one place to another.
  * Ramp rate is given in seconds from full off to full on and full on to full off
@@ -16,6 +18,7 @@ private:
     double mDecelRampRate = 0;
     double mZeroValue = 0;
     double mMaxValue = 0;
+    ros::Time mPrevTime = ros::Time(0);
 
     double mPrevValue = 0;
 };
