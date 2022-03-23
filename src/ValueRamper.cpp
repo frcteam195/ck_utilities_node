@@ -42,6 +42,10 @@ double ValueRamper::calculateOutput(double currValue)
             mPrevValue = std::min(mPrevValue, currValue);
             return mPrevValue;
         }
+        else
+        {
+            return currValue;
+        }
     }
     prevTime = timeNow;
     return 0;
