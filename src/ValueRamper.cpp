@@ -44,6 +44,7 @@ double ValueRamper::calculateOutput(double currValue)
         }
         else
         {
+            mPrevValue = currValue;
             return currValue;
         }
     }
