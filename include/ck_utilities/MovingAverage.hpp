@@ -18,10 +18,10 @@ namespace ck
         uint32_t mCurrentIndex = 0;
         uint32_t mSizeOfBuffer = 0;
         uint32_t mNumOfValidSamples = 0;
-        std::atomic<double> mCurrentAverage = 0;
+        std::atomic<double> mCurrentAverage {0};
         double* mData = nullptr;
-        double mLastVelocityBufferValue = 0;
-        double mOverwrittenVelocityBufferValue = 0;
+        double mLastBufferValue = 0;
+        double mOverwrittenBufferValue = 0;
         double mAveragingBufferOffset = 0;
         double mPlacingValue = 0;
 

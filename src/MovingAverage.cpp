@@ -1,5 +1,6 @@
 #include "ck_utilities/MovingAverage.hpp"
 #include <cstring>
+#include <iostream>
 
 namespace ck
 {
@@ -19,18 +20,24 @@ namespace ck
     double MovingAverage::addSample(double sample)
     {
         std::lock_guard<std::recursive_mutex> lock(mBufferLock);
-        mLastVelocityBufferValue = mData[mCurrentIndex];
-        mOverwrittenVelocityBufferValue = mData[++mCurrentIndex];
-        mPlacingValue = sample + mLastVelocityBufferValue;
+        mLastBufferValue = mData[mCurrentIndex];
+
+        if (++mCurrentIndex >= mSizeOfBuffer)
+        {
+            mCurrentIndex = 0;
+        }
+
+        mOverwrittenBufferValue = mData[mCurrentIndex];
+        mPlacingValue = sample + mLastBufferValue;
         if(mCurrentIndex == 0)
         {
-            mAveragingBufferOffset = mOverwrittenVelocityBufferValue;
+            mAveragingBufferOffset = mOverwrittenBufferValue;
             mPlacingValue -= mAveragingBufferOffset;
         }
         mNumOfValidSamples = ++mNumOfValidSamples > mSizeOfBuffer ? mSizeOfBuffer : mNumOfValidSamples;
 
         mData[mCurrentIndex] = mPlacingValue;
-        mCurrentAverage = (mPlacingValue - mOverwrittenVelocityBufferValue + mAveragingBufferOffset) / (float)mNumOfValidSamples;
+        mCurrentAverage = (mPlacingValue - mOverwrittenBufferValue + mAveragingBufferOffset) / (float)mNumOfValidSamples;
         return mCurrentAverage;
     }
 

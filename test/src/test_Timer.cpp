@@ -7,6 +7,8 @@
 #include <gtest/gtest.h>
 #include <thread>
 
+ros::NodeHandle *node;
+
 TEST(CKUtilitiesTest, GTestTest)
 {
     ASSERT_TRUE(true);
@@ -38,5 +40,6 @@ int main(int argc, char **argv)
     testing::InitGoogleTest(&argc, argv);
     ros::init(argc, argv, "test_ck_utilities_node");
     ros::NodeHandle nh;
+    node = &nh;
     return RUN_ALL_TESTS();
 }
