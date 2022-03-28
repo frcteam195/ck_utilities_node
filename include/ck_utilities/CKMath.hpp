@@ -129,5 +129,11 @@ namespace ck
             return i->second.interpolate(l->second, delta);
         }
 
+        template <typename T>
+        T radians_per_second_to_ticks_per_100ms(T rad_s, T rotations_per_tick_vel)
+        {
+            return rad_s / (PI * 2.0) / rotations_per_tick_vel / 10.0;
+        }
+
     } // namespace math
 } // namespace ck
