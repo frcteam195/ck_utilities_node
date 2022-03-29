@@ -6,13 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(${PROJECT_NAME})
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp rio_control_node
+  roscpp rio_control_node tf2 tf2_eigen tf2_geometry_msgs tf2_ros
 )
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${LIBRARY_NAME}
-  CATKIN_DEPENDS roscpp rio_control_node
+  CATKIN_DEPENDS roscpp rio_control_node tf2 tf2_eigen tf2_geometry_msgs tf2_ros
 #  DEPENDS system_lib
 )
 

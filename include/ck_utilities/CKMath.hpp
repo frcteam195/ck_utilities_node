@@ -5,6 +5,10 @@
 #include <cmath>
 #include <map>
 
+#ifdef ROSCPP_ROS_H
+#include "CKMath_ros.hpp"
+#endif
+
 namespace ck
 {
     namespace math
