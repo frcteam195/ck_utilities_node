@@ -24,7 +24,7 @@ double Joystick::getRawAxis(uint axisID)
 {
     if (joystick_map.count(mJoystickID))
     {
-        if (joystick_map[mJoystickID].axes.size() > axisID)
+        if (axisID >= 0 && joystick_map[mJoystickID].axes.size() > axisID)
         {
             return joystick_status.joysticks[mJoystickID].axes[axisID];
         }
@@ -44,56 +44,68 @@ bool Joystick::getAxisActuated(uint axisID, float threshold)
 
 bool Joystick::getButton(uint buttonID)
 {
-    bool retVal = false;
-    if (joystick_map.count(mJoystickID))
+    if (buttonID >= 0 && buttonID < MAX_NUM_BUTTONS)
     {
-        if (joystick_map[mJoystickID].buttons.size() > buttonID)
+        bool retVal = false;
+        if (joystick_map.count(mJoystickID))
         {
-            retVal = joystick_map[mJoystickID].buttons[buttonID];
+            if (joystick_map[mJoystickID].buttons.size() > buttonID)
+            {
+                retVal = joystick_map[mJoystickID].buttons[buttonID];
+            }
         }
-    }
 
-    mPrevButtonValues[buttonID] = retVal;
-    return retVal;
+        mPrevButtonValues[buttonID] = retVal;
+        return retVal;
+    }
+    return false;
 }
 
 bool Joystick::getRisingEdgeButton(uint buttonID)
 {
-    bool currVal = false;
-    if (joystick_map.count(mJoystickID))
+    if (buttonID >= 0 && buttonID < MAX_NUM_BUTTONS)
     {
-        if (joystick_map[mJoystickID].buttons.size() > buttonID)
+        bool currVal = false;
+        if (joystick_map.count(mJoystickID))
         {
-            currVal = joystick_map[mJoystickID].buttons[buttonID];
+            if (joystick_map[mJoystickID].buttons.size() > buttonID)
+            {
+                currVal = joystick_map[mJoystickID].buttons[buttonID];
+            }
         }
-    }
 
-    bool retVal = currVal && (currVal != mPrevButtonValues[buttonID]);
-    mPrevButtonValues[buttonID] = currVal;
-    return retVal;
+        bool retVal = currVal && (currVal != mPrevButtonValues[buttonID]);
+        mPrevButtonValues[buttonID] = currVal;
+        return retVal;
+    }
+    return false;
 }
 
 bool Joystick::getFallingEdgeButton(uint buttonID)
 {
-    bool currVal = false;
-    if (joystick_map.count(mJoystickID))
+    if (buttonID >= 0 && buttonID < MAX_NUM_BUTTONS)
     {
-        if (joystick_map[mJoystickID].buttons.size() > buttonID)
+        bool currVal = false;
+        if (joystick_map.count(mJoystickID))
         {
-            currVal = joystick_map[mJoystickID].buttons[buttonID];
+            if (joystick_map[mJoystickID].buttons.size() > buttonID)
+            {
+                currVal = joystick_map[mJoystickID].buttons[buttonID];
+            }
         }
-    }
 
-    bool retVal = !currVal && (currVal != mPrevButtonValues[buttonID]);
-    mPrevButtonValues[buttonID] = currVal;
-    return retVal;
+        bool retVal = !currVal && (currVal != mPrevButtonValues[buttonID]);
+        mPrevButtonValues[buttonID] = currVal;
+        return retVal;
+    }
+    return false;
 }
 
 int Joystick::getPOV(uint povID)
 {
     if (joystick_map.count(mJoystickID))
     {
-        if (joystick_map[mJoystickID].povs.size() > povID)
+        if (povID >= 0 && joystick_map[mJoystickID].povs.size() > povID)
         {
             return joystick_status.joysticks[mJoystickID].povs[povID];
         }

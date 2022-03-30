@@ -6,6 +6,8 @@
 #include <map>
 #include <mutex>
 
+#define MAX_NUM_BUTTONS 16
+
 class Joystick
 {
 public:
@@ -21,7 +23,7 @@ public:
 private:
     static rio_control_node::Joystick_Status joystick_status;
     static std::map<int, rio_control_node::Joystick>  joystick_map;
-    bool mPrevButtonValues[16] = {0};
+    bool mPrevButtonValues[MAX_NUM_BUTTONS] = {0};
     int mPrevPOV = 0;
     int mJoystickID;
 };
