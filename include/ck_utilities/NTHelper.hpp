@@ -47,7 +47,7 @@ namespace ck
             ////////////////////////////////////////////////////////////////////////////////////////
             static ros::ServiceClient& __set_nt_bool_srv_get()
             {
-                if (!__nt_setbool_client)
+                if (node && !__nt_setbool_client)
                 {
                     __nt_setbool_client = node->serviceClient<network_tables_node::NTSetBool>("nt_setbool", true);
                 }
@@ -56,7 +56,7 @@ namespace ck
 
             static ros::ServiceClient& __set_nt_bool_array_srv_get()
             {
-                if (!__nt_setboolarray_client)
+                if (node && !__nt_setboolarray_client)
                 {
                     __nt_setboolarray_client = node->serviceClient<network_tables_node::NTSetBoolArray>("nt_setboolarray", true);
                 }
@@ -65,7 +65,7 @@ namespace ck
 
             static ros::ServiceClient& __set_nt_double_srv_get()
             {
-                if (!__nt_setdouble_client)
+                if (node && !__nt_setdouble_client)
                 {
                     __nt_setdouble_client = node->serviceClient<network_tables_node::NTSetDouble>("nt_setdouble", true);
                 }
@@ -74,7 +74,7 @@ namespace ck
 
             static ros::ServiceClient& __set_nt_double_array_srv_get()
             {
-                if (!__nt_setdoublearray_client)
+                if (node && !__nt_setdoublearray_client)
                 {
                     __nt_setdoublearray_client = node->serviceClient<network_tables_node::NTSetDoubleArray>("nt_setdoublearray", true);
                 }
@@ -83,7 +83,7 @@ namespace ck
 
             static ros::ServiceClient& __set_nt_string_srv_get()
             {
-                if (!__nt_setstring_client)
+                if (node && !__nt_setstring_client)
                 {
                     __nt_setstring_client = node->serviceClient<network_tables_node::NTSetString>("nt_setstring", true);
                 }
@@ -92,7 +92,7 @@ namespace ck
 
             static ros::ServiceClient& __set_nt_string_array_srv_get()
             {
-                if (!__nt_setstringarray_client)
+                if (node && !__nt_setstringarray_client)
                 {
                     __nt_setstringarray_client = node->serviceClient<network_tables_node::NTSetStringArray>("nt_setstringarray", true);
                 }
@@ -102,7 +102,7 @@ namespace ck
             [[maybe_unused]]
             static ros::ServiceClient& __set_nt_raw_srv_get()
             {
-                if (!__nt_setraw_client)
+                if (node && !__nt_setraw_client)
                 {
                     __nt_setraw_client = node->serviceClient<network_tables_node::NTSetRaw>("nt_setraw", true);
                 }
@@ -118,7 +118,7 @@ namespace ck
 
             static ros::ServiceClient& __get_nt_bool_srv_get()
             {
-                if (!__nt_getbool_client)
+                if (node && !__nt_getbool_client)
                 {
                     __nt_getbool_client = node->serviceClient<network_tables_node::NTGetBool>("nt_getbool", true);
                 }
@@ -127,7 +127,7 @@ namespace ck
 
             static ros::ServiceClient& __get_nt_bool_array_srv_get()
             {
-                if (!__nt_getboolarray_client)
+                if (node && !__nt_getboolarray_client)
                 {
                     __nt_getboolarray_client = node->serviceClient<network_tables_node::NTGetBoolArray>("nt_getboolarray", true);
                 }
@@ -136,7 +136,7 @@ namespace ck
 
             static ros::ServiceClient& __get_nt_double_srv_get()
             {
-                if (!__nt_getdouble_client)
+                if (node && !__nt_getdouble_client)
                 {
                     __nt_getdouble_client = node->serviceClient<network_tables_node::NTGetDouble>("nt_getdouble", true);
                 }
@@ -145,7 +145,7 @@ namespace ck
 
             static ros::ServiceClient& __get_nt_double_array_srv_get()
             {
-                if (!__nt_getdoublearray_client)
+                if (node && !__nt_getdoublearray_client)
                 {
                     __nt_getdoublearray_client = node->serviceClient<network_tables_node::NTGetDoubleArray>("nt_getdoublearray", true);
                 }
@@ -154,7 +154,7 @@ namespace ck
 
             static ros::ServiceClient& __get_nt_string_srv_get()
             {
-                if (!__nt_getstring_client)
+                if (node && !__nt_getstring_client)
                 {
                     __nt_getstring_client = node->serviceClient<network_tables_node::NTGetString>("nt_getstring", true);
                 }
@@ -163,7 +163,7 @@ namespace ck
 
             static ros::ServiceClient& __get_nt_string_array_srv_get()
             {
-                if (!__nt_getstringarray_client)
+                if (node && !__nt_getstringarray_client)
                 {
                     __nt_getstringarray_client = node->serviceClient<network_tables_node::NTGetStringArray>("nt_getstringarray", true);
                 }
@@ -173,7 +173,7 @@ namespace ck
             [[maybe_unused]]
             static ros::ServiceClient& __get_nt_raw_srv_get()
             {
-                if (!__nt_getraw_client)
+                if (node && !__nt_getraw_client)
                 {
                     __nt_getraw_client = node->serviceClient<network_tables_node::NTGetRaw>("nt_getraw", true);
                 }
