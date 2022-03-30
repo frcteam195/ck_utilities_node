@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "ros/ros.h"
 #include <network_tables_node/NTGetBool.h>
 #include <network_tables_node/NTGetBoolArray.h>
