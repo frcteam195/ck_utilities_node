@@ -7,7 +7,10 @@ std::map<int, rio_control_node::Joystick> Joystick::joystick_map;
 Joystick::Joystick(uint joystickID)
 : mJoystickID(joystickID)
 {
-    
+    if (joystickID >= MAX_NUM_JOYSTICKS)
+    {
+        throw JoystickIDOutOfRangeException(joystickID);
+    }
 }
 
 void Joystick::update(const rio_control_node::Joystick_Status& joystick_status_msg)
@@ -24,7 +27,7 @@ double Joystick::getRawAxis(uint axisID)
 {
     if (joystick_map.count(mJoystickID))
     {
-        if (axisID >= 0 && joystick_map[mJoystickID].axes.size() > axisID)
+        if (axisID < MAX_NUM_AXES && joystick_map[mJoystickID].axes.size() > axisID)
         {
             return joystick_status.joysticks[mJoystickID].axes[axisID];
         }
@@ -44,7 +47,7 @@ bool Joystick::getAxisActuated(uint axisID, float threshold)
 
 bool Joystick::getButton(uint buttonID)
 {
-    if (buttonID >= 0 && buttonID < MAX_NUM_BUTTONS)
+    if (buttonID < MAX_NUM_BUTTONS)
     {
         bool retVal = false;
         if (joystick_map.count(mJoystickID))
@@ -63,7 +66,7 @@ bool Joystick::getButton(uint buttonID)
 
 bool Joystick::getRisingEdgeButton(uint buttonID)
 {
-    if (buttonID >= 0 && buttonID < MAX_NUM_BUTTONS)
+    if (buttonID < MAX_NUM_BUTTONS)
     {
         bool currVal = false;
         if (joystick_map.count(mJoystickID))
@@ -83,7 +86,7 @@ bool Joystick::getRisingEdgeButton(uint buttonID)
 
 bool Joystick::getFallingEdgeButton(uint buttonID)
 {
-    if (buttonID >= 0 && buttonID < MAX_NUM_BUTTONS)
+    if (buttonID < MAX_NUM_BUTTONS)
     {
         bool currVal = false;
         if (joystick_map.count(mJoystickID))
@@ -105,7 +108,7 @@ int Joystick::getPOV(uint povID)
 {
     if (joystick_map.count(mJoystickID))
     {
-        if (povID >= 0 && joystick_map[mJoystickID].povs.size() > povID)
+        if (povID < MAX_NUM_POVS && joystick_map[mJoystickID].povs.size() > povID)
         {
             return joystick_status.joysticks[mJoystickID].povs[povID];
         }

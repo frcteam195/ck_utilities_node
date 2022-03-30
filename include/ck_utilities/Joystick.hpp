@@ -5,8 +5,32 @@
 #include <thread>
 #include <map>
 #include <mutex>
+#include <sstream>
 
+#define MAX_NUM_JOYSTICKS 6
+#define MAX_NUM_AXES 8
 #define MAX_NUM_BUTTONS 16
+#define MAX_NUM_POVS 4
+
+class JoystickIDOutOfRangeException: public std::exception
+{
+private:
+    uint mId;
+
+public:
+    JoystickIDOutOfRangeException(uint id)
+    {
+        mId = id;
+    }
+
+    virtual const char* what() const throw()
+    {
+        std::stringstream ss;
+        ss << "Joystick ID " << mId << " out of range!" << std::endl;
+        return ss.str().c_str();
+    }
+
+};
 
 class Joystick
 {
