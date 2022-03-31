@@ -349,7 +349,6 @@ namespace ck
         template <>
         bool get<bool>(bool& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, bool default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getbool_localclient = internal::__get_nt_bool_srv_get();
             if (nt_getbool_localclient)
             {
@@ -362,13 +361,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<uint8_t>(uint8_t& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, uint8_t default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getbool_localclient = internal::__get_nt_bool_srv_get();
             if (nt_getbool_localclient)
             {
@@ -381,13 +380,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<float>(float& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, float default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getdouble_localclient = internal::__get_nt_double_srv_get();
             if (nt_getdouble_localclient)
             {
@@ -400,13 +399,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<double>(double& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, double default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getdouble_localclient = internal::__get_nt_double_srv_get();
             if (nt_getdouble_localclient)
             {
@@ -419,13 +418,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<std::string>(std::string& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, std::string default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getstring_localclient = internal::__get_nt_string_srv_get();
             if (nt_getstring_localclient)
             {
@@ -438,13 +437,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<std::vector<bool>>(std::vector<bool>& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, std::vector<bool> default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getboolarray_localclient = internal::__get_nt_bool_array_srv_get();
             if (nt_getboolarray_localclient)
             {
@@ -469,13 +468,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<std::vector<float>>(std::vector<float>& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, std::vector<float> default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getdoublearray_localclient = internal::__get_nt_double_array_srv_get();
             if (nt_getdoublearray_localclient)
             {
@@ -493,13 +492,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<std::vector<double>>(std::vector<double>& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, std::vector<double> default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getdoublearray_localclient = internal::__get_nt_double_array_srv_get();
             if (nt_getdoublearray_localclient)
             {
@@ -512,13 +511,13 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
 
         template <>
         bool get<std::vector<std::string>>(std::vector<std::string>& out, ros::Time& time_last_valid, std::string table_name, std::string value_name, std::vector<std::string> default_value)
         {
-            time_last_valid.setNow(ros::Time(0));
             ros::ServiceClient& nt_getstringarray_localclient = internal::__get_nt_string_array_srv_get();
             if (nt_getstringarray_localclient)
             {
@@ -531,6 +530,7 @@ namespace ck
                 time_last_valid = ntmsg.response.last_valid;
                 return service_success;
             }
+            time_last_valid = ros::Time(0);
             return false;
         };
     };
