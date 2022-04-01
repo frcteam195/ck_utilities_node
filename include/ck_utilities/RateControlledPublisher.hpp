@@ -52,12 +52,19 @@ namespace ck
             ~RateControlledPublisher()
             {
                 run_thread = false;
+                if (m_thread.joinable())
+                {
+                    m_thread.join();
+                }
             }
 
             void publish_at_rate(T& msg, uint32_t publish_rate_hz)
             {
-                std::lock_guard<std::recursive_mutex> lock(m_pub_lock);
-                m_msg = msg;
+                {
+                    std::lock_guard<std::recursive_mutex> lock(m_pub_lock);
+                    m_msg = msg;
+                }
+                
                 m_thread_rate_hz = publish_rate_hz;
                 if (!run_thread)
                 {
