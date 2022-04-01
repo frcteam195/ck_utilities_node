@@ -6,13 +6,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(${PROJECT_NAME})
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp rio_control_node tf2 tf2_eigen tf2_geometry_msgs tf2_ros network_tables_node
+  roscpp std_msgs message_generation rio_control_node tf2 tf2_eigen tf2_geometry_msgs tf2_ros network_tables_node
+)
+
+add_message_files(
+  FILES
+  TestMessage.msg
+)
+
+## Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
 )
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${LIBRARY_NAME}
-  CATKIN_DEPENDS roscpp rio_control_node tf2 tf2_eigen tf2_geometry_msgs tf2_ros network_tables_node
+  CATKIN_DEPENDS roscpp std_msgs message_generation rio_control_node tf2 tf2_eigen tf2_geometry_msgs tf2_ros network_tables_node
 #  DEPENDS system_lib
 )
 
