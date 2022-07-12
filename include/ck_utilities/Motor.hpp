@@ -1,5 +1,5 @@
 #pragma once
-#ifdef ROSCPP_ROS_H
+#if __has_include("ros/ros.h")
 #include <cstdint>
 #include "rio_control_node/Motor_Control.h"
 #include "rio_control_node/Motor_Configuration.h"

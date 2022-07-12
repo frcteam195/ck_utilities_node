@@ -1,7 +1,7 @@
 #include "ck_utilities/Joystick.hpp"
 #include "ck_utilities/CKMath.hpp"
 
-#ifdef ROSCPP_ROS_H
+#if __has_include("ros/ros.h")
 rio_control_node::Joystick_Status Joystick::joystick_status;
 std::map<int, rio_control_node::Joystick> Joystick::joystick_map;
 

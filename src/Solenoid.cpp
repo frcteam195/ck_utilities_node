@@ -1,5 +1,5 @@
 #include "ck_utilities/Solenoid.hpp"
-#ifdef ROSCPP_ROS_H
+#if __has_include("ros/ros.h")
 #include <thread>
 #include <map>
 #include <mutex>

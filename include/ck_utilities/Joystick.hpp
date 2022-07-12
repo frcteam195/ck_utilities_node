@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef ROSCPP_ROS_H
+#if __has_include("ros/ros.h")
 #include <rio_control_node/Joystick.h>
 #include <rio_control_node/Joystick_Status.h>
 #include <thread>

@@ -1,5 +1,5 @@
 #pragma once
-#ifdef ROSCPP_ROS_H
+#if __has_include("ros/ros.h")
 #include <stdint.h>
 #include <string>
 #include <vector>

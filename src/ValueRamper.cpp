@@ -1,5 +1,5 @@
 #include "ck_utilities/ValueRamper.hpp"
-#ifdef ROSCPP_ROS_H
+#if __has_include("ros/ros.h")
 #include "ros/ros.h"
 
 ValueRamper::ValueRamper(double accelRampRate, double decelRampRate, double zeroValue, double maxValue)
