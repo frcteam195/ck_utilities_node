@@ -1,4 +1,5 @@
 #include "ck_utilities/Logger.hpp"
+#ifdef ROSCPP_ROS_H
 #include "ros/ros.h"
 
 #include <sstream>
@@ -69,3 +70,4 @@ std::ostream ck::log_info(&info_buf);
 std::ostream ck::log_warn(&warn_buf);
 std::ostream ck::log_error(&error_buf);
 std::ostream ck::log_fatal(&fatal_buf);
+#endif

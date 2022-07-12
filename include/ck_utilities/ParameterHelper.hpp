@@ -1,4 +1,5 @@
 #pragma once
+#ifdef ROSCPP_ROS_H
 #include <ros/ros.h>
 #include <string>
 
@@ -12,3 +13,4 @@ std::string ckgp(std::string instr)
 	retVal += "/" + instr;
 	return retVal;
 }
+#endif

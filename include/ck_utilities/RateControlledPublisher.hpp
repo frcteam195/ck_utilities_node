@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef ROSCPP_ROS_H
 #include "ros/ros.h"
 #include <mutex>
 #include <atomic>
@@ -76,3 +76,4 @@ namespace ck
  
     }
 }
+#endif

@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef ROSCPP_ROS_H
 #include "ros/ros.h"
 
 /**
@@ -22,3 +22,4 @@ private:
 
     double mPrevValue = 0;
 };
+#endif

@@ -1,4 +1,5 @@
 #pragma once
+#ifdef ROSCPP_ROS_H
 #include "ros/ros.h"
 #include <string>
 
@@ -20,3 +21,4 @@ namespace ck
         }
     }
 }
+#endif

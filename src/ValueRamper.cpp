@@ -1,4 +1,5 @@
 #include "ck_utilities/ValueRamper.hpp"
+#ifdef ROSCPP_ROS_H
 #include "ros/ros.h"
 
 ValueRamper::ValueRamper(double accelRampRate, double decelRampRate, double zeroValue, double maxValue)
@@ -54,3 +55,4 @@ double ValueRamper::calculateOutput(double currValue)
     mPrevTime = timeNow;
     return 0;
 }
+#endif

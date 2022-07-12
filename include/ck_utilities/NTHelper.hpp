@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef ROSCPP_ROS_H
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -535,3 +535,4 @@ namespace ck
         };
     };
 };
+#endif

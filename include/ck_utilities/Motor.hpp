@@ -1,3 +1,5 @@
+#pragma once
+#ifdef ROSCPP_ROS_H
 #include <cstdint>
 #include "rio_control_node/Motor_Control.h"
 #include "rio_control_node/Motor_Configuration.h"
@@ -123,3 +125,4 @@ private:
 
 friend class MotorMaster;
 };
+#endif

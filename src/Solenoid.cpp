@@ -1,5 +1,5 @@
 #include "ck_utilities/Solenoid.hpp"
-
+#ifdef ROSCPP_ROS_H
 #include <thread>
 #include <map>
 #include <mutex>
@@ -133,3 +133,4 @@ void Solenoid::set(Solenoid::SolenoidState state)
 
     control_publisher.publish(solenoid_control);
 }
+#endif

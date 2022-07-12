@@ -1,6 +1,7 @@
 #include "ck_utilities/Joystick.hpp"
 #include "ck_utilities/CKMath.hpp"
 
+#ifdef ROSCPP_ROS_H
 rio_control_node::Joystick_Status Joystick::joystick_status;
 std::map<int, rio_control_node::Joystick> Joystick::joystick_map;
 
@@ -115,3 +116,4 @@ int Joystick::getPOV(uint povID)
     }
     return -1;
 }
+#endif

@@ -1,5 +1,5 @@
 #pragma once
-
+#ifdef ROSCPP_ROS_H
 #include <stdint.h>
 
 class SolenoidMaster;
@@ -30,3 +30,4 @@ private:
     Solenoid() = delete;
 friend class SolenoidMaster;
 };
+#endif

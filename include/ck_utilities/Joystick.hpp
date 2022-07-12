@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef ROSCPP_ROS_H
 #include <rio_control_node/Joystick.h>
 #include <rio_control_node/Joystick_Status.h>
 #include <thread>
@@ -51,5 +52,4 @@ private:
     int mPrevPOV = 0;
     int mJoystickID;
 };
-
-
+#endif

@@ -1,4 +1,5 @@
 #include <cstdint>
+#ifdef ROSCPP_ROS_H
 #include "rio_control_node/Motor_Control.h"
 #include "rio_control_node/Motor_Configuration.h"
 #include "rio_control_node/Robot_Status.h"
@@ -527,3 +528,5 @@ MotorConfig& Motor::config()
 {
     return *(motor_master->retrieve_configuration(this->id));
 }
+
+#endif
