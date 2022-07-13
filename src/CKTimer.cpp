@@ -33,7 +33,11 @@ namespace ck{
 
     double TimeoutTimer::getTimeLeft()
     {
+#ifdef __APPLE__
+        return fmax(timeout - eTimer.hasElapsed(), 0.0);
+#else
         return std::fmax(timeout - eTimer.hasElapsed(), 0.0);
+#endif
     }
 
     double TimeoutTimer::getTimeoutPeriod() const

@@ -12,7 +12,11 @@ namespace ck
         void start();
         double hasElapsed();
     private:
+#ifdef __APPLE__
+        std::chrono::high_resolution_clock::time_point startTime;
+#else
         std::chrono::_V2::high_resolution_clock::time_point startTime;
+#endif
     };
 
     class TimeoutTimer {
@@ -28,7 +32,7 @@ namespace ck
         bool firstRun;
         ElapsedTimer eTimer;
 
-        std::mutex mtx; 
+        std::mutex mtx;
 
         void setFirstRun(bool firstRun);
     };
