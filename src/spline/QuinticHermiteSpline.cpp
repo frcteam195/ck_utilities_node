@@ -296,7 +296,7 @@ namespace ck
         double QuinticHermiteSpline::fitParabola(const ck::geometry::Translation2d &p1, const ck::geometry::Translation2d &p2, const ck::geometry::Translation2d &p3)
         {
             double A = (p3.x() * (p2.y() - p1.y()) + p2.x() * (p1.y() - p3.y()) + p1.x() * (p3.y() - p2.y()));
-            double B = (p3.x() * p3.x() * (p1.y() - p2.y()) + p2.x() * p2.x() * (p3.y() - p1.y()) + p1.x() * p1.x() * (p2.y() - p3.y()));
+            double B = (p3.x() * p3.x() * (p1.y() - p2.y()) + p2.x() * p2.x() * (p3.y() - p1.y()) + p1.x() * p1.x() * p1.x() * (p2.y() - p3.y()));
             return -B / (2.0 * A);
         }
 
