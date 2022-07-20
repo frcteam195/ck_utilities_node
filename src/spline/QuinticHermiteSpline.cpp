@@ -68,17 +68,17 @@ namespace ck
             return ck::geometry::Rotation2d(dx(t), dy(t), true);
         }
 
-        double QuinticHermiteSpline::sumDCurvature2(std::vector<QuinticHermiteSpline *> &splines)
+        double QuinticHermiteSpline::sumDCurvature2(std::vector<QuinticHermiteSpline> &splines)
         {
             double sum = 0;
-            for (QuinticHermiteSpline *s : splines)
+            for (QuinticHermiteSpline s : splines)
             {
-                sum += s->sumDCurvature2();
+                sum += s.sumDCurvature2();
             }
             return sum;
         }
 
-        double QuinticHermiteSpline::optimizeSpline(std::vector<QuinticHermiteSpline *> &splines)
+        double QuinticHermiteSpline::optimizeSpline(std::vector<QuinticHermiteSpline> &splines)
         {
             int count = 0;
             double prev = sumDCurvature2(splines);
@@ -102,7 +102,7 @@ namespace ck
             return prev;
         }
 
-        void QuinticHermiteSpline::runOptimizationIteration(std::vector<QuinticHermiteSpline *> &splines)
+        void QuinticHermiteSpline::runOptimizationIteration(std::vector<QuinticHermiteSpline> &splines)
         {
             //can't optimize anything with less than 2 splines
             if (splines.size() <= 1)
@@ -122,26 +122,28 @@ namespace ck
             for (size_t i = 0; i < splines.size() - 1; ++i)
             {
                 //don't try to optimize colinear points
-                if (splines[i]->getStartPose().isColinear(splines[i + 1]->getStartPose()) || splines[i]->getEndPose().isColinear(splines[i + 1]->getEndPose()))
+                if (splines[i].getStartPose().isColinear(splines[i + 1].getStartPose()) || splines[i].getEndPose().isColinear(splines[i + 1].getEndPose()))
                 {
                     continue;
                 }
                 double original = sumDCurvature2(splines);
 
-                QuinticHermiteSpline *temp = splines[i];
-                QuinticHermiteSpline *temp1 = splines[i + 1];
+                QuinticHermiteSpline temp = splines[i];
+                QuinticHermiteSpline temp1 = splines[i + 1];
                 ControlPoint cp; //holds the gradient at a control point
 
                 //calculate partial derivatives of sumDCurvature2
-                splines[i] = new QuinticHermiteSpline(temp->x0, temp->x1, temp->dx0, temp->dx1, temp->ddx0, temp->ddx1 + kEpsilon, temp->y0, temp->y1, temp->dy0, temp->dy1, temp->ddy0, temp->ddy1);
-                splines[i + 1] = new QuinticHermiteSpline(temp1->x0, temp1->x1, temp1->dx0, temp1->dx1, temp1->ddx0 + kEpsilon, temp1->ddx1, temp1->y0, temp1->y1, temp1->dy0, temp1->dy1, temp1->ddy0, temp1->ddy1);
+                splines[i] = QuinticHermiteSpline(temp.x0, temp.x1, temp.dx0, temp.dx1, temp.ddx0, temp.ddx1 +
+                    kEpsilon, temp.y0, temp.y1, temp.dy0, temp.dy1, temp.ddy0, temp.ddy1);
+                splines[i + 1] = QuinticHermiteSpline(temp1.x0, temp1.x1, temp1.dx0, temp1.dx1, temp1.ddx0 +
+                    kEpsilon, temp1.ddx1, temp1.y0, temp1.y1, temp1.dy0, temp1.dy1, temp1.ddy0, temp1.ddy1);
                 cp.ddx = (sumDCurvature2(splines) - original) / kEpsilon;
-                splines[i] = new QuinticHermiteSpline(temp->x0, temp->x1, temp->dx0, temp->dx1, temp->ddx0, temp->ddx1, temp->y0, temp->y1, temp->dy0, temp->dy1, temp->ddy0, temp->ddy1 + kEpsilon);
-                splines[i + 1] = new QuinticHermiteSpline(temp1->x0, temp1->x1, temp1->dx0, temp1->dx1, temp1->ddx0, temp1->ddx1, temp1->y0, temp1->y1, temp1->dy0, temp1->dy1, temp1->ddy0 + kEpsilon, temp1->ddy1);
+                splines[i] = QuinticHermiteSpline(temp.x0, temp.x1, temp.dx0, temp.dx1, temp.ddx0, temp.ddx1, temp.y0, temp.y1, temp.dy0, temp.dy1, temp.ddy0, temp.ddy1 + kEpsilon);
+                splines[i + 1] = QuinticHermiteSpline(temp1.x0, temp1.x1, temp1.dx0, temp1.dx1, temp1.ddx0, temp1.ddx1, temp1.y0, temp1.y1, temp1.dy0, temp1.dy1, temp1.ddy0 + kEpsilon, temp1.ddy1);
                 cp.ddy = (sumDCurvature2(splines) - original) / kEpsilon;
 
-                splines[i] = temp;
-                splines[i + 1] = temp1;
+                // splines[i] = temp;
+                // splines[i + 1] = temp1;
                 magnitude += cp.ddx * cp.ddx + cp.ddy * cp.ddy;
 
                 // std::cout << splines[i] << splines[i+1] << cp << std::endl;
@@ -156,7 +158,7 @@ namespace ck
             ck::geometry::Translation2d p2(0, sumDCurvature2(splines)); //middle point is at the current location
             for (size_t i = 0; i < splines.size() - 1; ++i)
             { //first point is offset from the middle location by -stepSize
-                if (splines[i]->getStartPose().isColinear(splines[i + 1]->getStartPose()) || splines[i]->getEndPose().isColinear(splines[i + 1]->getEndPose()))
+                if (splines[i].getStartPose().isColinear(splines[i + 1].getStartPose()) || splines[i].getEndPose().isColinear(splines[i + 1].getEndPose()))
                 {
                     continue;
                 }
@@ -165,33 +167,33 @@ namespace ck
                 controlPoints[i].ddy *= kStepSize / magnitude;
 
                 //move opposite the gradient by step size amount
-                splines[i]->ddx1 -= controlPoints[i].ddx;
-                splines[i]->ddy1 -= controlPoints[i].ddy;
-                splines[i + 1]->ddx0 -= controlPoints[i].ddx;
-                splines[i + 1]->ddy0 -= controlPoints[i].ddy;
+                splines[i].ddx1 -= controlPoints[i].ddx;
+                splines[i].ddy1 -= controlPoints[i].ddy;
+                splines[i + 1].ddx0 -= controlPoints[i].ddx;
+                splines[i + 1].ddy0 -= controlPoints[i].ddy;
 
                 //recompute the spline's coefficients to account for new second derivatives
-                splines[i]->computeCoefficients();
-                splines[i + 1]->computeCoefficients();
+                splines[i].computeCoefficients();
+                splines[i + 1].computeCoefficients();
             }
             ck::geometry::Translation2d p1(-kStepSize, sumDCurvature2(splines));
 
             for (size_t i = 0; i < splines.size() - 1; ++i)
             { //last point is offset from the middle location by +stepSize
-                if (splines[i]->getStartPose().isColinear(splines[i + 1]->getStartPose()) || splines[i]->getEndPose().isColinear(splines[i + 1]->getEndPose()))
+                if (splines[i].getStartPose().isColinear(splines[i + 1].getStartPose()) || splines[i].getEndPose().isColinear(splines[i + 1].getEndPose()))
                 {
                     continue;
                 }
                 //move along the gradient by 2 times the step size amount (to return to original location and move by 1
                 // step)
-                splines[i]->ddx1 += 2.0 * controlPoints[i].ddx;
-                splines[i]->ddy1 += 2.0 * controlPoints[i].ddy;
-                splines[i + 1]->ddx0 += 2.0 * controlPoints[i].ddx;
-                splines[i + 1]->ddy0 += 2.0 * controlPoints[i].ddy;
+                splines[i].ddx1 += 2.0 * controlPoints[i].ddx;
+                splines[i].ddy1 += 2.0 * controlPoints[i].ddy;
+                splines[i + 1].ddx0 += 2.0 * controlPoints[i].ddx;
+                splines[i + 1].ddy0 += 2.0 * controlPoints[i].ddy;
 
                 //recompute the spline's coefficients to account for new second derivatives
-                splines[i]->computeCoefficients();
-                splines[i + 1]->computeCoefficients();
+                splines[i].computeCoefficients();
+                splines[i + 1].computeCoefficients();
             }
             ck::geometry::Translation2d p3(kStepSize, sumDCurvature2(splines));
 
@@ -199,7 +201,7 @@ namespace ck
 
             for (size_t i = 0; i < splines.size() - 1; ++i)
             {
-                if (splines[i]->getStartPose().isColinear(splines[i + 1]->getStartPose()) || splines[i]->getEndPose().isColinear(splines[i + 1]->getEndPose()))
+                if (splines[i].getStartPose().isColinear(splines[i + 1].getStartPose()) || splines[i].getEndPose().isColinear(splines[i + 1].getEndPose()))
                 {
                     continue;
                 }
@@ -208,14 +210,14 @@ namespace ck
                 controlPoints[i].ddx *= 1.0 + stepSize / kStepSize;
                 controlPoints[i].ddy *= 1.0 + stepSize / kStepSize;
 
-                splines[i]->ddx1 += controlPoints[i].ddx;
-                splines[i]->ddy1 += controlPoints[i].ddy;
-                splines[i + 1]->ddx0 += controlPoints[i].ddx;
-                splines[i + 1]->ddy0 += controlPoints[i].ddy;
+                splines[i].ddx1 += controlPoints[i].ddx;
+                splines[i].ddy1 += controlPoints[i].ddy;
+                splines[i + 1].ddx0 += controlPoints[i].ddx;
+                splines[i + 1].ddy0 += controlPoints[i].ddy;
 
                 //recompute the spline's coefficients to account for new second derivatives
-                splines[i]->computeCoefficients();
-                splines[i + 1]->computeCoefficients();
+                splines[i].computeCoefficients();
+                splines[i + 1].computeCoefficients();
             }
         }
 

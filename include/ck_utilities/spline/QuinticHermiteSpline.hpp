@@ -44,9 +44,9 @@ namespace ck
             double getCurvature(double t) override;
             double getDCurvature(double t) override;
             ck::geometry::Rotation2d getHeading(double t) override;
-            static double sumDCurvature2(std::vector<QuinticHermiteSpline *> &splines);
-            static double optimizeSpline(std::vector<QuinticHermiteSpline *> &splines);
-            static void runOptimizationIteration(std::vector<QuinticHermiteSpline *> &splines);
+            static double sumDCurvature2(std::vector<QuinticHermiteSpline> &splines);
+            static double optimizeSpline(std::vector<QuinticHermiteSpline> &splines);
+            static void runOptimizationIteration(std::vector<QuinticHermiteSpline> &splines);
 
         private:
             static constexpr double kEpsilon = 1e-5;
