@@ -1,11 +1,12 @@
-#include "ck_utilities/spline/QuinticHermiteSpline.hpp"
+#include "ck_utilities/geometry/QuinticHermiteSpline.hpp"
+
 #include "ck_utilities/CKMath.hpp"
 
 namespace ck
 {
-    namespace spline
+    namespace geometry
     {
-        QuinticHermiteSpline::QuinticHermiteSpline(const ck::geometry::Pose2d &p0, const ck::geometry::Pose2d &p1)
+        QuinticHermiteSpline::QuinticHermiteSpline(const Pose2d &p0, const Pose2d &p1)
         {
             double scale = 1.2 * p0.getTranslation().distance(p1.getTranslation());
             x0 = p0.getTranslation().x();
@@ -30,20 +31,21 @@ namespace ck
             return os;
         }
 
-        ck::geometry::Pose2d QuinticHermiteSpline::getStartPose()
+        Pose2d QuinticHermiteSpline::getStartPose()
         {
-            return ck::geometry::Pose2d(ck::geometry::Translation2d(x0, y0), ck::geometry::Rotation2d(dx0, dy0, true));
-        }
-        ck::geometry::Pose2d QuinticHermiteSpline::getEndPose()
-        {
-            return ck::geometry::Pose2d(ck::geometry::Translation2d(x1, y1), ck::geometry::Rotation2d(dx1, dy1, true));
+            return Pose2d(Translation2d(x0, y0), Rotation2d(dx0, dy0, true));
         }
 
-        ck::geometry::Translation2d QuinticHermiteSpline::getPoint(double t)
+        Pose2d QuinticHermiteSpline::getEndPose()
+        {
+            return Pose2d(Translation2d(x1, y1), Rotation2d(dx1, dy1, true));
+        }
+
+        Translation2d QuinticHermiteSpline::getPoint(double t)
         {
             double x = ax * CKPOW(t,5) + bx * CKPOW(t,4) + cx * CKPOW(t,3) + dx_ * CKPOW(t,2) + ex * t + fx;
             double y = ay * CKPOW(t,5) + by * CKPOW(t,4) + cy * CKPOW(t,3) + dy_ * CKPOW(t,2) + ey * t + fy;
-            return ck::geometry::Translation2d(x, y);
+            return Translation2d(x, y);
         }
 
         double QuinticHermiteSpline::getVelocity(double t)
@@ -63,9 +65,19 @@ namespace ck
             return num / (dx2dy2 * dx2dy2 * std::sqrt(dx2dy2));
         }
 
-        ck::geometry::Rotation2d QuinticHermiteSpline::getHeading(double t)
+        Rotation2d QuinticHermiteSpline::getHeading(double t)
         {
-            return ck::geometry::Rotation2d(dx(t), dy(t), true);
+            return Rotation2d(dx(t), dy(t), true);
+        }
+
+        Pose2d QuinticHermiteSpline::getPose2d(double t)
+        {
+            return Pose2d(getPoint(t), getHeading(t));
+        }
+
+        Pose2dWithCurvature QuinticHermiteSpline::getPose2dWithCurvature(double t)
+        {
+            return Pose2dWithCurvature(getPose2d(t), getCurvature(t), getDCurvature(t) / getVelocity(t));
         }
 
         double QuinticHermiteSpline::sumDCurvature2(std::vector<QuinticHermiteSpline> &splines)
@@ -155,7 +167,7 @@ namespace ck
 
             //minimize along the direction of the gradient
             //first calculate 3 points along the direction of the gradient
-            ck::geometry::Translation2d p2(0, sumDCurvature2(splines)); //middle point is at the current location
+            Translation2d p2(0, sumDCurvature2(splines)); //middle point is at the current location
             for (size_t i = 0; i < splines.size() - 1; ++i)
             { //first point is offset from the middle location by -stepSize
                 if (splines[i].getStartPose().isColinear(splines[i + 1].getStartPose()) || splines[i].getEndPose().isColinear(splines[i + 1].getEndPose()))
@@ -176,7 +188,7 @@ namespace ck
                 splines[i].computeCoefficients();
                 splines[i + 1].computeCoefficients();
             }
-            ck::geometry::Translation2d p1(-kStepSize, sumDCurvature2(splines));
+            Translation2d p1(-kStepSize, sumDCurvature2(splines));
 
             for (size_t i = 0; i < splines.size() - 1; ++i)
             { //last point is offset from the middle location by +stepSize
@@ -195,7 +207,7 @@ namespace ck
                 splines[i].computeCoefficients();
                 splines[i + 1].computeCoefficients();
             }
-            ck::geometry::Translation2d p3(kStepSize, sumDCurvature2(splines));
+            Translation2d p3(kStepSize, sumDCurvature2(splines));
 
             double stepSize = fitParabola(p1, p2, p3); //approximate step size to minimize sumDCurvature2 along the gradient
 
@@ -293,12 +305,12 @@ namespace ck
             return sum;
         }
 
-        double QuinticHermiteSpline::fitParabola(const ck::geometry::Translation2d &p1, const ck::geometry::Translation2d &p2, const ck::geometry::Translation2d &p3)
+        double QuinticHermiteSpline::fitParabola(const Translation2d &p1, const Translation2d &p2, const Translation2d &p3)
         {
             double A = (p3.x() * (p2.y() - p1.y()) + p2.x() * (p1.y() - p3.y()) + p1.x() * (p3.y() - p2.y()));
             double B = (p3.x() * p3.x() * (p1.y() - p2.y()) + p2.x() * p2.x() * (p3.y() - p1.y()) + p1.x() * p1.x() * p1.x() * (p2.y() - p3.y()));
             return -B / (2.0 * A);
         }
 
-    } // namespace spline
+    } // namespace geometry
 } // namespace ck

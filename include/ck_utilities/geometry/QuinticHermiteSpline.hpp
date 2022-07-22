@@ -1,15 +1,15 @@
 #pragma once
 
-#include <cmath>
-#include <vector>
-#include <iostream>
 #include "ck_utilities/CKMath.hpp"
 #include "ck_utilities/geometry/Geometry.hpp"
-#include "Spline.hpp"
+
+#include <cmath>
+#include <iostream>
+#include <vector>
 
 namespace ck
 {
-    namespace spline
+    namespace geometry
     {
         struct ControlPoint
         {
@@ -22,7 +22,7 @@ namespace ck
             }
         };
 
-        class QuinticHermiteSpline : public Spline
+        class QuinticHermiteSpline
         {
         public:
             /**
@@ -39,11 +39,14 @@ namespace ck
              * @param t ranges from 0 to 1
              * @return the point on the spline for that t value
              */
-            ck::geometry::Translation2d getPoint(double t) override;
-            double getVelocity(double t) override;
-            double getCurvature(double t) override;
-            double getDCurvature(double t) override;
-            ck::geometry::Rotation2d getHeading(double t) override;
+            ck::geometry::Translation2d getPoint(double t);
+            double getVelocity(double t);
+            double getCurvature(double t);
+            double getDCurvature(double t);
+            ck::geometry::Rotation2d getHeading(double t);
+            ck::geometry::Pose2d getPose2d(double t);
+            ck::geometry::Pose2dWithCurvature getPose2dWithCurvature(double t);
+            
             static double sumDCurvature2(std::vector<QuinticHermiteSpline> &splines);
             static double optimizeSpline(std::vector<QuinticHermiteSpline> &splines);
             static void runOptimizationIteration(std::vector<QuinticHermiteSpline> &splines);
@@ -78,5 +81,5 @@ namespace ck
             double sumDCurvature2();
             static double fitParabola(const ck::geometry::Translation2d &p1, const ck::geometry::Translation2d &p2, const ck::geometry::Translation2d &p3);
         };
-    } // namespace spline
+    } // namespace geometry
 } // namespace ck
