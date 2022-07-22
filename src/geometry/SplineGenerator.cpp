@@ -4,7 +4,7 @@ namespace ck
 {
     namespace geometry
     {
-        void SplineGenerator::getSegmentArc(QuinticHerminteSpline &s, std::vector<ck::geometry::Pose2dWithCurvature> &rv, double t0, double t1, double maxDx, double maxDy, double maxDTheta)
+        void SplineGenerator::getSegmentArc(QuinticHermiteSpline &s, std::vector<ck::geometry::Pose2dWithCurvature> &rv, double t0, double t1, double maxDx, double maxDy, double maxDTheta)
         {
             ck::geometry::Translation2d p0 = s.getPoint(t0);
             ck::geometry::Translation2d p1 = s.getPoint(t1);
@@ -23,7 +23,7 @@ namespace ck
             }
         }
 
-        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSpline(QuinticHerminteSpline &s, double maxDx, double maxDy, double maxDTheta, double t0, double t1)
+        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSpline(QuinticHermiteSpline &s, double maxDx, double maxDy, double maxDTheta, double t0, double t1)
         {
             std::vector<ck::geometry::Pose2dWithCurvature> rv;
             rv.push_back(s.getPose2dWithCurvature(0.0));
@@ -35,22 +35,22 @@ namespace ck
             return rv;
         }
 
-        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSpline(QuinticHerminteSpline &s)
+        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSpline(QuinticHermiteSpline &s)
         {
             return parameterizeSpline(s, kMaxDX, kMaxDY, kMaxDTheta, 0.0, 1.0);
         }
 
-        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSpline(QuinticHerminteSpline &s, double maxDx, double maxDy, double maxDTheta)
+        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSpline(QuinticHermiteSpline &s, double maxDx, double maxDy, double maxDTheta)
         {
             return parameterizeSpline(s, maxDx, maxDy, maxDTheta, 0.0, 1.0);
         }
 
-        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSplines(std::vector<QuinticHerminteSpline *> &splines)
+        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSplines(std::vector<QuinticHermiteSpline> &splines)
         {
             return parameterizeSplines(splines, kMaxDX, kMaxDY, kMaxDTheta);
         }
 
-        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSplines(std::vector<QuinticHerminteSpline *> &splines, double maxDx, double maxDy, double maxDTheta)
+        std::vector<ck::geometry::Pose2dWithCurvature> SplineGenerator::parameterizeSplines(std::vector<QuinticHermiteSpline> &splines, double maxDx, double maxDy, double maxDTheta)
         {
             std::vector<ck::geometry::Pose2dWithCurvature> rv;
             if (splines.empty())
@@ -58,10 +58,10 @@ namespace ck
                 return rv;
             }
 
-            rv.push_back(splines[0]->getPose2dWithCurvature(0.0));
-            for (QuinticHerminteSpline *s : splines)
+            rv.push_back(splines[0].getPose2dWithCurvature(0.0));
+            for (QuinticHermiteSpline spline : splines)
             {
-                std::vector<ck::geometry::Pose2dWithCurvature> samples = parameterizeSpline(*s, maxDx, maxDy, maxDTheta);
+                std::vector<ck::geometry::Pose2dWithCurvature> samples = parameterizeSpline(spline, maxDx, maxDy, maxDTheta);
                 samples.erase(samples.begin());
 
                 rv.insert(rv.end(), samples.begin(), samples.end());
