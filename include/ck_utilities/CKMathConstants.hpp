@@ -13,5 +13,5 @@ namespace ck
         constexpr double NEG_INF = -POS_INF;
         constexpr double POS_INF_F = std::numeric_limits<float>::infinity();
         constexpr double NEG_INF_F = -POS_INF_F;
-    }
-}
+    } // namespace math
+} // namespace ck
