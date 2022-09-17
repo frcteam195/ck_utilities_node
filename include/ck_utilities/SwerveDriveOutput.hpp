@@ -1,6 +1,6 @@
 #pragma once
 
-struct SwerveDriveModel
+struct SwerveDriveOutput
 {
 public:
     double front_left_wheel_velocity;
