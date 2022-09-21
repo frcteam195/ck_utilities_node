@@ -95,7 +95,7 @@ namespace ck
         };
 
         template <typename T>
-        T normalizeWithDeadband(T val, T deadband) {
+        inline T normalizeWithDeadband(T val, T deadband) {
             val = handleDeadband(val, deadband);
 
             if (val != 0)
@@ -149,13 +149,13 @@ namespace ck
         }
 
         template <typename T>
-        T radians_per_second_to_ticks_per_100ms(T rad_s, T rotations_per_tick_vel)
+        inline T radians_per_second_to_ticks_per_100ms(T rad_s, T rotations_per_tick_vel)
         {
             return rad_s / (PI * 2.0) / rotations_per_tick_vel / 10.0;
         }
 
         template <typename T>
-        T normalize_to_2_pi(T value)
+        inline T normalize_to_2_pi(T value)
         {
             value = (T)std::fmod(value, M_PI_2);
             if (value < 0.0)
@@ -166,19 +166,19 @@ namespace ck
         }
 
         template <typename T>
-        T hypotenuse(T x, T y)
+        inline T hypotenuse(T x, T y)
         {
             return std::sqrt(CKPOW(x, 2) + CKPOW(y,2));
         }
 
         template <typename T>
-        T hypotenuse(T x, T y, T z)
+        inline T hypotenuse(T x, T y, T z)
         {
             return std::sqrt(CKPOW(x, 2) + CKPOW(y,2) + CKPOW(z,2));
         }
 
         template <typename T>
-        T polar_angle_rad(T x, T y)
+        inline T polar_angle_rad(T x, T y)
         {
             return normalize_to_2_pi(std::atan2(y, x));
         }
