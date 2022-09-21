@@ -154,5 +154,34 @@ namespace ck
             return rad_s / (PI * 2.0) / rotations_per_tick_vel / 10.0;
         }
 
+        template <typename T>
+        T normalize_to_2_pi(T value)
+        {
+            value = (T)std::fmod(value, M_PI_2);
+            if (value < 0.0)
+            {
+                value += M_PI_2;
+            }
+            return value;
+        }
+
+        template <typename T>
+        T hypotenuse(T x, T y)
+        {
+            return std::sqrt(CKPOW(x, 2) + CKPOW(y,2));
+        }
+
+        template <typename T>
+        T hypotenuse(T x, T y, T z)
+        {
+            return std::sqrt(CKPOW(x, 2) + CKPOW(y,2) + CKPOW(z,2));
+        }
+
+        template <typename T>
+        T polar_angle_rad(T x, T y)
+        {
+            return normalize_to_2_pi(std::atan2(y, x));
+        }
+
     } // namespace math
 } // namespace ck
