@@ -1,10 +1,10 @@
-#include "ck_utilities/geometry/QuinticHermiteSpline.hpp"
+#include "ck_utilities/team254_geometry/QuinticHermiteSpline.hpp"
 
 #include "ck_utilities/CKMath.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         QuinticHermiteSpline::QuinticHermiteSpline(const Pose2d &p0, const Pose2d &p1)
         {
@@ -312,5 +312,5 @@ namespace ck
             return -B / (2.0 * A);
         }
 
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

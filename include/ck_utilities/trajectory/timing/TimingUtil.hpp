@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/Geometry.hpp"
+#include "ck_utilities/team254_geometry/Geometry.hpp"
 #include "ck_utilities/trajectory/timing/MinMaxAcceleration.hpp"
 #include "ck_utilities/trajectory/Trajectory.hpp"
 #include "ck_utilities/trajectory/DistanceView.hpp"
@@ -32,7 +32,7 @@ namespace ck
 
             class TimingUtil
             {
-                // static_assert(std::is_base_of<ck::geometry::State<S>, S>::value, "S must inherit from State<S>");
+                // static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State<S>");
             public:
                 template <class S>
                 static ck::trajectory::Trajectory<TimedState<S>> timeParameterizeTrajectory(

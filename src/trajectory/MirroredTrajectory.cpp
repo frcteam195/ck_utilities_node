@@ -6,12 +6,12 @@ namespace ck
 {
     namespace trajectory
     {
-        MirroredTrajectory::MirroredTrajectory(trajectory::Trajectory<trajectory::timing::TimedState<geometry::Pose2dWithCurvature>> right) : right(right)
+        MirroredTrajectory::MirroredTrajectory(trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> right) : right(right)
         {
             this->left = trajectory::TrajectoryUtil::mirrorTimed(right);
         }
 
-        trajectory::Trajectory<trajectory::timing::TimedState<geometry::Pose2dWithCurvature>> MirroredTrajectory::get(bool left)
+        trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> MirroredTrajectory::get(bool left)
         {
             return left ? this->left : this->right;
         }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/Rotation2d.hpp"
-#include "ck_utilities/geometry/ITranslation2d.hpp"
+#include "ck_utilities/team254_geometry/Rotation2d.hpp"
+#include "ck_utilities/team254_geometry/ITranslation2d.hpp"
 
 #include <cmath>
 #include <ostream>
@@ -10,7 +10,7 @@
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         class Rotation2d;
 
@@ -67,5 +67,5 @@ namespace ck
             //Do not use. Instead, + by a negative translation
             Translation2d operator-(const Translation2d &obj) const;
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

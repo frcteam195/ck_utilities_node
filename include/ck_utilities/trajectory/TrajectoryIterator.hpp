@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/State.hpp"
+#include "ck_utilities/team254_geometry/State.hpp"
 #include "TrajectoryView.hpp"
 #include "TrajectorySamplePoint.hpp"
 
@@ -14,7 +14,7 @@ namespace ck
         template <class S>
         class TrajectoryIterator
         {
-            static_assert(std::is_base_of<ck::geometry::State<S>, S>::value, "S must inherit from State");
+            static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State");
 
         protected:
             TrajectoryView<S> *view_;

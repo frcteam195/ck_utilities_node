@@ -1,8 +1,8 @@
-#include "ck_utilities/geometry/Rotation2d.hpp"
+#include "ck_utilities/team254_geometry/Rotation2d.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         const Rotation2d &Rotation2d::identity()
         {
@@ -140,5 +140,5 @@ namespace ck
             return distance(other) < ck::math::kEpsilon;
         }
 
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

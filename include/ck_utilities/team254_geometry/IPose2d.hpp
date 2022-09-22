@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ck_utilities/geometry/IRotation2d.hpp"
-#include "ck_utilities/geometry/ITranslation2d.hpp"
+#include "ck_utilities/team254_geometry/IRotation2d.hpp"
+#include "ck_utilities/team254_geometry/ITranslation2d.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         class Pose2d;
 
@@ -17,5 +17,5 @@ namespace ck
             virtual S transformBy(const Pose2d &transform) const = 0;
             virtual S mirror() const = 0;
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

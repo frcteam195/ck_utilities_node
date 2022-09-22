@@ -38,7 +38,7 @@ namespace ck
 
         public:
             MirroredTrajectory generateMirroredTrajectory(bool reversed,
-                                                          std::vector<geometry::Pose2d> waypoints,
+                                                          std::vector<team254_geometry::Pose2d> waypoints,
                                                           /* TODO: Implement Timing Constraint, */
                                                           double maximumVelocity,
                                                           double maximumAcceleration,

@@ -1,8 +1,8 @@
-#include "ck_utilities/geometry/Pose2dWithCurvature.hpp"
+#include "ck_utilities/team254_geometry/Pose2dWithCurvature.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         const Pose2dWithCurvature &Pose2dWithCurvature::identity()
         {
@@ -77,5 +77,5 @@ namespace ck
         {
             return getPose().equals(other.getPose()) && ck::math::epsilonEquals(getCurvature(), other.getCurvature()) && ck::math::epsilonEquals(getDCurvatureDs(), other.getDCurvatureDs());
         }
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

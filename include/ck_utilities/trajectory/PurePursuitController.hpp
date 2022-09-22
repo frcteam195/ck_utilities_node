@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "ck_utilities/geometry/Geometry.hpp"
+#include "ck_utilities/team254_geometry/Geometry.hpp"
 #include "TrajectoryIterator.hpp"
 #include "IPathFollower.hpp"
 #include "ck_utilities/CKMath.hpp"
@@ -14,7 +14,7 @@ namespace ck
         template <class S>
         class PurePursuitController : public IPathFollower
         {
-            static_assert(std::is_base_of<ck::geometry::ITranslation2d<S>, S>::value, "S must inherit from ITranslation2d<S>");
+            static_assert(std::is_base_of<ck::team254_geometry::ITranslation2d<S>, S>::value, "S must inherit from ITranslation2d<S>");
 
         protected:
             TrajectoryIterator<S> iterator_;
@@ -27,7 +27,7 @@ namespace ck
             PurePursuitController(const DistanceView<S> &path, double sampling_dist, double lookahead, double goal_tolerance)
                 : iterator_(path), sampling_dist_(sampling_dist), lookahead_(lookahead), goal_tolerance_(goal_tolerance) {}
 
-            ck::geometry::Twist2d steer(const ck::geometry::Pose2d &current_pose)
+            ck::team254_geometry::Twist2d steer(const ck::team254_geometry::Pose2d &current_pose)
             {
                 done_ = done_ || (iterator_.isDone() && current_pose.getTranslation().distance(iterator_.getState().getTranslation()) <= goal_tolerance_);
                 if (done_)
@@ -73,8 +73,8 @@ namespace ck
 
             static double getDirection(Pose2d pose, S point)
             {
-                ck::geometry::Translation2d poseToPoint(pose.getTranslation(), point.getTranslation());
-                ck::geometry::Translation2d robot = pose.getRotation().toTranslation();
+                ck::team254_geometry::Translation2d poseToPoint(pose.getTranslation(), point.getTranslation());
+                ck::team254_geometry::Translation2d robot = pose.getRotation().toTranslation();
                 double cross = robot.x() * poseToPoint.y() - robot.y() * poseToPoint.x();
                 return (cross < 0.) ? -1. : 1.; // if robot < pose turn left
             }

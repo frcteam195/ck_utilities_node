@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/State.hpp"
+#include "ck_utilities/team254_geometry/State.hpp"
 
 #include <type_traits>
 
@@ -12,9 +12,9 @@ namespace ck
         namespace timing
         {
             template <class S>
-            class TimedState : public ck::geometry::State<TimedState<S>>
+            class TimedState : public ck::team254_geometry::State<TimedState<S>>
             {
-                static_assert(std::is_base_of<ck::geometry::State<S>, S>::value, "S must inherit from State<S>");
+                static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State<S>");
 
             protected:
                 S state_;

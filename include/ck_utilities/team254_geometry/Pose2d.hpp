@@ -1,15 +1,15 @@
 #pragma once
 
-#include "ck_utilities/geometry/Translation2d.hpp"
-#include "ck_utilities/geometry/Rotation2d.hpp"
-#include "ck_utilities/geometry/Twist2d.hpp"
-#include "ck_utilities/geometry/IPose2d.hpp"
+#include "ck_utilities/team254_geometry/Translation2d.hpp"
+#include "ck_utilities/team254_geometry/Rotation2d.hpp"
+#include "ck_utilities/team254_geometry/Twist2d.hpp"
+#include "ck_utilities/team254_geometry/IPose2d.hpp"
 
 #include <cmath>
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         class Pose2d : public IPose2d<Pose2d>
         {
@@ -57,5 +57,5 @@ namespace ck
             Pose2d getPose() const override;
             Pose2d mirror() const override;
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

@@ -1,8 +1,8 @@
-#include "ck_utilities/geometry/Twist2d.hpp"
+#include "ck_utilities/team254_geometry/Twist2d.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         const Twist2d &Twist2d::identity()
         {
@@ -44,5 +44,5 @@ namespace ck
             return dtheta / norm();
         }
 
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

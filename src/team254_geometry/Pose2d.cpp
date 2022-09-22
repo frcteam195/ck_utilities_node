@@ -1,8 +1,8 @@
-#include "ck_utilities/geometry/Pose2d.hpp"
+#include "ck_utilities/team254_geometry/Pose2d.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         const Pose2d &Pose2d::identity()
         {
@@ -181,5 +181,5 @@ namespace ck
             return Pose2d(Translation2d(getTranslation().x(), -getTranslation().y()), getRotation().inverse());
         }
 
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

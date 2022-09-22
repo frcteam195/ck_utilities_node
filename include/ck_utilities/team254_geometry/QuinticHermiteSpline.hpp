@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/Geometry.hpp"
+#include "ck_utilities/team254_geometry/Geometry.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -9,7 +9,7 @@
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         struct ControlPoint
         {
@@ -29,23 +29,23 @@ namespace ck
              * @param p0 The starting pose of the spline
              * @param p1 The ending pose of the spline
              */
-            QuinticHermiteSpline(const ck::geometry::Pose2d &p0, const ck::geometry::Pose2d &p1);
+            QuinticHermiteSpline(const ck::team254_geometry::Pose2d &p0, const ck::team254_geometry::Pose2d &p1);
             friend std::ostream &operator<<(std::ostream &os, const QuinticHermiteSpline &qhs);
 
-            ck::geometry::Pose2d getStartPose();
-            ck::geometry::Pose2d getEndPose();
+            ck::team254_geometry::Pose2d getStartPose();
+            ck::team254_geometry::Pose2d getEndPose();
 
             /**
              * @param t ranges from 0 to 1
              * @return the point on the spline for that t value
              */
-            ck::geometry::Translation2d getPoint(double t);
+            ck::team254_geometry::Translation2d getPoint(double t);
             double getVelocity(double t);
             double getCurvature(double t);
             double getDCurvature(double t);
-            ck::geometry::Rotation2d getHeading(double t);
-            ck::geometry::Pose2d getPose2d(double t);
-            ck::geometry::Pose2dWithCurvature getPose2dWithCurvature(double t);
+            ck::team254_geometry::Rotation2d getHeading(double t);
+            ck::team254_geometry::Pose2d getPose2d(double t);
+            ck::team254_geometry::Pose2dWithCurvature getPose2dWithCurvature(double t);
             
             static double sumDCurvature2(std::vector<QuinticHermiteSpline> &splines);
             static double optimizeSpline(std::vector<QuinticHermiteSpline> &splines);
@@ -79,7 +79,7 @@ namespace ck
             double dddy(double t);
             double dCurvature2(double t);
             double sumDCurvature2();
-            static double fitParabola(const ck::geometry::Translation2d &p1, const ck::geometry::Translation2d &p2, const ck::geometry::Translation2d &p3);
+            static double fitParabola(const ck::team254_geometry::Translation2d &p1, const ck::team254_geometry::Translation2d &p2, const ck::team254_geometry::Translation2d &p3);
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

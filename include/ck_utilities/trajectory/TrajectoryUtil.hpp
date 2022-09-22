@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ck_utilities/geometry/Pose2dWithCurvature.hpp"
-#include "ck_utilities/geometry/QuinticHermiteSpline.hpp"
-#include "ck_utilities/geometry/SplineGenerator.hpp"
+#include "ck_utilities/team254_geometry/Pose2dWithCurvature.hpp"
+#include "ck_utilities/team254_geometry/QuinticHermiteSpline.hpp"
+#include "ck_utilities/team254_geometry/SplineGenerator.hpp"
 #include "ck_utilities/trajectory/Trajectory.hpp"
 #include "ck_utilities/trajectory/timing/TimedState.hpp"
 
@@ -40,12 +40,12 @@ namespace ck
                 return Trajectory<timing::TimedState<S>>(waypoints);
             }
 
-            static Trajectory<geometry::Pose2dWithCurvature> trajectoryFromSplines(std::vector<geometry::QuinticHermiteSpline> splines,
+            static Trajectory<team254_geometry::Pose2dWithCurvature> trajectoryFromSplines(std::vector<team254_geometry::QuinticHermiteSpline> splines,
                                                                                    double maxDx,
                                                                                    double maxDy,
                                                                                    double maxDtheta);
 
-            static Trajectory<geometry::Pose2dWithCurvature> trajectoryFromSplineWaypoints(std::vector<geometry::Pose2d> waypoints,
+            static Trajectory<team254_geometry::Pose2dWithCurvature> trajectoryFromSplineWaypoints(std::vector<team254_geometry::Pose2d> waypoints,
                                                                                            double maxDx,
                                                                                            double maxDy,
                                                                                            double maxDtheta);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ck_utilities/geometry/State.hpp"
+#include "ck_utilities/team254_geometry/State.hpp"
 #include "TrajectoryPoint.hpp"
 
 #include <type_traits>
@@ -13,7 +13,7 @@ namespace ck
         class TrajectorySamplePoint
         {
         public:
-            static_assert(std::is_base_of<ck::geometry::State<S>, S>::value, "S must inherit from State<S>");
+            static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State<S>");
             S state_;
             int index_floor_;
             int index_ceil_;

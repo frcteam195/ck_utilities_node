@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ck_utilities/geometry/State.hpp"
+#include "ck_utilities/team254_geometry/State.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         template <class S>
         class ICurvature : public State<S>
@@ -13,5 +13,5 @@ namespace ck
             virtual double getCurvature() const = 0;
             virtual double getDCurvatureDs() const = 0;
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ck_utilities/CKMathConstants.hpp"
-#include "ck_utilities/geometry/Geometry.hpp"
+#include "ck_utilities/team254_geometry/Geometry.hpp"
 #include "MinMaxAcceleration.hpp"
 #include "TimingConstraint.hpp"
 #include "ck_utilities/physics/DifferentialDrive.hpp"
@@ -18,8 +18,8 @@ namespace ck
             template <class S>
             class DifferentialDriveDynamicsConstraint : public TimingConstraint<S>
             {
-                static_assert(std::is_base_of<ck::geometry::IPose2d<S>, S>::value, "S must inherit from IPose2d<S>");
-                static_assert(std::is_base_of<ck::geometry::ICurvature<S>, S>::value, "S must inherit from ICurvature<S>");
+                static_assert(std::is_base_of<ck::team254_geometry::IPose2d<S>, S>::value, "S must inherit from IPose2d<S>");
+                static_assert(std::is_base_of<ck::team254_geometry::ICurvature<S>, S>::value, "S must inherit from ICurvature<S>");
 
             protected:
                 ck::physics::DifferentialDrive *drive_;

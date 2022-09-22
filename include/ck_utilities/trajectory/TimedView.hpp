@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/State.hpp"
+#include "ck_utilities/team254_geometry/State.hpp"
 #include "TrajectoryView.hpp"
 #include "TrajectorySamplePoint.hpp"
 #include "timing/TimedState.hpp"
@@ -15,7 +15,7 @@ namespace ck
         template <class S>
         class TimedView : public TrajectoryView<ck::trajectory::timing::TimedState<S>>
         {
-            static_assert(std::is_base_of<ck::geometry::State<S>, S>::value, "S must inherit from State<S>");
+            static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State<S>");
 
         protected:
             Trajectory<ck::trajectory::timing::TimedState<S>> *trajectory_;

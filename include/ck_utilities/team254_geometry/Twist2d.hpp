@@ -8,7 +8,7 @@
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         class Twist2d
         {
@@ -29,5 +29,5 @@ namespace ck
 
         private:
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

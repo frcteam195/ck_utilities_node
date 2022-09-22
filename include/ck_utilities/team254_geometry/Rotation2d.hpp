@@ -1,15 +1,15 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/IRotation2d.hpp"
-#include "ck_utilities/geometry/Translation2d.hpp"
+#include "ck_utilities/team254_geometry/IRotation2d.hpp"
+#include "ck_utilities/team254_geometry/Translation2d.hpp"
 
 #include <cmath>
 #include <limits>
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         class Translation2d;
 
@@ -48,5 +48,5 @@ namespace ck
 
         private:
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

@@ -1,8 +1,8 @@
-#include "ck_utilities/geometry/Translation2d.hpp"
+#include "ck_utilities/team254_geometry/Translation2d.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         const Translation2d &Translation2d::identity()
         {
@@ -128,5 +128,5 @@ namespace ck
             return *this == other;
         }
 
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

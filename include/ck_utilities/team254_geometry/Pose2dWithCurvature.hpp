@@ -1,13 +1,13 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/Pose2d.hpp"
-#include "ck_utilities/geometry/IPose2d.hpp"
-#include "ck_utilities/geometry/ICurvature.hpp"
+#include "ck_utilities/team254_geometry/Pose2d.hpp"
+#include "ck_utilities/team254_geometry/IPose2d.hpp"
+#include "ck_utilities/team254_geometry/ICurvature.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         class Pose2dWithCurvature : public IPose2d<Pose2dWithCurvature>, public ICurvature<Pose2dWithCurvature>
         {
@@ -38,5 +38,5 @@ namespace ck
             double distance(const Pose2dWithCurvature &other) const override;
             bool equals(const Pose2dWithCurvature &other) override;
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

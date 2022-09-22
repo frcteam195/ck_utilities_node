@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ck_utilities/geometry/State.hpp"
+#include "ck_utilities/team254_geometry/State.hpp"
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         class Translation2d;
 
@@ -14,5 +14,5 @@ namespace ck
         public:
             virtual Translation2d getTranslation() const = 0;
         };
-    } // namespace geometry
+    } // namespace team254_geometry
 } // namespace ck

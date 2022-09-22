@@ -4,7 +4,7 @@
 
 namespace ck
 {
-    namespace geometry
+    namespace team254_geometry
     {
         template <class S>
         class State : public ck::math::Interpolable<S>

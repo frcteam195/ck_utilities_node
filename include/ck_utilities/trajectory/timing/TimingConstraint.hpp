@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ck_utilities/CKMath.hpp"
-#include "ck_utilities/geometry/State.hpp"
-#include "ck_utilities/geometry/Geometry.hpp"
+#include "ck_utilities/team254_geometry/State.hpp"
+#include "ck_utilities/team254_geometry/Geometry.hpp"
 #include "MinMaxAcceleration.hpp"
 
 #include <type_traits>
@@ -24,12 +24,12 @@ namespace ck
             template <class S>
             class TimingConstraint
             {
-                static_assert(std::is_base_of<ck::geometry::State<S>, S>::value, "S must inherit from State<S>");
+                static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State<S>");
 
             public:
                 TimingConstraint(ConstraintType type = ConstraintType::NONE,
-                                 ck::geometry::Translation2d min_corner = ck::geometry::Translation2d(0, 0),
-                                 ck::geometry::Translation2d max_corner = ck::geometry::Translation2d(0, 0),
+                                 ck::team254_geometry::Translation2d min_corner = ck::team254_geometry::Translation2d(0, 0),
+                                 ck::team254_geometry::Translation2d max_corner = ck::team254_geometry::Translation2d(0, 0),
                                  double velocity_limit = 0.0)
                 {
                     type_ = type;
@@ -64,7 +64,7 @@ namespace ck
                         break;
 
                     case ConstraintType::VELOCITY_LIMIT_REGION:
-                        ck::geometry::Translation2d translation = state.getTranslation();
+                        ck::team254_geometry::Translation2d translation = state.getTranslation();
                         if (translation.x() <= max_corner_.x() && translation.x() >= min_corner_.x() &&
                             translation.y() <= max_corner_.y() && translation.y() >= min_corner_.y())
                         {
@@ -112,8 +112,8 @@ namespace ck
 
             private:
                 ConstraintType type_;
-                ck::geometry::Translation2d min_corner_;
-                ck::geometry::Translation2d max_corner_;
+                ck::team254_geometry::Translation2d min_corner_;
+                ck::team254_geometry::Translation2d max_corner_;
                 double velocity_limit_;
             };
         } // namespace timing
