@@ -6,8 +6,8 @@ namespace ck
     {
         struct Wheel
         {
-            double velocity;
-            double angle;
+            double velocity = 0;
+            double angle = 0;
         };
     };
 };
