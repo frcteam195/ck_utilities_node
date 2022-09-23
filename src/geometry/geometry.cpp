@@ -112,9 +112,8 @@ Rotation Transform::get_Rotation_To()
     Rotation result;
 
     float x_y_hypot = std::sqrt((this->linear.x() * this->linear.x()) + (this->linear.y() * this->linear.y()));
-    float x_z_hypot = std::sqrt((this->linear.x() * this->linear.x()) + (this->linear.z() * this->linear.z()));
     result.roll(0);
-    result.pitch(std::asin(x_z_hypot / this->linear.x()));
+    result.pitch(std::asin(this->linear.norm() / x_y_hypot));
     result.yaw(std::asin(x_y_hypot / this->linear.x()));
     return result;
 }
