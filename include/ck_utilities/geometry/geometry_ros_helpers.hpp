@@ -15,4 +15,14 @@ namespace geometry
     geometry::Pose to_pose(geometry_msgs::Pose p);
     geometry::Transform to_transform(geometry_msgs::Transform t);
     geometry::Twist to_twist(geometry_msgs::Twist t);
+    tf2::Quaternion to_tf2_quat(geometry::Rotation r);
+    geometry_msgs::Quaternion to_msg_quat(geometry::Rotation r);
+    tf2::Vector3 to_tf2(geometry::Translation t);
+    geometry_msgs::Point to_msg_point(geometry::Translation t);
+    tf2::Vector3 to_tf2(geometry::Rotation r);
+    geometry_msgs::Vector3 to_msg(geometry::Rotation r);
+    geometry_msgs::Vector3 to_msg(geometry::Translation t);
+    geometry_msgs::Pose to_msg(geometry::Pose p);
+    geometry_msgs::Twist to_msg(geometry::Twist t);
+    geometry_msgs::Transform to_msg(geometry::Transform t);
 }

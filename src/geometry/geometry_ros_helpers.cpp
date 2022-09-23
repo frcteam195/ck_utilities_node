@@ -80,3 +80,77 @@ geometry::Twist geometry::to_twist(geometry_msgs::Twist t)
     result.angular = to_rotation(t.angular);
     return result;
 }
+
+tf2::Quaternion geometry::to_tf2_quat(geometry::Rotation r)
+{
+    tf2::Quaternion result;
+    result.setRPY(r.roll(), r.pitch(), r.yaw());
+    return result;
+}
+
+geometry_msgs::Quaternion geometry::to_msg_quat(geometry::Rotation r)
+{
+    return tf2::toMsg(geometry::to_tf2_quat(r));
+}
+
+tf2::Vector3 geometry::to_tf2(geometry::Translation t)
+{
+    tf2::Vector3 result;
+    result.setX(t.x());
+    result.setY(t.y());
+    result.setZ(t.z());
+    return result;
+}
+
+geometry_msgs::Point geometry::to_msg_point(geometry::Translation t)
+{
+    tf2::Vector3 t2 = to_tf2(t);
+    geometry_msgs::Point p;
+    p.x = t2.x();
+    p.y = t2.y();
+    p.z = t2.z();
+    return p;
+}
+
+tf2::Vector3 geometry::to_tf2(geometry::Rotation r)
+{
+    tf2::Vector3 result;
+    result.setX(r.roll());
+    result.setY(r.pitch());
+    result.setZ(r.yaw());
+    return result;
+}
+
+geometry_msgs::Vector3 geometry::to_msg(geometry::Rotation r)
+{
+    return tf2::toMsg(to_tf2(r));
+}
+
+geometry_msgs::Vector3 geometry::to_msg(geometry::Translation t)
+{
+    return tf2::toMsg(to_tf2(t));
+}
+
+geometry_msgs::Pose geometry::to_msg(geometry::Pose p)
+{
+    geometry_msgs::Pose result;
+    result.orientation = geometry::to_msg_quat(p.orientation);
+    result.position = geometry::to_msg_point(p.position);
+    return result;
+}
+
+geometry_msgs::Twist geometry::to_msg(geometry::Twist t)
+{
+    geometry_msgs::Twist result;
+    result.angular = geometry::to_msg(t.angular);
+    result.linear = geometry::to_msg(t.linear);
+    return result;
+}
+
+geometry_msgs::Transform geometry::to_msg(geometry::Transform t)
+{
+    geometry_msgs::Transform result;
+    result.translation = geometry::to_msg(t.linear);
+    result.rotation = geometry::to_msg_quat(t.angular);
+    return result;
+}
