@@ -69,3 +69,7 @@ namespace geometry
     };
 
 }
+
+std::ostream& operator<<(std::ostream& os, const geometry::Pose& value);
+std::ostream& operator<<(std::ostream& os, const geometry::Twist& value);
+std::ostream& operator<<(std::ostream& os, const geometry::Transform& value);

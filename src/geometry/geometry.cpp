@@ -117,3 +117,30 @@ Rotation Transform::get_Rotation_To()
     result.yaw(std::asin(x_y_hypot / this->linear.x()));
     return result;
 }
+
+std::ostream& operator<<(std::ostream& os, const geometry::Pose& value)
+{
+    std::stringstream s;
+    s << "Position:" << value.position << std::endl;
+    s << "Orientation:" << value.orientation << std::endl;
+    os << s.str();
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const geometry::Twist& value)
+{
+    std::stringstream s;
+    s << "Linear:" << value.linear << std::endl;
+    s << "Angular:" << value.angular << std::endl;
+    os << s.str();
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const geometry::Transform& value)
+{
+    std::stringstream s;
+    s << "Translation:" << value.linear << std::endl;
+    s << "Rotation: " << value.angular << std::endl;
+    os << s.str();
+    return os;
+}
