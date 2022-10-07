@@ -1,4 +1,5 @@
 #include "ck_utilities/geometry/geometry.hpp"
+#include "ros/ros.h"
 
 using namespace geometry;
 
@@ -116,8 +117,8 @@ Rotation Transform::get_Rotation_To()
     if(this->linear.norm() >  0.01 && x_y_hypot > 0.01 && this->linear.x() > 0.01)
     {
         result.roll(0);
-        result.pitch(std::asin(this->linear.norm() / x_y_hypot));
-        result.yaw(std::asin(x_y_hypot / this->linear.x()));
+        result.pitch(std::atan2(this->linear.norm(), x_y_hypot));
+        result.yaw(std::atan2(x_y_hypot, this->linear.x()));
     }
     return result;
 }
@@ -125,8 +126,8 @@ Rotation Transform::get_Rotation_To()
 std::ostream& operator<<(std::ostream& os, const geometry::Pose& value)
 {
     std::stringstream s;
-    s << "Position:" << value.position << std::endl;
-    s << "Orientation:" << value.orientation << std::endl;
+    s << "Position: " << value.position.x() << " " << value.position.y() << " " << value.position.z() << " ";
+    s << "Orientation: " << value.orientation.x() << " " << value.orientation.y() << " " << value.orientation.z() << std::endl;
     os << s.str();
     return os;
 }
@@ -134,8 +135,8 @@ std::ostream& operator<<(std::ostream& os, const geometry::Pose& value)
 std::ostream& operator<<(std::ostream& os, const geometry::Twist& value)
 {
     std::stringstream s;
-    s << "Linear:" << value.linear << std::endl;
-    s << "Angular:" << value.angular << std::endl;
+    s << "Linear: " << value.linear.x() << " " << value.linear.y() << " " << value.linear.z() << " ";
+    s << "Angular: " << value.angular.x() << " " << value.angular.y() << " " << value.angular.z() << std::endl;
     os << s.str();
     return os;
 }
@@ -143,8 +144,8 @@ std::ostream& operator<<(std::ostream& os, const geometry::Twist& value)
 std::ostream& operator<<(std::ostream& os, const geometry::Transform& value)
 {
     std::stringstream s;
-    s << "Translation:" << value.linear << std::endl;
-    s << "Rotation: " << value.angular << std::endl;
+    s << "Translation: " << value.linear.x() << " " << value.linear.y() << " " << value.linear.z() << " ";
+    s << "Rotation: " << value.angular.x() << " " << value.angular.y() << " " << value.angular.z() << std::endl;
     os << s.str();
     return os;
 }

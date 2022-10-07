@@ -157,10 +157,10 @@ namespace ck
         template <typename T>
         inline T normalize_to_2_pi(T value)
         {
-            value = (T)std::fmod(value, M_PI_2);
+            value = (T)std::fmod(value, 2.0 * M_PI);
             if (value < 0.0)
             {
-                value += M_PI_2;
+                value += 2.0 * M_PI;
             }
             return value;
         }
