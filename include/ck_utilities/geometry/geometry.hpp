@@ -33,7 +33,7 @@ namespace geometry
         Pose()
         {
             this->position.setZero();
-            this->orientation.setIdentity();
+            this->orientation.setZero();
         }
         Pose twist(Twist twist_, double time_s);
         Pose transform(Transform transform_);

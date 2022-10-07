@@ -110,11 +110,15 @@ Transform Transform::rotate(Rotation rotation)
 Rotation Transform::get_Rotation_To()
 {
     Rotation result;
-
+    result.setZero();
     float x_y_hypot = std::sqrt((this->linear.x() * this->linear.x()) + (this->linear.y() * this->linear.y()));
-    result.roll(0);
-    result.pitch(std::asin(this->linear.norm() / x_y_hypot));
-    result.yaw(std::asin(x_y_hypot / this->linear.x()));
+
+    if(this->linear.norm() >  0.01 && x_y_hypot > 0.01 && this->linear.x() > 0.01)
+    {
+        result.roll(0);
+        result.pitch(std::asin(this->linear.norm() / x_y_hypot));
+        result.yaw(std::asin(x_y_hypot / this->linear.x()));
+    }
     return result;
 }
 
