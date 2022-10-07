@@ -80,10 +80,27 @@ Pose Pose::twist(Twist twist_, double time_s)
     return result;
 }
 
+Eigen::Vector3f rotate_vector_by_quaternion(const Eigen::Vector3f& v, const Eigen::Quaternionf& q)
+{
+    Eigen::Vector3f vprime;
+    // Extract the vector part of the quaternion
+    Eigen::Vector3f u(q.x(), q.y(), q.z());
+
+    // Extract the scalar part of the quaternion
+    float s = q.w();
+
+    // Do the math
+    vprime = 2.0f * u.dot(v) * u
+          + (s*s - u.dot(u)) * v
+          + 2.0f * s * u.cross(v);
+
+    return vprime;
+}
+
 Pose Pose::transform(Transform transform_)
 {
     Pose result = *this;
-    result.position += transform_.linear;
+    result.position += rotate_vector_by_quaternion(transform_.linear ,quaternion_from_rotation(this->orientation));
     result.orientation = rotation_from_quaternion(quaternion_from_rotation(result.orientation) * quaternion_from_rotation(transform_.angular));
     return result;
 }
@@ -113,13 +130,9 @@ Rotation Transform::get_Rotation_To()
     Rotation result;
     result.setZero();
     float x_y_hypot = std::sqrt((this->linear.x() * this->linear.x()) + (this->linear.y() * this->linear.y()));
-
-    if(this->linear.norm() >  0.01 && x_y_hypot > 0.01 && this->linear.x() > 0.01)
-    {
-        result.roll(0);
-        result.pitch(std::atan2(this->linear.norm(), x_y_hypot));
-        result.yaw(std::atan2(x_y_hypot, this->linear.x()));
-    }
+    result.roll(0);
+    result.pitch(std::atan2(this->linear.z(), x_y_hypot));
+    result.yaw(std::atan2(this->linear.y(), this->linear.x()));
     return result;
 }
 
