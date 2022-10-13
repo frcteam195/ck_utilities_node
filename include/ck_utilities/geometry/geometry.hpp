@@ -10,8 +10,6 @@ namespace geometry
 {
     class Pose; class Transform; class Twist;
 
-    typedef Eigen::Vector3f Translation;
-
     class Rotation : public Eigen::Vector3f
     {
     public:
@@ -25,6 +23,22 @@ namespace geometry
         void pitch(float value);
         float yaw();
         void yaw(float value);
+    };
+
+    class Translation : public Eigen::Vector3f
+    {
+    public:
+        Translation();
+        Translation(const Eigen::Vector3f& other);
+        Translation operator*(const float &other);
+        Translation operator=(const Eigen::Vector3f &other);
+        using Eigen::Vector3f::x;
+        void x(float value);
+        using Eigen::Vector3f::y;
+        void y(float value);
+        using Eigen::Vector3f::z;
+        void z(float value);
+        Translation Rotate(Rotation rotation);
     };
 
     class Pose

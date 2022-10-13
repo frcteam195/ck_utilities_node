@@ -3,6 +3,23 @@
 
 using namespace geometry;
 
+static Eigen::Vector3f rotate_vector_by_quaternion(const Eigen::Vector3f& v, const Eigen::Quaternionf& q)
+{
+    Eigen::Vector3f vprime;
+    // Extract the vector part of the quaternion
+    Eigen::Vector3f u(q.x(), q.y(), q.z());
+
+    // Extract the scalar part of the quaternion
+    float s = q.w();
+
+    // Do the math
+    vprime = 2.0f * u.dot(v) * u
+          + (s*s - u.dot(u)) * v
+          + 2.0f * s * u.cross(v);
+
+    return vprime;
+}
+
 static Eigen::Quaternionf quaternion_from_rotation(Rotation rotation)
 {
     Eigen::Quaternionf q;
@@ -16,6 +33,50 @@ static Eigen::Quaternionf quaternion_from_rotation(Rotation rotation)
 static Rotation rotation_from_quaternion(Eigen::Quaternionf q)
 {
     return (Rotation) q.matrix().eulerAngles(0, 1, 2);
+}
+
+Translation::Translation()
+{
+    this->setZero();
+}
+
+Translation::Translation(const Eigen::Vector3f& other)
+{
+    (*this)[0] = other.x();
+    (*this)[1] = other.y();
+    (*this)[2] = other.z();
+}
+
+Translation Translation::operator*(const float &other)
+{
+    return (Rotation) Eigen::Vector3f::operator*(other);
+}
+
+Translation Translation::operator=(const Eigen::Vector3f &other)
+{
+    Rotation temp(other);
+    *this = temp;
+    return *this;
+}
+
+void Translation::x(float value)
+{
+    (*this)[0] = value;
+}
+
+void Translation::y(float value)
+{
+    (*this)[1] = value;
+}
+
+void Translation::z(float value)
+{
+    (*this)[2] = value;
+}
+
+Translation Translation::Rotate(Rotation rotation)
+{
+    return rotate_vector_by_quaternion(*this, quaternion_from_rotation(rotation));
 }
 
 Rotation::Rotation()
@@ -78,23 +139,6 @@ Pose Pose::twist(Twist twist_, double time_s)
     result.position += (twist_.linear * time_s);
     result.orientation = rotation_from_quaternion(quaternion_from_rotation(result.orientation) * quaternion_from_rotation(twist_.angular * time_s));
     return result;
-}
-
-Eigen::Vector3f rotate_vector_by_quaternion(const Eigen::Vector3f& v, const Eigen::Quaternionf& q)
-{
-    Eigen::Vector3f vprime;
-    // Extract the vector part of the quaternion
-    Eigen::Vector3f u(q.x(), q.y(), q.z());
-
-    // Extract the scalar part of the quaternion
-    float s = q.w();
-
-    // Do the math
-    vprime = 2.0f * u.dot(v) * u
-          + (s*s - u.dot(u)) * v
-          + 2.0f * s * u.cross(v);
-
-    return vprime;
 }
 
 Pose Pose::transform(Transform transform_)
