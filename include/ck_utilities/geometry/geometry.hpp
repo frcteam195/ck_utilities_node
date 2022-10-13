@@ -44,11 +44,7 @@ namespace geometry
     class Pose
     {
     public:
-        Pose()
-        {
-            this->position.setZero();
-            this->orientation.setZero();
-        }
+        Pose() { }
         Pose twist(Twist twist_, double time_s);
         Pose transform(Transform transform_);
         Transform get_Transform(Pose pose_);
@@ -59,11 +55,7 @@ namespace geometry
     class Transform
     {
     public:
-        Transform()
-        {
-            this->linear.setZero();
-            this->angular.setIdentity();
-        }
+        Transform() { }
         Transform rotate(Rotation rotation);
         Rotation get_Rotation_To();
         Translation linear;
@@ -73,11 +65,7 @@ namespace geometry
     class  Twist
     {
     public:
-        Twist()
-        {
-            this->linear.setZero();
-            this->angular.setIdentity();
-        }
+        Twist() { }
         Translation linear;
         Rotation angular;
     };

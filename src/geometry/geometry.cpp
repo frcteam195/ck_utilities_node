@@ -54,7 +54,7 @@ Translation Translation::operator*(const float &other)
 
 Translation Translation::operator=(const Eigen::Vector3f &other)
 {
-    Rotation temp(other);
+    Translation temp(other);
     *this = temp;
     return *this;
 }
