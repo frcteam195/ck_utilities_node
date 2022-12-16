@@ -1,6 +1,7 @@
 #include "ck_utilities/todd_trajectory/swerve_trajectory_smoother.hpp"
 #include "ck_utilities/todd_trajectory/trajectory_helpers.hpp"
 #include "ck_utilities/CKMath.hpp"
+#include <iostream>
 
 using SwerveTrajectory::DetailedTrajectory;
 using SwerveTrajectory::DetailedTrajectoryPoint;
@@ -25,25 +26,36 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
 
     BasicTrajectoryPoint last_point = *(smoothed_path.base_path.points.begin());
     DetailedTrajectoryPoint detailed_last_point(last_point);
+    std::cout << "Gonna go actually loop" << std::endl;
 
     for (auto basic_point = smoothed_path.base_path.points.begin() + 1;
          basic_point != smoothed_path.base_path.points.end();
          basic_point++)
     {
+        std::cout << "Here in my outer loop" << std::endl;
         float desired_track = calculate_desired_track(last_point.pose, (*basic_point).pose);
         float along_track_distance = calculate_along_track_distance(detailed_last_point.pose, (*basic_point).pose, desired_track);
         while (along_track_distance > 0)
         {
-            DetailedTrajectoryPoint new_pose = last_point;
+            std::cout << "Here in my inner loop" << std::endl;
+            DetailedTrajectoryPoint new_pose = detailed_last_point;
             new_pose.associated_base_point = basic_point - smoothed_path.base_path.points.begin();
             new_pose.target_pose = (*basic_point).pose;
             new_pose.desired_track = desired_track;
             new_pose.desired_speed = (*basic_point).speed;
             new_pose = this->project(new_pose);
             smoothed_path.points.push_back(new_pose);
+            detailed_last_point = new_pose;
             along_track_distance = calculate_along_track_distance(new_pose.pose, (*basic_point).pose, desired_track);
+            std::cout << "Got my new along track distance: " << along_track_distance << std::endl;
+            std::cout << "With my pose: " << new_pose.pose.position << std::endl;
+            std::cout << "Target Pose: " << new_pose.target_pose << std::endl;
+            std::cout << "DTK: " << new_pose.desired_track << std::endl;
+            std::cout << "SPD: " << new_pose.desired_speed << std::endl;
         }
     }
+
+    return smoothed_path;
 }
 
 float p_ctrl(float error, float p_gain, float output_max, float output_min)
