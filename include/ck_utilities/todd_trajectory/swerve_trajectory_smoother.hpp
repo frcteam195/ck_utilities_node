@@ -32,6 +32,7 @@ namespace SwerveTrajectory
         geometry::Pose target_pose;
         float desired_track;
         float speed;
+        float desired_speed;
         size_t associated_base_point;
     };
 
