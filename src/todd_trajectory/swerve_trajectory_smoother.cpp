@@ -107,9 +107,15 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
 
     float new_desired_track_angle = initial_pose.desired_track + constrained_pid_result;
     dtp.pose.orientation.yaw(new_desired_track_angle);
-    //multiply oritentation by speed and dt and add to pose
-    dtp.pose.orientation = dtp.pose.orientation * dtp.speed * config.time_step_seconds;
-    
+
+    //sin(newyaw) * speed * time -----> add to pose x
+    //cos(newyaw) * speed * time -----> add to pose y
+
+    float old_x = dtp.pose.position.x();
+    float old_y = dtp.pose.position.y();
+
+    dtp.pose.position.x(old_x + (sin(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
+    dtp.pose.position.y(old_y + (cos(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
 
     dtp.pose = p;
     return dtp;
