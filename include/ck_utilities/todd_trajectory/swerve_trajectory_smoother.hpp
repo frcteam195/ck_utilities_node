@@ -26,8 +26,10 @@ namespace SwerveTrajectory
             this->pose = basic_point.pose;
             this->speed = basic_point.speed;
             this->desired_track = 0;
+            this->target_pose = basic_point.pose;
         }
         geometry::Pose pose;
+        geometry::Pose target_pose;
         float desired_track;
         float speed;
         size_t associated_base_point;
@@ -60,6 +62,8 @@ namespace SwerveTrajectory
         }
 
         DetailedTrajectory smooth_path(BasicTrajectory trajectory);
+        DetailedTrajectoryPoint project
+            (DetailedTrajectoryPoint initial_pose);
 
     private:
         SwerveTrajectorySmootherConfiguration config;
