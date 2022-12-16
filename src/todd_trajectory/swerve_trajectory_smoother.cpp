@@ -44,3 +44,28 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
         }
     }
 }
+
+float p_ctrl(float error, float p_gain, float output_max, float output_min)
+{
+    return std::max(output_min, std::min(error * p_gain, output_max));
+}
+
+DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoint initial_pose)
+{
+    const static float cross_track_gain = 0.1;
+    const static float cross_track_max = 10;
+    const static float cross_track_min = -10;
+    const static float track_angle_error_gain = 0.05;
+    const static float track_angle_error_max = 5;
+    const static float track_angle_error_min = -5;
+
+    float cross_track_error = -calculate_cross_track_distance(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track);
+    float track_angle_error = calculate_track_angle_error(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track);
+
+    float cross_track_error_pid_result = p_ctrl(cross_track_error, cross_track_gain, cross_track_max, cross_track_min);
+    float track_angle_pid_result = p_ctrl(track_angle_error, track_angle_error_gain, track_angle_error_max, track_angle_error_min);
+    float pid_result = (cross_track_error_pid_result + track_angle_pid_result) / 2.0f;
+
+
+    
+}
