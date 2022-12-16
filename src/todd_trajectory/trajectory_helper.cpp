@@ -12,7 +12,7 @@ float calculate_desired_track (Pose starting_pose, Pose ending_pose)
 float calculate_along_track_distance(Pose starting_pose, Pose ending_pose, float desired_track)
 {
     Transform t =  starting_pose.get_Transform(ending_pose);
-    double sign_pspe = ck::math::signum(desired_track) == ck::math::signum(starting_pose.orientation.yaw()) ? 1 : -1;
+    double sign_pspe = ck::math::signum(desired_track) == ck::math::signum(t.get_Rotation_To().yaw()) ? 1 : -1;
     double pspe = sign_pspe * t.linear.norm();
     double theta_pspe = t.angular.yaw();
     double theta_dtk = desired_track;
@@ -33,7 +33,7 @@ float calculate_track_angle_error(Pose starting_pose, Pose ending_pose, float de
 float calculate_cross_track_distance(Pose starting_pose, Pose ending_pose, float desired_track)
 {
     Transform t =  starting_pose.get_Transform(ending_pose);
-    double sign_pspe = ck::math::signum(desired_track) == ck::math::signum(starting_pose.orientation.yaw()) ? 1 : -1;
+    double sign_pspe = ck::math::signum(desired_track) == ck::math::signum(t.get_Rotation_To().yaw()) ? 1 : -1;
     double pspe = sign_pspe * t.linear.norm();
     double theta_pspe = t.angular.yaw();
     double theta_dtk = desired_track;
