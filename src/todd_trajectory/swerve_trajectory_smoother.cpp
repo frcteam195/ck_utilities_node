@@ -1,5 +1,6 @@
 #include "ck_utilities/todd_trajectory/swerve_trajectory_smoother.hpp"
 #include "ck_utilities/todd_trajectory/trajectory_helpers.hpp"
+#include "ck_utilities/CKMath.hpp"
 
 using SwerveTrajectory::DetailedTrajectory;
 using SwerveTrajectory::DetailedTrajectoryPoint;
@@ -66,6 +67,50 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
     float track_angle_pid_result = p_ctrl(track_angle_error, track_angle_error_gain, track_angle_error_max, track_angle_error_min);
     float pid_result = (cross_track_error_pid_result + track_angle_pid_result) / 2.0f;
 
+    //Project point
+    //mult accel by timestep and add to speed coming in
+    DetailedTrajectoryPoint dtp(initial_pose);
 
+    if (initial_pose.desired_speed > initial_pose.speed && initial_pose.desired_speed >= 0)
+    {
+        //accelerating
+        dtp.speed += config.track_acceleration_by_speed.lookup(initial_pose.speed) * config.time_step_seconds;
+        dtp.speed = std::min(dtp.speed, initial_pose.desired_speed);
+    }
+    else if(initial_pose.desired_speed < initial_pose.speed && initial_pose.desired_speed >= 0)
+    {
+        //decelerating
+        dtp.speed -= config.track_deceleration_by_speed.lookup(initial_pose.speed) * config.time_step_seconds;
+        dtp.speed = std::max(dtp.speed, initial_pose.desired_speed);
+    }
+    else if (initial_pose.desired_speed < initial_pose.speed && initial_pose.desired_speed <= 0)
+    {
+        //accelerating
+        dtp.speed -= config.track_acceleration_by_speed.lookup(initial_pose.speed) * config.time_step_seconds;
+        dtp.speed = std::max(dtp.speed, initial_pose.desired_speed);
+    }
+    else if (initial_pose.desired_speed > initial_pose.speed && initial_pose.desired_speed <= 0)
+    {
+        //decelerating
+        dtp.speed += config.track_deceleration_by_speed.lookup(initial_pose.speed) * config.time_step_seconds;
+        dtp.speed = std::min(dtp.speed, initial_pose.desired_speed);
+    }
+    else
+    {
+        dtp.speed = initial_pose.desired_speed;
+    }
+
+    //Look at initial pose orientation
+    Pose p(dtp.pose);
+
+    float constrained_pid_result = ck::math::signum(pid_result) * std::min(std::abs(pid_result), std::abs(config.track_turn_rate_by_speed.lookup((dtp.speed + initial_pose.speed) / 2.0f)));
+
+    float new_desired_track_angle = initial_pose.desired_track + constrained_pid_result;
+    dtp.pose.orientation.yaw(new_desired_track_angle);
+    //multiply oritentation by speed and dt and add to pose
+    dtp.pose.orientation = dtp.pose.orientation * dtp.speed * config.time_step_seconds;
     
+
+    dtp.pose = p;
+    return dtp;
 }
