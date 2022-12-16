@@ -54,6 +54,7 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
             std::cout << "With my pose: " << new_pose.pose;
             std::cout << "Target Pose: " << new_pose.target_pose;
         }
+        last_point = (*basic_point);
     }
 
     return smoothed_path;
