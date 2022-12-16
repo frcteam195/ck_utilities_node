@@ -33,7 +33,13 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
         float along_track_distance = calculate_along_track_distance(detailed_last_point.pose, (*basic_point).pose, desired_track);
         while (along_track_distance > 0)
         {
-
+            DetailedTrajectoryPoint new_pose = last_point;
+            new_pose.associated_base_point = basic_point - smoothed_path.base_path.points.begin();
+            new_pose.target_pose = (*basic_point).pose;
+            new_pose.desired_track = desired_track;
+            new_pose = this->project(new_pose);
+            smoothed_path.points.push_back(new_pose);
+            along_track_distance = calculate_along_track_distance(new_pose.pose, (*basic_point).pose, desired_track);
         }
     }
 }
