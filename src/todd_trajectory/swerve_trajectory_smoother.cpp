@@ -32,9 +32,14 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
          basic_point != smoothed_path.base_path.points.end();
          basic_point++)
     {
+        std::cout << "-------------------------------------------" << std::endl;
         std::cout << "Here in my outer loop" << std::endl;
         float desired_track = calculate_desired_track(last_point.pose, (*basic_point).pose);
+        std::cout << "Base DTK: " << desired_track << std::endl;
         float along_track_distance = calculate_along_track_distance(detailed_last_point.pose, (*basic_point).pose, desired_track);
+        std::cout << "Base ATD: " << along_track_distance << std::endl;
+        std::cout << "Detailed Pose: " << detailed_last_point.pose << std::endl;
+        std::cout << "Base Pose: " << (*basic_point).pose << std::endl;
         while (along_track_distance > 0)
         {
             std::cout << "-------------------------------------------" << std::endl;
