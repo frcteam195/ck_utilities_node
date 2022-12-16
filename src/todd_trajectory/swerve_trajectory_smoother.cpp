@@ -37,6 +37,7 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
         float along_track_distance = calculate_along_track_distance(detailed_last_point.pose, (*basic_point).pose, desired_track);
         while (along_track_distance > 0)
         {
+            std::cout << "-------------------------------------------" << std::endl;
             std::cout << "Here in my inner loop" << std::endl;
             DetailedTrajectoryPoint new_pose = detailed_last_point;
             new_pose.associated_base_point = basic_point - smoothed_path.base_path.points.begin();
@@ -48,8 +49,8 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
             detailed_last_point = new_pose;
             along_track_distance = calculate_along_track_distance(new_pose.pose, (*basic_point).pose, desired_track);
             std::cout << "Got my new along track distance: " << along_track_distance << std::endl;
-            std::cout << "With my pose: " << new_pose.pose.position << std::endl;
-            std::cout << "Target Pose: " << new_pose.target_pose << std::endl;
+            std::cout << "With my pose: " << new_pose.pose;
+            std::cout << "Target Pose: " << new_pose.target_pose;
             std::cout << "DTK: " << new_pose.desired_track << std::endl;
             std::cout << "SPD: " << new_pose.desired_speed << std::endl;
         }
@@ -129,6 +130,6 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
     dtp.pose.position.x(old_x + (sin(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
     dtp.pose.position.y(old_y + (cos(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
 
-    dtp.pose = p;
+    dtp.pose.orientation = p.orientation;
     return dtp;
 }
