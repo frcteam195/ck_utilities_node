@@ -44,6 +44,8 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
             new_pose.target_pose = (*basic_point).pose;
             new_pose.desired_track = desired_track;
             new_pose.desired_speed = (*basic_point).speed;
+            std::cout << "TGT SPD: " << new_pose.desired_speed << std::endl;
+            std::cout << "DTK: " << new_pose.desired_track << std::endl;
             new_pose = this->project(new_pose);
             smoothed_path.points.push_back(new_pose);
             detailed_last_point = new_pose;
@@ -51,8 +53,6 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
             std::cout << "Got my new along track distance: " << along_track_distance << std::endl;
             std::cout << "With my pose: " << new_pose.pose;
             std::cout << "Target Pose: " << new_pose.target_pose;
-            std::cout << "DTK: " << new_pose.desired_track << std::endl;
-            std::cout << "SPD: " << new_pose.desired_speed << std::endl;
         }
     }
 
@@ -72,6 +72,9 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
     const static float track_angle_error_gain = 0.05;
     const static float track_angle_error_max = 5;
     const static float track_angle_error_min = -5;
+
+    std::cout << "XTD: " << calculate_cross_track_distance(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track) << std::endl;
+    std::cout << "TAE: " << calculate_track_angle_error(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track) << std::endl;
 
     float cross_track_error = -calculate_cross_track_distance(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track);
     float track_angle_error = calculate_track_angle_error(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track);
@@ -113,12 +116,15 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
         dtp.speed = initial_pose.desired_speed;
     }
 
+    std::cout << "SPD: " << dtp.speed << std::endl;
+
     //Look at initial pose orientation
     Pose p(dtp.pose);
 
     float constrained_pid_result = ck::math::signum(pid_result) * std::min(std::abs(pid_result), std::abs(config.track_turn_rate_by_speed.lookup((dtp.speed + initial_pose.speed) / 2.0f)));
 
     float new_desired_track_angle = initial_pose.desired_track + constrained_pid_result;
+    std::cout << "TGT TRK: " << new_desired_track_angle << std::endl;
     dtp.pose.orientation.yaw(new_desired_track_angle);
 
     //sin(newyaw) * speed * time -----> add to pose x
@@ -127,8 +133,8 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
     float old_x = dtp.pose.position.x();
     float old_y = dtp.pose.position.y();
 
-    dtp.pose.position.x(old_x + (sin(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
-    dtp.pose.position.y(old_y + (cos(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
+    dtp.pose.position.x(old_x + (cos(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
+    dtp.pose.position.y(old_y + (sin(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
 
     dtp.pose.orientation = p.orientation;
     return dtp;
