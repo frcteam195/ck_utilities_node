@@ -3,6 +3,7 @@
 #include "ck_utilities/CKMath.hpp"
 #include <iostream>
 #include <ros/ros.h>
+#include <stdexcept>
 
 using SwerveTrajectory::DetailedTrajectory;
 using SwerveTrajectory::DetailedTrajectoryPoint;
@@ -10,7 +11,9 @@ using SwerveTrajectory::BasicTrajectory;
 using SwerveTrajectory::BasicTrajectoryPoint;
 using SwerveTrajectory::SwerveTrajectorySmoother;
 
-#define MAX_NUM_ITERATIONS 2000000
+//TODO: Change to max path time and take the dt into account
+#define MAX_NUM_ITERATIONS 3000
+
 
 DetailedTrajectory SwerveTrajectorySmoother::smooth_path
     (BasicTrajectory trajectory)
@@ -47,11 +50,21 @@ DetailedTrajectory SwerveTrajectorySmoother::smooth_path
         std::cout << "Base Pose: " << (*basic_point).pose << std::endl;
         while (along_track_distance > 0 && counter < MAX_NUM_ITERATIONS)
         {
+            // static int ctx = 0;
             counter++;
             std::cout << "-------------------------------------------" << std::endl;
             std::cout << "Here in my inner loop" << std::endl;
             DetailedTrajectoryPoint new_pose = detailed_last_point;
             new_pose.associated_base_point = basic_point - smoothed_path.base_path.points.begin();
+            // if (new_pose.associated_base_point == 2)
+            // {
+            //     ctx++;
+
+            //     if (ctx > 10)
+            //     {
+            //         throw std::exception();
+            //     }
+            // }
             new_pose.target_pose = (*basic_point).pose;
             new_pose.desired_track = desired_track;
             new_pose.desired_speed = (*basic_point).speed;
@@ -85,12 +98,12 @@ float p_ctrl(float error, float p_gain, float output_max, float output_min)
 
 DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoint initial_pose)
 {
-    const static float cross_track_gain = 0.1;
-    const static float cross_track_max = 10;
-    const static float cross_track_min = -10;
-    const static float track_angle_error_gain = 0.05;
-    const static float track_angle_error_max = 5;
-    const static float track_angle_error_min = -5;
+    const static float cross_track_gain = 0.5;            // For 1 m/s currently      //Tune Second
+    const static float cross_track_max = M_PI_4;
+    const static float cross_track_min = -M_PI_4;
+    const static float track_angle_error_gain = 2.0;//1.15;   //For 1 m/s currently (plan to adjust by max speed) // Tune First
+    const static float track_angle_error_max = M_PI_2;
+    const static float track_angle_error_min = -M_PI_2;
 
     std::cout << "XTD: " << calculate_cross_track_distance(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track) << std::endl;
     std::cout << "TAE: " << calculate_track_angle_error(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track) << std::endl;
@@ -100,7 +113,7 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
 
     float cross_track_error_pid_result = p_ctrl(cross_track_error, cross_track_gain, cross_track_max, cross_track_min);
     float track_angle_pid_result = p_ctrl(track_angle_error, track_angle_error_gain, track_angle_error_max, track_angle_error_min);
-    float pid_result_rate = (cross_track_error_pid_result + track_angle_pid_result) / 2.0f;
+    float pid_result_rate = cross_track_error_pid_result + track_angle_pid_result;
 
     std::cout << "cross_track_error_pid_result: " << cross_track_error_pid_result << std::endl;
     std::cout << "track_angle_pid_result: " << track_angle_pid_result << std::endl;
@@ -142,8 +155,6 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
     std::cout << "SPD: " << dtp.speed << std::endl;
 
     //Look at initial pose orientation
-    Pose p(dtp.pose);
-
     float constrained_pid_result_rate = ck::math::signum(pid_result_rate) * std::min(std::abs(pid_result_rate), std::abs(config.track_turn_rate_by_speed.lookup((dtp.speed + initial_pose.speed) / 2.0f)));
 
     std::cout << "PID Result Rate: " << pid_result_rate << std::endl;
@@ -164,7 +175,5 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
 
     dtp.pose.position.x(old_x + (cos(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
     dtp.pose.position.y(old_y + (sin(dtp.pose.orientation.yaw()) * dtp.speed * config.time_step_seconds));
-
-    dtp.pose.orientation = p.orientation;
     return dtp;
 }

@@ -4,6 +4,7 @@
 #include "Units.hpp"
 #include <cmath>
 #include <map>
+#include <iostream>
 
 //Repetitive macro power to improve timing critical power speed https://stackoverflow.com/a/8556436
 //Provide macro expansion of pow up to power of 10
@@ -150,15 +151,31 @@ namespace ck
             return rad_s / (PI * 2.0) / rotations_per_tick_vel / 10.0;
         }
 
+        // wrap x -> [0,max)
+        template <typename T>
+        inline T wrapMax(T x, T max)
+        {
+            /* integer math: (max + x % max) % max */
+            return std::fmod(max + std::fmod(x, max), max);
+        }
+
+        // wrap x -> [min,max)
+        template <typename T>
+        inline T wrapMinMax(T x, T min, T max)
+        {
+            return min + wrapMax(x - min, max - min);
+        }
+
         template <typename T>
         inline T normalize_to_2_pi(T value)
         {
-            value = (T)std::fmod(value, 2.0 * M_PI);
-            if (value < 0.0)
-            {
-                value += 2.0 * M_PI;
-            }
-            return value;
+            return wrapMinMax<T>(value, 0, (2.0 * M_PI));
+        }
+
+        template <typename T>
+        inline T normalize_to_minus_pi_to_pi(T value)
+        {
+            return wrapMinMax<T>(value, -M_PI, M_PI);
         }
 
         template <typename T>
