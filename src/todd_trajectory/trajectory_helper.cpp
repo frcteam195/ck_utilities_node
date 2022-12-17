@@ -1,8 +1,16 @@
 #include "ck_utilities/todd_trajectory/trajectory_helpers.hpp"
 #include "ck_utilities/CKMath.hpp"
+#include <iostream>
 
 using geometry::Pose;
 using geometry::Transform;
+
+float smallest_acute_angle(float a, float b)
+{
+    float ab = ck::math::normalize_to_2_pi(a-b);
+    float ba = ck::math::normalize_to_2_pi(b-a);
+    return std::min(ab, ba);
+}
 
 float calculate_desired_track (Pose starting_pose, Pose ending_pose)
 {
@@ -11,33 +19,18 @@ float calculate_desired_track (Pose starting_pose, Pose ending_pose)
 
 float calculate_along_track_distance(Pose starting_pose, Pose ending_pose, float desired_track)
 {
-    Transform t =  starting_pose.get_Transform(ending_pose);
-    double sign_pspe = ck::math::signum(desired_track) == ck::math::signum(t.get_Rotation_To().yaw()) ? 1 : -1;
-    double pspe = sign_pspe * t.linear.norm();
-    double theta_pspe = t.angular.yaw();
-    double theta_dtk = desired_track;
-    double theta_atk = theta_pspe - theta_dtk;
-    double b_prime = pspe * cos(theta_atk);
-    return b_prime;
+    Transform t =  ending_pose.get_Transform(starting_pose);
+    return t.linear.norm() * cos(smallest_acute_angle((M_PI + desired_track), t.get_Rotation_To().yaw()));
 }
 
 float calculate_track_angle_error(Pose starting_pose, Pose ending_pose, float desired_track)
 {
-    Transform t =  starting_pose.get_Transform(ending_pose);
-    double theta_pspe = t.angular.yaw();
-    double theta_dtk = desired_track;
-    double theta_atk = theta_pspe - theta_dtk;
-    return theta_atk;
+    (void) ending_pose;
+    return smallest_acute_angle(desired_track, starting_pose.orientation.yaw());
 }
 
 float calculate_cross_track_distance(Pose starting_pose, Pose ending_pose, float desired_track)
 {
-    Transform t =  starting_pose.get_Transform(ending_pose);
-    double sign_pspe = ck::math::signum(desired_track) == ck::math::signum(t.get_Rotation_To().yaw()) ? 1 : -1;
-    double pspe = sign_pspe * t.linear.norm();
-    double theta_pspe = t.angular.yaw();
-    double theta_dtk = desired_track;
-    double theta_atk = theta_pspe - theta_dtk;
-    double b_prime = pspe * sin(theta_atk);
-    return b_prime;
+    Transform t =  ending_pose.get_Transform(starting_pose);
+    return t.linear.norm() * sin(smallest_acute_angle((M_PI + desired_track), t.get_Rotation_To().yaw()));
 }
