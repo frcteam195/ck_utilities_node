@@ -108,7 +108,7 @@ DetailedTrajectoryPoint SwerveTrajectorySmoother::project(DetailedTrajectoryPoin
     std::cout << "XTD: " << calculate_cross_track_distance(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track) << std::endl;
     std::cout << "TAE: " << calculate_track_angle_error(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track) << std::endl;
 
-    float cross_track_error = calculate_cross_track_distance(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track);
+    float cross_track_error = -calculate_cross_track_distance(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track);
     float track_angle_error = calculate_track_angle_error(initial_pose.pose, initial_pose.target_pose, initial_pose.desired_track);
 
     float cross_track_error_pid_result = p_ctrl(cross_track_error, cross_track_gain, cross_track_max, cross_track_min);
