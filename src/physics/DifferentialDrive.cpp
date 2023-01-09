@@ -227,7 +227,7 @@ namespace ck
             // Check all four cases and record the min and max valid accelerations.
             for (int i = 0; i < 2; i++)
             {
-                bool left = i == 0;
+                bool left = i == 1;
                 for (int j = 0; j < 2; j++)
                 {
                     double sign = j == 0 ? 1 : -1;
@@ -242,17 +242,18 @@ namespace ck
                     if (left)
                     {
                         variable_torque = ((/*-moi_ * chassis_velocity.linear * chassis_velocity.linear * dcurvature*/ -drag_torque) * mass_ * wheel_radius_ + fixed_torque *
-                                                                                                                                                                   (linear_term + angular_term)) /
+                                          (linear_term + angular_term)) /
                                           (linear_term - angular_term);
                     }
                     else
                     {
-                        variable_torque = ((/*moi_ * chassis_velocity.linear * chassis_velocity.linear * dcurvature*/ +drag_torque) * mass_ * wheel_radius_ + fixed_torque *
-                                                                                                                                                                  (linear_term - angular_term)) /
+                        variable_torque = ((/*moi_ * chassis_velocity.linear * chassis_velocity.linear * dcurvature*/ drag_torque) * mass_ * wheel_radius_ + fixed_torque *
+                                          (linear_term - angular_term)) /
                                           (linear_term + angular_term);
                     }
                     double variable_voltage = variable_transmission.getVoltageForTorque(!left ? wheel_velocities.left : wheel_velocities.right, variable_torque);
-                    if (std::fabs(variable_voltage) <= max_abs_voltage + ck::math::kEpsilon)
+                    double epsilon = 1e-6;
+                    if (std::abs(variable_voltage) <= max_abs_voltage + epsilon)
                     {
                         double accel = 0.0;
                         if (std::isinf(curvature))
