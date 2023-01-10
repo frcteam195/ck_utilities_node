@@ -221,7 +221,7 @@ namespace ck
         //             .left, dynamics.wheel_acceleration.right, feedforward_voltages.left, feedforward_voltages.right);
         // }
 
-        Output DriveMotionPlanner::updateRamsete(ck::physics::DriveDynamics dynamics, team254_geometry::Pose2d current_state)
+        Output DriveMotionPlanner::updateRamsete(ck::physics::DriveDynamics dynamics)
         {
             const double kBeta = 1.5;
             const double kZeta = 0.7;
@@ -313,7 +313,7 @@ namespace ck
             mDt = timestamp - mLastTime;
             mLastTime = timestamp;
             trajectory::TrajectorySamplePoint<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> sample_point = mCurrentTrajectory->advance(mDt);
-            mSetpoint = &sample_point.state();
+            // mSetpoint = &(sample_point.state());
 
             if (!mCurrentTrajectory->isDone())
             {
@@ -329,7 +329,9 @@ namespace ck
                 mError = current_state.inverse().transformBy(mSetpoint->state().getPose());
                 if (mFollowerType == FollowerType::NONLINEAR_FEEDBACK)
                 {
-                    mOutput = &updateRamsete(dynamics, current_state);
+                    // mOutput = &updateRamsete(dynamics);
+                    updateRamsete(dynamics);
+                    mOutput->setZeros();
                 }
             }
             else

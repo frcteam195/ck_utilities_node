@@ -73,7 +73,7 @@ namespace ck
 
             void setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> trajectory);
 
-            Output updateRamsete(ck::physics::DriveDynamics dynamics, team254_geometry::Pose2d current_state);
+            Output updateRamsete(ck::physics::DriveDynamics dynamics);
 
             Output* update(double timestamp, team254_geometry::Pose2d current_state);
 
