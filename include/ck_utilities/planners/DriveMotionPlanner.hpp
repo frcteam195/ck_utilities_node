@@ -35,6 +35,8 @@ namespace ck
             double mRightFeedForwardVoltage;
 
             void flip(void);
+
+            void setZeros(void);
         };
 
         class DriveMotionPlanner
@@ -71,6 +73,10 @@ namespace ck
 
             void setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> trajectory);
 
+            Output updateRamsete(ck::physics::DriveDynamics dynamics, team254_geometry::Pose2d current_state);
+
+            Output* update(double timestamp, team254_geometry::Pose2d current_state);
+
         private:
             static constexpr double kMaxDx = 2.0;
             static constexpr double kMaxDy = 0.25;
@@ -89,6 +95,10 @@ namespace ck
             team254_geometry::Pose2d mError = team254_geometry::Pose2d::identity();
             double mLastTime = ck::math::POS_INF_F;
             Output *mOutput = new Output();
+
+            physics::ChassisState prev_velocity_;
+
+            double mDt;
         };
 
     } // namespace planners
