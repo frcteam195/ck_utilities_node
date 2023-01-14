@@ -2,6 +2,7 @@
 
 #include "ck_utilities/team254_geometry/Translation2d.hpp"
 #include "ck_utilities/team254_geometry/Rotation2d.hpp"
+#include "ck_utilities/team254_geometry/Transform2d.hpp"
 #include "ck_utilities/team254_geometry/Twist2d.hpp"
 #include "ck_utilities/team254_geometry/IPose2d.hpp"
 
@@ -11,6 +12,8 @@ namespace ck
 {
     namespace team254_geometry
     {
+        class Transform2d;
+
         class Pose2d : public IPose2d<Pose2d>
         {
         protected:
@@ -44,6 +47,7 @@ namespace ck
             Translation2d getTranslation() const override;
             Rotation2d getRotation() const override;
             Pose2d transformBy(const Pose2d &other) const override;
+            Pose2d transformBy(const Transform2d &other) const;
 
             Pose2d inverse() const;
             Pose2d normal() const;

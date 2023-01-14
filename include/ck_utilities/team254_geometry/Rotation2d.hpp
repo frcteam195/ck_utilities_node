@@ -18,11 +18,18 @@ namespace ck
         protected:
             double cos_angle;
             double sin_angle;
+            double radians_;
+
+            double WrapRadians(double radians) const;
 
         public:
             static const Rotation2d &identity();
+            static const Rotation2d &kPi();
+            static const Rotation2d &kHalfPi();
             Rotation2d();
             Rotation2d(double x, double y, bool normalize);
+            Rotation2d(double radians, bool normalize);
+            Rotation2d(double x, double y, double radians);
             Rotation2d(const Translation2d &direction, bool normalize);
 
             bool operator==(const Rotation2d &obj) const;
@@ -36,10 +43,15 @@ namespace ck
             double tan() const;
             double getRadians() const;
             double getDegrees() const;
+            Rotation2d unaryMinus() const;
+            Rotation2d minus(const Rotation2d &other) const;
+            Rotation2d times(double scalar) const;
             Rotation2d getRotation() const override;
             Rotation2d rotateBy(const Rotation2d &other) const;
+            Rotation2d mirror() const;
             Rotation2d normal() const;
             Rotation2d inverse() const;
+            Rotation2d flip() const;
             bool isParallel(const Rotation2d &other) const;
             Translation2d toTranslation() const;
             Rotation2d interpolate(const Rotation2d &other, double interpFactor) const override;
@@ -47,6 +59,8 @@ namespace ck
             bool equals(const Rotation2d &other) override;
 
         private:
+            void calcRadians(void);
+            void calcTrig(void);
         };
     } // namespace team254_geometry
 } // namespace ck

@@ -44,5 +44,12 @@ namespace ck
             return dtheta / norm();
         }
 
+        bool Twist2d::epsilonEquals(const Twist2d &other, double epsilon) const
+        {
+            return math::epsilonEquals(dx, other.dx, epsilon) &&
+                   math::epsilonEquals(dy, other.dy, epsilon) &&
+                   math::epsilonEquals(dtheta, other.dtheta, epsilon);
+        }
+
     } // namespace team254_geometry
 } // namespace ck

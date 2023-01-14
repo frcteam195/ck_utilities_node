@@ -29,6 +29,7 @@ namespace ck
             virtual ~Translation2d();
 
             Translation2d operator+(const Translation2d &obj) const;
+            Translation2d operator-(const Translation2d &obj) const;
             bool operator==(const Translation2d &obj) const;
             friend std::ostream &operator<<(std::ostream &os, const Translation2d &t2d);
 
@@ -40,6 +41,9 @@ namespace ck
 
             Translation2d translateBy(const Translation2d &other) const;
             Translation2d rotateBy(const Rotation2d &rotation) const;
+
+            Translation2d unaryMinus() const;
+            Translation2d times(double scalar) const;
 
             Rotation2d direction() const;
             Translation2d inverse() const;
@@ -59,13 +63,11 @@ namespace ck
 
             double distance(const Translation2d &other) const override;
 
+            Translation2d add(const Translation2d &other) const;
+
             Translation2d getTranslation() const override;
 
             bool equals(const Translation2d &other) override;
-
-        private:
-            //Do not use. Instead, + by a negative translation
-            Translation2d operator-(const Translation2d &obj) const;
         };
     } // namespace team254_geometry
 } // namespace ck

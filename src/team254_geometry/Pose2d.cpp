@@ -88,6 +88,12 @@ namespace ck
             return Pose2d(translation.translateBy(other.translation.rotateBy(rotation)), rotation.rotateBy(other.rotation));
         }
 
+        Pose2d Pose2d::transformBy(const Transform2d &other) const
+        {
+            return Pose2d(translation + other.getTranslation().rotateBy(rotation),
+                          rotation.rotateBy(other.getRotation()));
+        }
+
         Pose2d Pose2d::inverse() const
         {
             Rotation2d rotation_inverted = rotation.inverse();

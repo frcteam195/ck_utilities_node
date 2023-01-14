@@ -26,6 +26,7 @@ namespace ck
             Twist2d scaled(double scale) const;
             double norm() const;
             double curvature() const;
+            bool epsilonEquals(const Twist2d &other, double epsilon) const;
 
         private:
         };

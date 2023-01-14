@@ -57,6 +57,16 @@ namespace ck
             return Translation2d(x_ * rotation.cos() - y_ * rotation.sin(), x_ * rotation.sin() + y_ * rotation.cos());
         }
 
+        Translation2d Translation2d::unaryMinus() const 
+        {
+            return Translation2d(-x_, -y_);
+        }
+
+        Translation2d Translation2d::times(double scalar) const
+        {
+            return Translation2d(x_*scalar, y_*scalar);
+        }
+
         Rotation2d Translation2d::direction() const
         {
             return Rotation2d(x_, y_, true);
@@ -118,6 +128,11 @@ namespace ck
         double Translation2d::distance(const Translation2d &other) const
         {
             return inverse().translateBy(other).norm();
+        }
+
+        Translation2d Translation2d::add(const Translation2d &other) const
+        {
+            return translateBy(other);
         }
 
         Translation2d Translation2d::getTranslation() const {
