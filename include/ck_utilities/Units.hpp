@@ -36,6 +36,11 @@ namespace ck
             return inches * 0.0254;
         }
 
+        inline double feet_to_meters(double feet)
+        {
+            return ck::math::inches_to_meters(feet * 12.0);
+        }
+
         inline double rpm_to_rads_per_sec(double rpm)
         {
             return rpm * 2.0 * PI / 60.0;

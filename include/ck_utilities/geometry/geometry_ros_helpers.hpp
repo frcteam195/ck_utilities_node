@@ -18,6 +18,9 @@ namespace geometry
     tf2::Quaternion to_tf2_quat(geometry::Rotation r);
     geometry_msgs::Quaternion to_msg_quat(geometry::Rotation r);
     tf2::Vector3 to_tf2(geometry::Translation t);
+    tf2::Transform to_tf2(geometry::Transform t);
+    tf2::Transform to_tf2(geometry::Transform t);
+    geometry_msgs::Transform to_msg(geometry::Transform t);
     geometry_msgs::Point to_msg_point(geometry::Translation t);
     tf2::Vector3 to_tf2(geometry::Rotation r);
     geometry_msgs::Vector3 to_msg(geometry::Rotation r);

@@ -102,6 +102,22 @@ tf2::Vector3 geometry::to_tf2(geometry::Translation t)
     return result;
 }
 
+tf2::Transform geometry::to_tf2(geometry::Transform t)
+{
+    tf2::Transform result;
+    result.setOrigin(geometry::to_tf2(t.linear));
+    result.setRotation(geometry::to_tf2_quat(t.angular));
+    return result;
+}
+
+geometry_msgs::Transform geometry::to_msg(geometry::Transform t)
+{
+    geometry_msgs::Transform result;
+    result.translation = to_msg(t.linear);
+    result.rotation = to_msg_quat(t.angular);
+    return result;
+}
+
 geometry_msgs::Point geometry::to_msg_point(geometry::Translation t)
 {
     tf2::Vector3 t2 = to_tf2(t);
@@ -144,13 +160,5 @@ geometry_msgs::Twist geometry::to_msg(geometry::Twist t)
     geometry_msgs::Twist result;
     result.angular = geometry::to_msg(t.angular);
     result.linear = geometry::to_msg(t.linear);
-    return result;
-}
-
-geometry_msgs::Transform geometry::to_msg(geometry::Transform t)
-{
-    geometry_msgs::Transform result;
-    result.translation = geometry::to_msg(t.linear);
-    result.rotation = geometry::to_msg_quat(t.angular);
     return result;
 }
