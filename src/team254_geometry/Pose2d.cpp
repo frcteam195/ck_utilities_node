@@ -1,4 +1,5 @@
 #include "ck_utilities/team254_geometry/Pose2d.hpp"
+#include "ck_utilities/team254_geometry/Pose2dWithCurvature.hpp"
 
 namespace ck
 {
@@ -12,7 +13,7 @@ namespace ck
         Pose2d::Pose2d() : translation(), rotation() {}
         Pose2d::Pose2d(double x, double y, const Rotation2d &rotation) : translation(x, y), rotation(rotation) {}
         Pose2d::Pose2d(const Translation2d &translation, const Rotation2d &rotation) : translation(translation), rotation(rotation) {}
-        // Pose2d::Pose2d(const Pose2dWithCurvature &other) : translation(other.getTranslation()), rotation(other.getRotation()) {}
+        Pose2d::Pose2d(const Pose2dWithCurvature &other) : translation(other.getTranslation()), rotation(other.getRotation()) {}
 
         bool Pose2d::operator==(const Pose2d &obj) const
         {
