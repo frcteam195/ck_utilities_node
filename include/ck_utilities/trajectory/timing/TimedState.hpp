@@ -48,6 +48,11 @@ namespace ck
                     return TimedState<S>(state().interpolate(other.state(), new_s / state().distance(other.state())), new_t, new_v, acceleration());
                 }
 
+                TimedState<S> add(const TimedState<S> &other) const override
+                {
+                    return TimedState<S>(state().add(other.state()));
+                }
+
                 double distance(const TimedState<S> &other) const override
                 {
                     return state().distance(other.state());

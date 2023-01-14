@@ -188,6 +188,11 @@ namespace ck
             return distance(other) < ck::math::kEpsilon;
         }
 
+        Rotation2d Rotation2d::add(const Rotation2d &other) const
+        {
+            return rotateBy(other);
+        }
+
         double Rotation2d::WrapRadians(double radians) const
         {
             double k2Pi = 2.0 * math::PI;

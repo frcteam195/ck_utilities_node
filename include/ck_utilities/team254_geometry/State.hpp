@@ -11,6 +11,7 @@ namespace ck
         {
         public:
            virtual double distance(const S &other) const = 0;
+           virtual S add(const S &other) const = 0;
            virtual bool equals(const S &other) = 0;
         };
     }

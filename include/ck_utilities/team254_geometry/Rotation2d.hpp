@@ -58,6 +58,8 @@ namespace ck
             double distance(const Rotation2d &other) const override;
             bool equals(const Rotation2d &other) override;
 
+            Rotation2d add(const Rotation2d &other) const override;
+
         private:
             void calcRadians(void);
             void calcTrig(void);

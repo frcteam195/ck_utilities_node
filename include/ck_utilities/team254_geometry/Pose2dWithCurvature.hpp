@@ -20,7 +20,9 @@ namespace ck
             static const Pose2dWithCurvature &identity();
 
             Pose2dWithCurvature();
+            Pose2dWithCurvature(const Pose2d &pose, double curvature);
             Pose2dWithCurvature(const Pose2d &pose, double curvature, double dcurvature_ds = 0);
+            Pose2dWithCurvature(const Translation2d &translation, const Rotation2d &rotation, double curvature);
             Pose2dWithCurvature(const Translation2d &translation, const Rotation2d &rotation, double curvature, double dcurvature_ds = 0);
             virtual ~Pose2dWithCurvature() {};
 
@@ -37,6 +39,9 @@ namespace ck
             Pose2dWithCurvature interpolate(const Pose2dWithCurvature &other, double interpFactor) const override;
             double distance(const Pose2dWithCurvature &other) const override;
             bool equals(const Pose2dWithCurvature &other) override;
+
+            Pose2dWithCurvature rotateBy(const Rotation2d &rotation) const override;
+            Pose2dWithCurvature add(const Pose2dWithCurvature &pose) const override;
         };
     } // namespace team254_geometry
 } // namespace ck
