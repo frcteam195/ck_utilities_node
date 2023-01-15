@@ -51,8 +51,8 @@ namespace ck
                     double max_abs_acceleration)
                 {
                     int num_states = (int)std::ceil(distance_view.last_interpolant() / step_size + 1);
-                    std::vector<S> states(num_states);
-                    std::vector<T> headings(num_states);
+                    std::vector<S> states;
+                    std::vector<T> headings;
                     for (int i = 0; i < num_states; ++i)
                     {
                         states.push_back(distance_view.sample(math::min(i * step_size, distance_view.last_interpolant())).state_);
@@ -174,10 +174,6 @@ namespace ck
                         constraint_states.push_back(constraint_state);
                     }
 
-                    for (ConstrainedState<S, T> cs : constraint_states)
-                    {
-                        std::cout << cs.max_translational_velocity << std::endl;
-                    }
 
                     // Backward pass.
                     ConstrainedState<S, T> successor;

@@ -21,7 +21,7 @@ namespace ck
         protected:
             std::vector<TrajectoryPoint<S, T>> points_;
             IndexView<S, T> index_view_;
-            double default_velocity_;
+            double default_velocity_ = 0.0;
 
         public:
             Trajectory()
@@ -71,6 +71,7 @@ namespace ck
             bool isEmpty() {return points_.empty();}
             int length() { return points_.size(); }
             TrajectoryPoint<S, T> getPoint(int index) { return points_[index]; }
+            TrajectoryPoint<S, T> getLastPoint() { return points_[points_.size() - 1]; }
             S getState(int index) { return points_[index].state_; }
             T getHeading(int index) { return points_[index].heading_; }
             S getFirstState() { return getState(0); }

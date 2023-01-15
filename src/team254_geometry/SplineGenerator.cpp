@@ -92,12 +92,11 @@ namespace ck
 
             for (size_t i = 0; i < splines.size(); i++)
             {
-                QuinticHermiteSpline &s = splines[i];
                 std::vector<Rotation2d> spline_rots;
                 spline_rots.push_back(headings[i]);
                 spline_rots.push_back(headings[i + 1]);
 
-                std::vector<trajectory::TrajectoryPoint<Pose2dWithCurvature, Rotation2d>> samples = parameterizeSpline(s, spline_rots, maxDx, maxDy, maxDTheta);
+                std::vector<trajectory::TrajectoryPoint<Pose2dWithCurvature, Rotation2d>> samples = parameterizeSpline(splines[i], spline_rots, maxDx, maxDy, maxDTheta);
                 samples.erase(std::begin(samples));
                 rv.insert(std::end(rv), std::begin(samples), std::end(samples));
             }
