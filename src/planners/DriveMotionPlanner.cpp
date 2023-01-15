@@ -75,7 +75,7 @@ namespace ck
                                                     transmission, transmission);
         }
 
-        trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> DriveMotionPlanner::generateTrajectory(bool reversed,
+        trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
                                                                                                                                      std::vector<team254_geometry::Pose2d> waypoints,
                                                                                                                                      double maximumVelocity,     // Inches per Second
                                                                                                                                      double maximumAcceleration, // Inches per Second^2
@@ -90,7 +90,7 @@ namespace ck
                                             maximumVoltage);
         }
 
-        trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> DriveMotionPlanner::generateTrajectory(bool reversed,
+        trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
                                                                                                                                      std::vector<team254_geometry::Pose2d> waypoints,
                                                                                                                                      double startVelocity,       // Inches per Second
                                                                                                                                      double endVelocity,         // Inches per Second
@@ -98,52 +98,61 @@ namespace ck
                                                                                                                                      double maximumAcceleration, // Inches per Second^2
                                                                                                                                      double maximumVoltage)
         {
-            std::vector<team254_geometry::Pose2d> modifiedWaypoints = waypoints;
-            team254_geometry::Pose2d flipFactor = team254_geometry::Pose2d::fromRotation(team254_geometry::Rotation2d(-1.0, 0.0, false));
+            (void)reversed;
+            (void)waypoints;
+            (void)startVelocity;
+            (void)endVelocity;
+            (void)maximumVelocity;
+            (void)maximumAcceleration;
+            (void)maximumVoltage;
 
-            // Flip the waypoints if the trajectory is reversed.
-            if (reversed)
-            {
-                for (size_t i = 0; i < waypoints.size(); ++i)
-                {
-                    modifiedWaypoints.push_back(waypoints[i].transformBy(flipFactor));
-                }
-            }
+            return trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>>();
+            // std::vector<team254_geometry::Pose2d> modifiedWaypoints = waypoints;
+            // team254_geometry::Pose2d flipFactor = team254_geometry::Pose2d::fromRotation(team254_geometry::Rotation2d(-1.0, 0.0, false));
 
-            // Create a trajectory from the splines.
-            trajectory::Trajectory<team254_geometry::Pose2dWithCurvature> trajectory = trajectory::TrajectoryUtil::trajectoryFromSplineWaypoints(modifiedWaypoints, kMaxDx, kMaxDy, kMaxDtheta);
+            // // Flip the waypoints if the trajectory is reversed.
+            // if (reversed)
+            // {
+            //     for (size_t i = 0; i < waypoints.size(); ++i)
+            //     {
+            //         modifiedWaypoints.push_back(waypoints[i].transformBy(flipFactor));
+            //     }
+            // }
 
-            if (reversed)
-            {
-                std::vector<team254_geometry::Pose2dWithCurvature> flippedCurvaturePoints;
+            // // Create a trajectory from the splines.
+            // trajectory::Trajectory<team254_geometry::Pose2dWithCurvature, team254_geometry::Rotation2d> trajectory = trajectory::TrajectoryUtil::trajectoryFromSplineWaypoints(modifiedWaypoints, kMaxDx, kMaxDy, kMaxDtheta);
 
-                for (int i = 0; i < trajectory.length(); ++i)
-                {
-                    flippedCurvaturePoints.push_back(team254_geometry::Pose2dWithCurvature(trajectory.getState(i).getPose().transformBy(flipFactor),
-                                                                                   -trajectory.getState(i).getCurvature(),
-                                                                                   trajectory.getState(i).getDCurvatureDs()));
-                }
+            // if (reversed)
+            // {
+            //     std::vector<team254_geometry::Pose2dWithCurvature> flippedCurvaturePoints;
 
-                trajectory = trajectory::Trajectory<team254_geometry::Pose2dWithCurvature>(flippedCurvaturePoints);
-            }
+            //     for (int i = 0; i < trajectory.length(); ++i)
+            //     {
+            //         flippedCurvaturePoints.push_back(team254_geometry::Pose2dWithCurvature(trajectory.getState(i).getPose().transformBy(flipFactor),
+            //                                                                        -trajectory.getState(i).getCurvature(),
+            //                                                                        trajectory.getState(i).getDCurvatureDs()));
+            //     }
 
-            // Create the constraint that the robot must be able to traverse the trajectory without ever applying more than the specified voltage.
-            trajectory::timing::DifferentialDriveDynamicsConstraint<team254_geometry::Pose2dWithCurvature> driveConstraints(*this->mModel, maximumVoltage);
-            trajectory::timing::CentripetalAccelerationConstraint centripetalAccelConstraint(kMaxCentripetalAccel);
+            //     trajectory = trajectory::Trajectory<team254_geometry::Pose2dWithCurvature>(flippedCurvaturePoints);
+            // }
 
-            std::vector<trajectory::timing::TimingConstraint<team254_geometry::Pose2dWithCurvature> *> constraints {&driveConstraints, &centripetalAccelConstraint};
+            // // Create the constraint that the robot must be able to traverse the trajectory without ever applying more than the specified voltage.
+            // trajectory::timing::DifferentialDriveDynamicsConstraint<team254_geometry::Pose2dWithCurvature> driveConstraints(*this->mModel, maximumVoltage);
+            // trajectory::timing::CentripetalAccelerationConstraint centripetalAccelConstraint(kMaxCentripetalAccel);
 
-            trajectory::DistanceView<team254_geometry::Pose2dWithCurvature> distanceView(trajectory);
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> timedTrajectory = trajectory::timing::TimingUtil::timeParameterizeTrajectory(reversed,
-                                                                                                                                                                               distanceView,
-                                                                                                                                                                               kMaxDx,
-                                                                                                                                                                               constraints,
-                                                                                                                                                                               startVelocity,
-                                                                                                                                                                               endVelocity,
-                                                                                                                                                                               maximumVelocity,
-                                                                                                                                                                               maximumAcceleration);
+            // std::vector<trajectory::timing::TimingConstraint<team254_geometry::Pose2dWithCurvature> *> constraints {&driveConstraints, &centripetalAccelConstraint};
 
-            return timedTrajectory;
+            // trajectory::DistanceView<team254_geometry::Pose2dWithCurvature> distanceView(trajectory);
+            // trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> timedTrajectory = trajectory::timing::TimingUtil::timeParameterizeTrajectory(reversed,
+            //                                                                                                                                                                    distanceView,
+            //                                                                                                                                                                    kMaxDx,
+            //                                                                                                                                                                    constraints,
+            //                                                                                                                                                                    startVelocity,
+            //                                                                                                                                                                    endVelocity,
+            //                                                                                                                                                                    maximumVelocity,
+            //                                                                                                                                                                    maximumAcceleration);
+
+            // return timedTrajectory;
         }
 
         bool DriveMotionPlanner::isDone(void)
@@ -163,7 +172,7 @@ namespace ck
             mFollowerType = type;
         }
 
-        void DriveMotionPlanner::setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> trajectory)
+        void DriveMotionPlanner::setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> trajectory)
         {
             *mCurrentTrajectory = trajectory;
             *mSetpoint = trajectory.getState();
@@ -312,7 +321,7 @@ namespace ck
 
             mDt = timestamp - mLastTime;
             mLastTime = timestamp;
-            trajectory::TrajectorySamplePoint<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> sample_point = mCurrentTrajectory->advance(mDt);
+            trajectory::TrajectorySamplePoint<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> sample_point = mCurrentTrajectory->advance(mDt);
             // mSetpoint = &(sample_point.state());
 
             if (!mCurrentTrajectory->isDone())

@@ -11,20 +11,21 @@ namespace ck
 {
     namespace trajectory
     {
-        template <class S>
+        template <class S, class T>
         class PurePursuitController : public IPathFollower
         {
             static_assert(std::is_base_of<ck::team254_geometry::ITranslation2d<S>, S>::value, "S must inherit from ITranslation2d<S>");
+            static_assert(std::is_base_of<ck::team254_geometry::IRotation2d<T>, T>::value, "T must inherit from IRotation2d<T>");
 
         protected:
-            TrajectoryIterator<S> iterator_;
+            TrajectoryIterator<S, T> iterator_;
             double sampling_dist_;
             double lookahead_;
             double goal_tolerance_;
             bool done_ = false;
 
         public:
-            PurePursuitController(const DistanceView<S> &path, double sampling_dist, double lookahead, double goal_tolerance)
+            PurePursuitController(const DistanceView<S, T> &path, double sampling_dist, double lookahead, double goal_tolerance)
                 : iterator_(path), sampling_dist_(sampling_dist), lookahead_(lookahead), goal_tolerance_(goal_tolerance) {}
 
             ck::team254_geometry::Twist2d steer(const ck::team254_geometry::Pose2d &current_pose)
@@ -58,14 +59,15 @@ namespace ck
                     }
                 }
                 iterator_.advance(goal_progress);
-                Arc<S> arc(current_pose, iterator_.getState());
-                if (arc.length < Util.kEpsilon)
+                const team254_geometry::Translation2d path_setpoint = current_pose.getTranslation().inverse().translateBy(iterator_.getState().getTranslation());
+                const team254_geometry::Rotation2d heading_setpoint = current_pose.getRotation().inverse().rotateBy(iterator_.getHeading().getRotation());
+                if (path_setpoint.norm() < math::kEpsilon)
                 {
-                    return Twist2d(0.0, 0.0, 0.0);
+                    return team254_geometry::Twist2d(0.0, 0.0, 0.0);
                 }
                 else
                 {
-                    return Twist2d(arc.length, 0.0, arc.length / arc.radius);
+                    return team254_geometry::Twist2d(path_setpoint.x(), path_setpoint.y(), heading_setpoint.getRadians());
                 }
             }
 

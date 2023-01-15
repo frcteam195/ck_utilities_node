@@ -52,13 +52,13 @@ namespace ck
 
             DriveMotionPlanner(void);
 
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> generateTrajectory(bool reversed,
+            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> generateTrajectory(bool reversed,
                                                                                                                      std::vector<team254_geometry::Pose2d> waypoints,
                                                                                                                      double maximumVelocity,   // Inches per Second
                                                                                                                      double maximumAcceleration, // Inches per Second^2
                                                                                                                      double maximumVoltage);
                                                                                                                      
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> generateTrajectory(bool reversed,
+            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> generateTrajectory(bool reversed,
                                                                                                                      std::vector<team254_geometry::Pose2d> waypoints,
                                                                                                                      double startVelocity, // Inches per Second
                                                                                                                      double endVelocity, // Inches per Second
@@ -71,7 +71,7 @@ namespace ck
 
             void setFollowerType(FollowerType type);
 
-            void setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> trajectory);
+            void setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> trajectory);
 
             Output updateRamsete(ck::physics::DriveDynamics dynamics);
 
@@ -83,10 +83,10 @@ namespace ck
             static constexpr double kMaxDtheta = 0.0872665; // 5 Degrees
             static constexpr double kMaxCentripetalAccel = 60.0;
 
-            trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> *mCurrentTrajectory = NULL;
+            trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> *mCurrentTrajectory = NULL;
             trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> *mSetpoint = new trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>(team254_geometry::Pose2dWithCurvature::identity());
     
-            FollowerType mFollowerType = FollowerType::NONLINEAR_FEEDBACK;
+            FollowerType mFollowerType = FollowerType::PURE_PURSUIT;
             
             bool mIsReversed = false;
 

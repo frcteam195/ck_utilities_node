@@ -11,12 +11,12 @@ namespace ck
         class MirroredTrajectory
         {
         public:
-            MirroredTrajectory(trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > right);
+            // MirroredTrajectory(trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > right);
 
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > get(bool left = false);
+            // trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > get(bool left = false);
 
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > left;
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > right;
+            // trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > left;
+            // trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> > right;
         };
     } // namespace trajectory
 } // namespace ck

@@ -11,7 +11,7 @@ namespace ck
         class TrajectorySet
         {
         public:
-            MirroredTrajectory *test90DegPath;
+            // MirroredTrajectory *test90DegPath;
 
             TrajectorySet(void);
         };
@@ -37,12 +37,12 @@ namespace ck
             TrajectoryGenerator(void);
 
         public:
-            MirroredTrajectory generateMirroredTrajectory(bool reversed,
-                                                          std::vector<team254_geometry::Pose2d> waypoints,
-                                                          /* TODO: Implement Timing Constraint, */
-                                                          double maximumVelocity,
-                                                          double maximumAcceleration,
-                                                          double maximumVoltage);
+            // MirroredTrajectory generateMirroredTrajectory(bool reversed,
+            //                                               std::vector<team254_geometry::Pose2d> waypoints,
+            //                                               /* TODO: Implement Timing Constraint, */
+            //                                               double maximumVelocity,
+            //                                               double maximumAcceleration,
+            //                                               double maximumVoltage);
 
             void generateTrajectories(void);
 
