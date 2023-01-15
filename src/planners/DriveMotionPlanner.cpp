@@ -11,6 +11,38 @@ namespace ck
 {
     namespace planners
     {
+        ChassisSpeeds::ChassisSpeeds() {}
+
+        ChassisSpeeds::ChassisSpeeds(double vxMPerSec, double vyMPerSec, double omegaRadPerSec)
+        {
+            vxMetersPerSecond = vxMPerSec;
+            vyMetersPerSecond = vyMPerSec;
+            omegaRadiansPerSecond = omegaRadPerSec;
+        }
+
+        ChassisSpeeds ChassisSpeeds::fromFieldRelativeSpeeds(double vxMPerSec,
+                                                             double vyMPerSec,
+                                                             double omegaRadPerSec,
+                                                             Rotation2d robotAngle)
+        {
+            return ChassisSpeeds(
+                vxMPerSec * robotAngle.cos() + vyMPerSec * robotAngle.sin(),
+                -vxMPerSec * robotAngle.sin() + vyMPerSec * robotAngle.cos(),
+                omegaRadPerSec);
+        } 
+
+        ChassisSpeeds ChassisSpeeds::fromRobotRelativeSpeeds(double vxMPerSec,
+                                                        double vyMPerSec,
+                                                        double omegaRadPerSec)
+        {
+            return ChassisSpeeds(vxMPerSec, vyMPerSec, omegaRadPerSec);
+        }
+
+        Twist2d ChassisSpeeds::toTwist2d() const
+        {
+            return Twist2d(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
+        }
+
         Output::Output(double leftVelocity,
                    double rightVelocity,
                    double leftAcceleration,
@@ -56,6 +88,7 @@ namespace ck
         }
 
         DriveMotionPlanner::DriveMotionPlanner(void)
+            : mSpeedLookahead(kAdaptivePathPlannerMinLookaheadDistance, kAdaptivePathPlannerMaxLookaheadDistance, 0.0, math::meters_to_inches(kMaxVelocityMetersPerSecond))
         {
             mDt = 0.0;
 
@@ -64,25 +97,22 @@ namespace ck
             double torquePerVolt = wheelRadiusSquaredMeters * K_ROBOT_LINEAR_INERTIA / (2.0 * K_DRIVE_KA);
 
             physics::DCMotorTransmission transmission = physics::DCMotorTransmission(1.0 / K_DRIVE_KV, torquePerVolt, K_DRIVE_V_INTERCEPT);
+            (void)transmission;
 
             double effectiveWheelbaseRadius = math::inches_to_meters(K_DRIVE_WHEEL_TRACK_WIDTH_INCHES / 2.0 * K_TRACK_SCRUB_FACTOR);
-
-            mModel = new physics::DifferentialDrive(K_ROBOT_LINEAR_INERTIA,
-                                                    K_ROBOT_ANGULAR_INERTIA,
-                                                    K_ROBOT_ANGULAR_DRAG,
-                                                    wheelRadiusMeters,
-                                                    effectiveWheelbaseRadius,
-                                                    transmission, transmission);
+            (void)effectiveWheelbaseRadius;
         }
 
-        trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
-                                                                                                                                     std::vector<team254_geometry::Pose2d> waypoints,
-                                                                                                                                     double maximumVelocity,     // Inches per Second
-                                                                                                                                     double maximumAcceleration, // Inches per Second^2
-                                                                                                                                     double maximumVoltage)
+        Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
+                                                                                                                   std::vector<Pose2d> waypoints,
+                                                                                                                   std::vector<Rotation2d> headings,
+                                                                                                                   double maximumVelocity,     // Inches per Second
+                                                                                                                   double maximumAcceleration, // Inches per Second^2
+                                                                                                                   double maximumVoltage)
         {
             return this->generateTrajectory(reversed,
                                             waypoints,
+                                            headings,
                                             0.0,
                                             0.0,
                                             maximumVelocity,
@@ -90,69 +120,61 @@ namespace ck
                                             maximumVoltage);
         }
 
-        trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
-                                                                                                                                     std::vector<team254_geometry::Pose2d> waypoints,
-                                                                                                                                     double startVelocity,       // Inches per Second
-                                                                                                                                     double endVelocity,         // Inches per Second
-                                                                                                                                     double maximumVelocity,     // Inches per Second
-                                                                                                                                     double maximumAcceleration, // Inches per Second^2
-                                                                                                                                     double maximumVoltage)
+        Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
+                                                                                                                   std::vector<Pose2d> waypoints,
+                                                                                                                   std::vector<Rotation2d> headings,
+                                                                                                                   double startVelocity,       // Inches per Second
+                                                                                                                   double endVelocity,         // Inches per Second
+                                                                                                                   double maximumVelocity,     // Inches per Second
+                                                                                                                   double maximumAcceleration, // Inches per Second^2
+                                                                                                                   double maximumVoltage)
         {
-            (void)reversed;
-            (void)waypoints;
-            (void)startVelocity;
-            (void)endVelocity;
-            (void)maximumVelocity;
-            (void)maximumAcceleration;
             (void)maximumVoltage;
+            std::vector<Pose2d> waypoints_maybe_flipped(waypoints);
+            std::vector<Rotation2d> headings_maybe_flipped(headings);
+            const Pose2d flip = Pose2d::fromRotation(Rotation2d(-1, 0, false));
 
-            return trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>>();
-            // std::vector<team254_geometry::Pose2d> modifiedWaypoints = waypoints;
-            // team254_geometry::Pose2d flipFactor = team254_geometry::Pose2d::fromRotation(team254_geometry::Rotation2d(-1.0, 0.0, false));
+            if (reversed)
+            {
+                waypoints_maybe_flipped.clear();
+                headings_maybe_flipped.clear();
+                for (size_t i = 0; i < waypoints.size(); i++)
+                {
+                    waypoints_maybe_flipped.push_back(waypoints[i].transformBy(flip));
+                    headings_maybe_flipped.push_back(headings[i].rotateBy(flip.getRotation()));
+                }
+            }
 
-            // // Flip the waypoints if the trajectory is reversed.
-            // if (reversed)
-            // {
-            //     for (size_t i = 0; i < waypoints.size(); ++i)
-            //     {
-            //         modifiedWaypoints.push_back(waypoints[i].transformBy(flipFactor));
-            //     }
-            // }
+            Trajectory<Pose2dWithCurvature, Rotation2d> trajectory = TrajectoryUtil::trajectoryFromWaypoints(
+                waypoints_maybe_flipped, headings_maybe_flipped, kMaxDx, kMaxDy, kMaxDTheta);
+            
+            if (reversed)
+            {
+                std::vector<Pose2dWithCurvature> flipped_points(trajectory.length());
+                std::vector<Rotation2d> flipped_headings(trajectory.length());
+                for (int i = 0; i < trajectory.length(); i++)
+                {
+                    flipped_points.push_back(Pose2dWithCurvature(trajectory.getState(i).getPose().transformBy(flip),
+                                                                 -trajectory.getState(i).getCurvature(),
+                                                                 trajectory.getState(i).getDCurvatureDs()));
+                    flipped_headings.push_back(Rotation2d(trajectory.getHeading(i).rotateBy(flip.getRotation())));
+                }
+                trajectory = Trajectory<Pose2dWithCurvature, Rotation2d>(flipped_points, flipped_headings);
+            }
 
-            // // Create a trajectory from the splines.
-            // trajectory::Trajectory<team254_geometry::Pose2dWithCurvature, team254_geometry::Rotation2d> trajectory = trajectory::TrajectoryUtil::trajectoryFromSplineWaypoints(modifiedWaypoints, kMaxDx, kMaxDy, kMaxDtheta);
+            std::vector<TimingConstraint<Pose2dWithCurvature> *> constraints;
 
-            // if (reversed)
-            // {
-            //     std::vector<team254_geometry::Pose2dWithCurvature> flippedCurvaturePoints;
+            DistanceView<Pose2dWithCurvature, Rotation2d> distance_view(trajectory);
+            Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> timed_trajectory = TimingUtil::timeParameterizeTrajectory(reversed,
+                                                                                                                                          distance_view,
+                                                                                                                                          kMaxDx,
+                                                                                                                                          constraints,
+                                                                                                                                          startVelocity,
+                                                                                                                                          endVelocity,
+                                                                                                                                          maximumVelocity,
+                                                                                                                                          maximumAcceleration);
 
-            //     for (int i = 0; i < trajectory.length(); ++i)
-            //     {
-            //         flippedCurvaturePoints.push_back(team254_geometry::Pose2dWithCurvature(trajectory.getState(i).getPose().transformBy(flipFactor),
-            //                                                                        -trajectory.getState(i).getCurvature(),
-            //                                                                        trajectory.getState(i).getDCurvatureDs()));
-            //     }
-
-            //     trajectory = trajectory::Trajectory<team254_geometry::Pose2dWithCurvature>(flippedCurvaturePoints);
-            // }
-
-            // // Create the constraint that the robot must be able to traverse the trajectory without ever applying more than the specified voltage.
-            // trajectory::timing::DifferentialDriveDynamicsConstraint<team254_geometry::Pose2dWithCurvature> driveConstraints(*this->mModel, maximumVoltage);
-            // trajectory::timing::CentripetalAccelerationConstraint centripetalAccelConstraint(kMaxCentripetalAccel);
-
-            // std::vector<trajectory::timing::TimingConstraint<team254_geometry::Pose2dWithCurvature> *> constraints {&driveConstraints, &centripetalAccelConstraint};
-
-            // trajectory::DistanceView<team254_geometry::Pose2dWithCurvature> distanceView(trajectory);
-            // trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> timedTrajectory = trajectory::timing::TimingUtil::timeParameterizeTrajectory(reversed,
-            //                                                                                                                                                                    distanceView,
-            //                                                                                                                                                                    kMaxDx,
-            //                                                                                                                                                                    constraints,
-            //                                                                                                                                                                    startVelocity,
-            //                                                                                                                                                                    endVelocity,
-            //                                                                                                                                                                    maximumVelocity,
-            //                                                                                                                                                                    maximumAcceleration);
-
-            // return timedTrajectory;
+            return timed_trajectory;
         }
 
         bool DriveMotionPlanner::isDone(void)
@@ -162,8 +184,8 @@ namespace ck
 
         void DriveMotionPlanner::reset(void)
         {
-            mError = team254_geometry::Pose2d::identity();
-            mOutput = new Output();
+            mError = const_cast<Pose2d *>(&Pose2d::identity());
+            mOutput = ChassisSpeeds();
             mLastTime = ck::math::POS_INF_F;
         }
 
@@ -172,10 +194,10 @@ namespace ck
             mFollowerType = type;
         }
 
-        void DriveMotionPlanner::setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> trajectory)
+        void DriveMotionPlanner::setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory)
         {
             *mCurrentTrajectory = trajectory;
-            *mSetpoint = trajectory.getState();
+            // *mSetpoint = trajectory.getState();
 
             for (int i = 0; i < trajectory.trajectory().length(); ++i)
             {
@@ -232,38 +254,8 @@ namespace ck
 
         Output DriveMotionPlanner::updateRamsete(ck::physics::DriveDynamics dynamics)
         {
-            const double kBeta = 1.5;
-            const double kZeta = 0.7;
-
-            const double k = 2.0 * kZeta * std::sqrt(kBeta * dynamics.chassis_velocity.linear * dynamics.chassis_velocity.linear
-                             + dynamics.chassis_velocity.angular * dynamics.chassis_velocity.angular);
-
-            const double angular_error_rads = mError.getRotation().getRadians();
-            const double sin_x_over_x = ck::math::epsilonEquals(angular_error_rads, 0.0, 1e-2) ?
-                                        1.0 : mError.getRotation().sin() / angular_error_rads;
-            physics::ChassisState adjusted_velocity;
-            adjusted_velocity.linear = dynamics.chassis_velocity.linear * mError.getRotation().cos() +
-                                       k * ck::math::inches_to_meters(mError.getTranslation().x());
-            adjusted_velocity.angular = dynamics.chassis_velocity.angular + k * angular_error_rads +
-                                        dynamics.chassis_velocity.linear * kBeta * sin_x_over_x *
-                                        ck::math::inches_to_meters(mError.getTranslation().y());
-
-            dynamics.chassis_velocity = adjusted_velocity;
-            dynamics.wheel_velocity = mModel->solveInverseKinematics(adjusted_velocity);
-
-            dynamics.chassis_acceleration.linear = mDt == 0 ? 0.0 : (dynamics.chassis_velocity.linear -
-                                                                    prev_velocity_.linear) / mDt;
-            dynamics.chassis_acceleration.angular = mDt == 0 ? 0.0 : (dynamics.chassis_velocity.angular -
-                                                                      prev_velocity_.angular) / mDt;
-
-            prev_velocity_ = dynamics.chassis_velocity;
-
-            physics::WheelState feedforward_voltages = mModel->solveInverseDynamics(dynamics.chassis_velocity, dynamics.chassis_acceleration).voltage;
-
-            Output result(dynamics.wheel_velocity.left, dynamics.wheel_velocity.right, dynamics.wheel_acceleration.left,
-                          dynamics.wheel_acceleration.right, feedforward_voltages.left, feedforward_voltages.right);
-
-            return result;
+            (void)dynamics;
+            return Output();
         }
 
         // public DriveOutput update(double timestamp, Pose2d current_state) {
@@ -308,47 +300,11 @@ namespace ck
         // }
         Output* DriveMotionPlanner::update(double timestamp, team254_geometry::Pose2d current_state)
         {
-            if (mCurrentTrajectory == nullptr)
-            {
-                mOutput->setZeros();
-                return mOutput;
-            }
+            (void)timestamp;
+            (void)current_state;
 
-            if (mCurrentTrajectory->getProgress() == 0.0 && !std::isinf(mLastTime))
-            {
-                mLastTime = timestamp;
-            }
-
-            mDt = timestamp - mLastTime;
-            mLastTime = timestamp;
-            trajectory::TrajectorySamplePoint<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>, trajectory::timing::TimedState<team254_geometry::Rotation2d>> sample_point = mCurrentTrajectory->advance(mDt);
-            // mSetpoint = &(sample_point.state());
-
-            if (!mCurrentTrajectory->isDone())
-            {
-                double velocity_m = math::inches_to_meters(mSetpoint->velocity());
-                double curvature_m = math::meters_to_inches(mSetpoint->state().getCurvature());
-                double dcurvature_ds_m = math::meters_to_inches(math::meters_to_inches(mSetpoint->state().getDCurvatureDs()));
-                double acceleration_m = math::inches_to_meters(mSetpoint->acceleration());
-
-                physics::ChassisState chassis_velocity{velocity_m, velocity_m * curvature_m};
-                physics::ChassisState chassis_acceleration{acceleration_m, acceleration_m * curvature_m + velocity_m * velocity_m * dcurvature_ds_m};
-
-                const physics::DriveDynamics dynamics = mModel->solveInverseDynamics(chassis_velocity, chassis_acceleration);
-                mError = current_state.inverse().transformBy(mSetpoint->state().getPose());
-                if (mFollowerType == FollowerType::NONLINEAR_FEEDBACK)
-                {
-                    // mOutput = &updateRamsete(dynamics);
-                    updateRamsete(dynamics);
-                    mOutput->setZeros();
-                }
-            }
-            else
-            {
-                mOutput->setZeros();
-            }
-
-            return mOutput;
+            Output* out = new Output();
+            return out;
         }
 
     } // namespace planners

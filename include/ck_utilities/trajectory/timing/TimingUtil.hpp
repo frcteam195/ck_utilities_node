@@ -58,7 +58,7 @@ namespace ck
                         states.push_back(distance_view.sample(math::min(i * step_size, distance_view.last_interpolant())).state_);
                         headings.push_back(distance_view.sample(math::min(i * step_size, distance_view.last_interpolant())).heading_);
                     }
-                    return timeParameterizeTrajectory(reverse, states, constraints, start_velocity, end_velocity, max_translational_velocity, max_abs_acceleration);
+                    return timeParameterizeTrajectory(reverse, states, headings, constraints, start_velocity, end_velocity, max_translational_velocity, max_abs_acceleration);
                 }
 
                 template <class S, class T>
@@ -138,7 +138,7 @@ namespace ck
                                 constraint_state.min_translational_acceleration = ck::math::max(constraint_state.min_translational_acceleration, reverse ? -min_max_accel.max_acceleration() : min_max_accel.min_acceleration());
                                 constraint_state.max_acceleration = ck::math::min(constraint_state.max_acceleration, reverse ? -min_max_accel.min_acceleration() : min_max_accel.max_acceleration());
                             }
-                            if (constraint_state.min_acceleration > constraint_state.max_acceleration)
+                            if (constraint_state.min_translational_acceleration > constraint_state.max_acceleration)
                             {
                                 // This should never happen if constraints are well-behaved.
                                 throw;
@@ -172,6 +172,11 @@ namespace ck
                         // ConsoleReporter.report("i: " + i + ", " + constraint_state.toString());
                         predecessor = constraint_state;
                         constraint_states.push_back(constraint_state);
+                    }
+
+                    for (ConstrainedState<S, T> cs : constraint_states)
+                    {
+                        std::cout << cs.max_translational_velocity << std::endl;
                     }
 
                     // Backward pass.
@@ -214,7 +219,7 @@ namespace ck
                                 constraint_state.min_translational_acceleration = ck::math::max(constraint_state.min_translational_acceleration, reverse ? -min_max_accel.max_acceleration() : min_max_accel.min_acceleration());
                                 constraint_state.max_acceleration = ck::math::min(constraint_state.max_acceleration, reverse ? -min_max_accel.min_acceleration() : min_max_accel.max_acceleration());
                             }
-                            if (constraint_state.min_acceleration > constraint_state.max_acceleration)
+                            if (constraint_state.min_translational_acceleration > constraint_state.max_acceleration)
                             {
                                 throw;
                             }
@@ -241,10 +246,6 @@ namespace ck
                         successor = constraint_state;
                     }
 
-                    // for (ConstrainedState<S> cs : constraint_states)
-                    // {
-                    //     std::cout << cs.max_velocity << std::endl;
-                    // }
                     
                     // Integrate the constrained states forward in time to obtain the TimedStates.
                     std::vector<TimedState<S>> timed_states;
@@ -264,11 +265,11 @@ namespace ck
                         if (i > 0)
                         {
                             timed_states[i - 1].set_acceleration(reverse ? -accel : accel);
-                            if (std::fabs(accel) > kEpsilon)
+                            if (std::abs(accel) > kEpsilon)
                             {
                                 dt = (constrained_state.max_translational_velocity - v) / accel;
                             }
-                            else if (std::fabs(v) > kEpsilon)
+                            else if (std::abs(v) > kEpsilon)
                             {
                                 dt = ds / v;
                             }

@@ -39,4 +39,8 @@ namespace ck
     constexpr double K_LIDAR_X_OFFSET = -3.3211;
     constexpr double K_LIDAR_Y_OFFSET = 0.0;
     constexpr double K_LIDAR_YAW_ANGLE_DEGREES = 0.0;
+
+    constexpr double kAdaptivePathPlannerMinLookaheadDistance = 6.0;
+    constexpr double kAdaptivePathPlannerMaxLookaheadDistance = 24.0;
+    constexpr double kMaxVelocityMetersPerSecond = 4.959668; // from da poofs (calculate this for our robot)
 } // namespace ck
