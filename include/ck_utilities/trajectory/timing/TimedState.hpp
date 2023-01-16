@@ -23,6 +23,7 @@ namespace ck
                 double acceleration_;
 
             public:
+                TimedState() : state_() {}
                 TimedState(S state) : state_(state) {}
                 TimedState(S state, double t, double velocity, double acceleration) : state_(state), t_(t), velocity_(velocity), acceleration_(acceleration) {}
                 virtual ~TimedState() {}

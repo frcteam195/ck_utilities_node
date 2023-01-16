@@ -43,64 +43,41 @@ namespace ck
             return Twist2d(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
         }
 
-        Output::Output(double leftVelocity,
-                   double rightVelocity,
-                   double leftAcceleration,
-                   double rightAcceleration,
-                   double leftFeedForwardVoltage,
-                   double rightFeedForwardVoltage)
-        {
-            mLeftVelocity = leftVelocity;
-            mRightVelocity = rightVelocity;
-
-            mLeftAcceleration = leftAcceleration;
-            mRightAcceleration = rightAcceleration;
-
-            mLeftFeedForwardVoltage = leftFeedForwardVoltage;
-            mRightFeedForwardVoltage = rightFeedForwardVoltage;
-        }
-
-        void Output::flip(void)
-        {
-            double tempLeftVelocity = mLeftVelocity;
-            mLeftVelocity = -mRightVelocity;
-            mRightVelocity = -tempLeftVelocity;
-
-            double tempLeftAcceleration = mLeftAcceleration;
-            mLeftAcceleration = -mRightAcceleration;
-            mRightAcceleration = -tempLeftAcceleration;
-
-            double tempLeftFeedForwardVoltage = mLeftFeedForwardVoltage;
-            mLeftFeedForwardVoltage = -mRightFeedForwardVoltage;
-            mRightFeedForwardVoltage = -tempLeftFeedForwardVoltage;
-        }
-
-        void Output::setZeros(void)
-        {
-            mLeftVelocity = 0.0;
-            mRightVelocity = 0.0;
-
-            mLeftAcceleration = 0.0;
-            mRightAcceleration = 0.0;
-
-            mLeftFeedForwardVoltage = 0.0;
-            mRightFeedForwardVoltage = 0.0;
-        }
-
         DriveMotionPlanner::DriveMotionPlanner(void)
-            : mSpeedLookahead(kAdaptivePathPlannerMinLookaheadDistance, kAdaptivePathPlannerMaxLookaheadDistance, 0.0, math::meters_to_inches(kMaxVelocityMetersPerSecond))
+            : mSpeedLookahead(kAdaptivePathMinLookaheadDistance, kAdaptivePathMaxLookaheadDistance, 0.0, math::meters_to_inches(kMaxVelocityMetersPerSecond))
+        {}
+
+        void DriveMotionPlanner::setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory)
         {
-            mDt = 0.0;
+            *mCurrentTrajectory = trajectory;
+            *mPathSetpoint = trajectory.getState();
+            *mHeadingSetpoint = trajectory.getHeading();
+            mLastHeadingSetpoint = nullptr;
+            mLastPathSetpoint = nullptr;
+            useDefaultCook = true;
+            mCurrentTrajectoryLength = mCurrentTrajectory->trajectory().getLastPoint().state_.t();
+            for (int i = 0; i < trajectory.trajectory().length(); i++)
+            {
+                if (trajectory.trajectory().getState(i).velocity() > math::kEpsilon)
+                {
+                    mIsReversed = false;
+                }
+                else if (trajectory.trajectory().getState(i).velocity() < -math::kEpsilon)
+                {
+                    mIsReversed = true;
+                    break;
+                }
+            }
+        }
 
-            double wheelRadiusMeters = math::inches_to_meters(K_DRIVE_WHEEL_RADIUS_INCHES);
-            double wheelRadiusSquaredMeters = wheelRadiusMeters * wheelRadiusMeters;
-            double torquePerVolt = wheelRadiusSquaredMeters * K_ROBOT_LINEAR_INERTIA / (2.0 * K_DRIVE_KA);
-
-            physics::DCMotorTransmission transmission = physics::DCMotorTransmission(1.0 / K_DRIVE_KV, torquePerVolt, K_DRIVE_V_INTERCEPT);
-            (void)transmission;
-
-            double effectiveWheelbaseRadius = math::inches_to_meters(K_DRIVE_WHEEL_TRACK_WIDTH_INCHES / 2.0 * K_TRACK_SCRUB_FACTOR);
-            (void)effectiveWheelbaseRadius;
+        void DriveMotionPlanner::reset(void)
+        {
+            *mTranslationError = Translation2d::identity();
+            *mHeadingError = Rotation2d::identity();
+            mLastHeadingSetpoint = nullptr;
+            mLastPathSetpoint = nullptr;
+            *mOutput = ChassisSpeeds();
+            mLastTime = math::POS_INF;
         }
 
         Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
@@ -177,134 +154,167 @@ namespace ck
             return timed_trajectory;
         }
 
+        ChassisSpeeds DriveMotionPlanner::updatePurePursuit(Pose2d current_state, double feedforwardOmegaRadiansPerSecond)
+        {
+            double lookahead_time = kPathLookaheadTime;
+            double kLookaheadSearchDt = 0.01;
+            TimedState<Pose2dWithCurvature> lookahead_state = mCurrentTrajectory->preview(lookahead_time).state();
+            double actual_lookahead_distance = mPathSetpoint->state().distance(lookahead_state.state());
+            double adaptive_lookahead_distance = mSpeedLookahead.getLookaheadForSpeed(mPathSetpoint->velocity()) + kAdaptiveErrorLookaheadCoefficient * mError->getTranslation().norm();
+
+            while (actual_lookahead_distance < adaptive_lookahead_distance &&
+                   mCurrentTrajectory->getRemainingProgress() > lookahead_time)
+            {
+                lookahead_time += kLookaheadSearchDt;
+                lookahead_state = mCurrentTrajectory->preview(lookahead_time).state();
+                actual_lookahead_distance = mPathSetpoint->state().distance(lookahead_state.state());
+            }
+
+            if (actual_lookahead_distance < adaptive_lookahead_distance)
+            {
+                Translation2d translation((mIsReversed ? -1.0 : 1.0) * (kPathMinLookaheadDistance - actual_lookahead_distance), 0.0);
+                Pose2d transform = Pose2d::fromTranslation(translation);
+                Pose2dWithCurvature pose(lookahead_state.state().getPose().transformBy(transform), 0.0);
+                lookahead_state = TimedState<Pose2dWithCurvature>(pose, lookahead_state.t(), lookahead_state.velocity(), lookahead_state.acceleration());
+            }
+
+            Translation2d lookaheadTranslation(current_state.getTranslation(), lookahead_state.state().getTranslation());
+            Rotation2d steeringDirection = lookaheadTranslation.direction().rotateBy(current_state.inverse().getRotation());
+
+            double normalizedSpeed = std::abs(mPathSetpoint->velocity()) / math::meters_to_inches(kMaxVelocityMetersPerSecond);
+
+            if (normalizedSpeed > defaultCook || mPathSetpoint->t() > (mCurrentTrajectoryLength / 2.0))
+            {
+                useDefaultCook = false;
+            }
+            if (useDefaultCook)
+            {
+                normalizedSpeed = defaultCook;
+            }
+
+            Translation2d steeringVector(steeringDirection.cos() * normalizedSpeed, steeringDirection.sin() * normalizedSpeed);
+            ChassisSpeeds chassisSpeeds(steeringVector.x() * kMaxVelocityMetersPerSecond,
+                                        steeringVector.y() * kMaxVelocityMetersPerSecond,
+                                        feedforwardOmegaRadiansPerSecond);
+
+            double kPathKTheta = 0.3;
+
+            chassisSpeeds.omegaRadiansPerSecond = chassisSpeeds.omegaRadiansPerSecond + kPathKTheta * mError->getRotation().getRadians();
+
+            return chassisSpeeds;
+        }
+
+        ChassisSpeeds DriveMotionPlanner::update(double timestamp, Pose2d current_state)
+        {
+            if (mCurrentTrajectory == nullptr) return ChassisSpeeds();
+
+            if (mCurrentTrajectory->getProgress() == 0.0 && !std::isfinite(mLastTime))
+            {
+                mLastTime = timestamp;
+
+                *mInitialHeading = Rotation2d(mCurrentTrajectory->trajectory().getHeading(0).state());
+                Rotation2d finalHeading = mCurrentTrajectory->trajectory().getLastPoint().heading_.state();
+                mTotalTime = mCurrentTrajectory->trajectory().getLastPoint().state_.t() -
+                             mCurrentTrajectory->trajectory().getState(0).t();
+                *mRotationDiff = finalHeading.rotateBy(mInitialHeading->inverse());
+
+                if (mRotationDiff->getRadians() > math::PI)
+                {
+                    *mRotationDiff = mRotationDiff->inverse().rotateBy(Rotation2d::fromRadians(math::PI));
+                }
+
+                mStartTime = timestamp;
+                if (std::abs(mRotationDiff->getRadians()) < 0.1)
+                {
+                    mDTheta = 0.0;
+                }
+                else
+                {
+                    mDTheta = mRotationDiff->getRadians() / mTotalTime;
+                }
+            }
+
+            mDt = timestamp - mLastTime;
+            mLastTime = timestamp;
+            TrajectorySamplePoint<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> sample_point;
+
+            *mHeadingSetpoint = TimedState<Rotation2d>(mInitialHeading->rotateBy(mRotationDiff->times(math::min(1.0, (timestamp - mStartTime) / mTotalTime))));
+            *mCurrentState = current_state;
+
+            if (!isDone())
+            {
+                sample_point = mCurrentTrajectory->advance(mDt);
+                *mError = current_state.inverse().transformBy(mPathSetpoint->state().getPose());
+                *mError = Pose2d(mError->getTranslation(), current_state.getRotation().inverse().rotateBy(mHeadingSetpoint->state().getRotation()));
+
+                if (mFollowerType == FollowerType::PURE_PURSUIT)
+                {
+                    double searchStepSize = 1.0;
+                    double previewQuantity = 0.0;
+                    double searchDirection = 1.0;
+                    double forwardDistance = distance(current_state, previewQuantity + searchStepSize);
+                    double reverseDistance = distance(current_state, previewQuantity - searchStepSize);
+                    searchDirection = math::signum(reverseDistance - forwardDistance);
+
+                    while (searchStepSize > 0.001)
+                    {
+                        if (math::epsilonEquals(distance(current_state, previewQuantity), 0.0, 0.01)) break;
+
+                        while(distance(current_state, previewQuantity + searchStepSize * searchDirection) < distance(current_state, previewQuantity))
+                        {
+                            previewQuantity += searchStepSize * searchDirection;
+                        }
+                        searchStepSize /= 10.0;
+                        searchDirection *= -1;
+                    }
+                    sample_point = mCurrentTrajectory->advance(previewQuantity);
+                    *mPathSetpoint = sample_point.state();
+
+                    *mOutput = updatePurePursuit(current_state, mDTheta);
+                }
+            }
+            else
+            {
+                *mOutput = ChassisSpeeds();
+            }
+
+            return *mOutput;
+        }
+
         bool DriveMotionPlanner::isDone(void)
         {
             return mCurrentTrajectory != NULL && mCurrentTrajectory->isDone();
         }
 
-        void DriveMotionPlanner::reset(void)
+        Translation2d DriveMotionPlanner::getTranslationalError()
         {
-            mError = const_cast<Pose2d *>(&Pose2d::identity());
-            mOutput = ChassisSpeeds();
-            mLastTime = ck::math::POS_INF_F;
+            return Translation2d(math::inches_to_meters(mError->getTranslation().x()),
+                                 math::inches_to_meters(mError->getTranslation().y()));
+        }
+
+        Rotation2d DriveMotionPlanner::getHeadingError()
+        {
+            return mError->getRotation();
+        }
+
+        double DriveMotionPlanner::distance(Pose2d current_state, double additional_progress)
+        {
+            return mCurrentTrajectory->preview(additional_progress).state().state().getPose().distance(current_state);
+        }
+
+        TimedState<Pose2dWithCurvature> DriveMotionPlanner::getPathSetpoint()
+        {
+            return *mPathSetpoint;
+        }
+
+        TimedState<Rotation2d> DriveMotionPlanner::getHeadingSetpoint()
+        {
+            return *mHeadingSetpoint;
         }
 
         void DriveMotionPlanner::setFollowerType(FollowerType type)
         {
             mFollowerType = type;
-        }
-
-        void DriveMotionPlanner::setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory)
-        {
-            *mCurrentTrajectory = trajectory;
-            // *mSetpoint = trajectory.getState();
-
-            for (int i = 0; i < trajectory.trajectory().length(); ++i)
-            {
-                if (trajectory.trajectory().getState(i).velocity() > ck::math::kEpsilon)
-                {
-                    mIsReversed = false;
-                    break;
-                }
-                else if (trajectory.trajectory().getState(i).velocity() < -ck::math::kEpsilon)
-                {
-                    mIsReversed = true;
-                    break;
-                }
-            }
-        }
-
-        // protected DriveOutput updateRamsete(DifferentialDrive.DriveDynamics dynamics, Pose2d current_state) {
-        //     // Implements eqn. 5.12 from https://www.dis.uniroma1.it/~labrob/pub/papers/Ramsete01.pdf
-        //     final double kBeta = 1.5;  // >0.
-        //     final double kZeta = 0.7;  // Damping coefficient, [0, 1].
-
-        //     // Compute gain parameter.
-        //     final double k = 2.0 * kZeta * Math.sqrt(kBeta * dynamics.chassis_velocity.linear * dynamics.chassis_velocity
-        //             .linear + dynamics.chassis_velocity.angular * dynamics.chassis_velocity.angular);
-
-        //     // Compute error components.
-        //     final double angle_error_rads = mError.getRotation().getRadians();
-        //     final double sin_x_over_x = Util.epsilonEquals(angle_error_rads, 0.0, 1E-2) ?
-        //             1.0 : mError.getRotation().sin() / angle_error_rads;
-        //     final DifferentialDrive.ChassisState adjusted_velocity = new DifferentialDrive.ChassisState(
-        //             dynamics.chassis_velocity.linear * mError.getRotation().cos() +
-        //                     k * Units.inches_to_meters(mError.getTranslation().x()),
-        //             dynamics.chassis_velocity.angular + k * angle_error_rads +
-        //                     dynamics.chassis_velocity.linear * kBeta * sin_x_over_x * Units.inches_to_meters(mError
-        //                             .getTranslation().y()));
-
-        //     // Compute adjusted left and right wheel velocities.
-        //     dynamics.chassis_velocity = adjusted_velocity;
-        //     dynamics.wheel_velocity = mModel.solveInverseKinematics(adjusted_velocity);
-
-        //     dynamics.chassis_acceleration.linear = mDt == 0 ? 0.0 : (dynamics.chassis_velocity.linear - prev_velocity_
-        //             .linear) / mDt;
-        //     dynamics.chassis_acceleration.angular = mDt == 0 ? 0.0 : (dynamics.chassis_velocity.angular - prev_velocity_
-        //             .angular) / mDt;
-
-        //     prev_velocity_ = dynamics.chassis_velocity;
-
-        //     DifferentialDrive.WheelState feedforward_voltages = mModel.solveInverseDynamics(dynamics.chassis_velocity,
-        //             dynamics.chassis_acceleration).voltage;
-
-        //     return new DriveOutput(dynamics.wheel_velocity.left, dynamics.wheel_velocity.right, dynamics.wheel_acceleration
-        //             .left, dynamics.wheel_acceleration.right, feedforward_voltages.left, feedforward_voltages.right);
-        // }
-
-        Output DriveMotionPlanner::updateRamsete(ck::physics::DriveDynamics dynamics)
-        {
-            (void)dynamics;
-            return Output();
-        }
-
-        // public DriveOutput update(double timestamp, Pose2d current_state) {
-        //     if (mCurrentTrajectory == null) return new DriveOutput();
-
-        //     if (mCurrentTrajectory.getProgress() == 0.0 && !Double.isFinite(mLastTime)) {
-        //         mLastTime = timestamp;
-        //     }
-
-        //     mDt = timestamp - mLastTime;
-        //     mLastTime = timestamp;
-        //     TrajectorySamplePoint<TimedState<Pose2dWithCurvature>> sample_point = mCurrentTrajectory.advance(mDt);
-        //     mSetpoint = sample_point.state();
-        //     if (!mCurrentTrajectory.isDone()) {
-        //         // Generate feedforward voltages.
-        //         final double velocity_m = Units.inches_to_meters(mSetpoint.velocity());
-        //         final double curvature_m = Units.meters_to_inches(mSetpoint.state().getCurvature());
-        //         final double dcurvature_ds_m = Units.meters_to_inches(Units.meters_to_inches(mSetpoint.state()
-        //                 .getDCurvatureDs()));
-        //         final double acceleration_m = Units.inches_to_meters(mSetpoint.acceleration());
-        //         final DifferentialDrive.DriveDynamics dynamics = mModel.solveInverseDynamics(
-        //                 new DifferentialDrive.ChassisState(velocity_m, velocity_m * curvature_m),
-        //                 new DifferentialDrive.ChassisState(acceleration_m,
-        //                         acceleration_m * curvature_m + velocity_m * velocity_m * dcurvature_ds_m));
-        //         mError = current_state.inverse().transformBy(mSetpoint.state().getPose());
-        //         if (mFollowerType == FollowerType.FEEDFORWARD_ONLY) {
-        //             mOutput = new DriveOutput(dynamics.wheel_velocity.left, dynamics.wheel_velocity.right, dynamics
-        //                     .wheel_acceleration.left, dynamics.wheel_acceleration.right, dynamics.voltage
-        //                     .left, dynamics.voltage.right);
-        //         } else if (mFollowerType == FollowerType.PURE_PURSUIT) {
-        //             mOutput = updatePurePursuit(dynamics, current_state);
-        //         } else if (mFollowerType == FollowerType.PID) {
-        //             mOutput = updatePID(dynamics, current_state);
-        //         } else if (mFollowerType == FollowerType.RAMSETE) {
-        //             mOutput = updateRamsete(dynamics, current_state);
-        //         }
-        //     } else {
-        //         // TODO Possibly switch to a pose stabilizing controller?
-        //         mOutput = new DriveOutput();
-        //     }
-        //     return mOutput;
-        // }
-        Output* DriveMotionPlanner::update(double timestamp, team254_geometry::Pose2d current_state)
-        {
-            (void)timestamp;
-            (void)current_state;
-
-            Output* out = new Output();
-            return out;
         }
 
     } // namespace planners

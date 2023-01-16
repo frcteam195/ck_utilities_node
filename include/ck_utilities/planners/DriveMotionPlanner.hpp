@@ -40,32 +40,6 @@ namespace ck
             double omegaRadiansPerSecond;
         };
 
-        class Output
-        {
-        public:
-            Output() {}
-
-            Output(double leftVelocity,
-                   double rightVelocity,
-                   double leftAcceleration,
-                   double rightAcceleration,
-                   double leftFeedForwardVoltage,
-                   double rightFeedForwardVoltage);
-
-            double mLeftVelocity;  // Radians per Second
-            double mRightVelocity; // Radians per Second
-
-            double mLeftAcceleration;  // Radians per Second^2
-            double mRightAcceleration; // Radians per Second^2
-
-            double mLeftFeedForwardVoltage;
-            double mRightFeedForwardVoltage;
-
-            void flip(void);
-
-            void setZeros(void);
-        };
-
         class DriveMotionPlanner
         {
         public:
@@ -77,6 +51,9 @@ namespace ck
             };
 
             DriveMotionPlanner(void);
+
+            void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory);
+            void reset(void);
 
             Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> generateTrajectory(bool reversed,
                                                                                                    std::vector<Pose2d> waypoints,
@@ -94,17 +71,20 @@ namespace ck
                                                                                                    double maximumAcceleration, // Inches per Second^2
                                                                                                    double maximumVoltage);
 
+            ChassisSpeeds updatePurePursuit(Pose2d current_state, double feedforwardOmegaRadiansPerSecond);
+            ChassisSpeeds update(double timestamp, Pose2d current_state);
+
             bool isDone(void);
 
-            void reset(void);
+            Translation2d getTranslationalError();
+            Rotation2d getHeadingError();
+
+            double distance(Pose2d current_state, double additional_progress);
+
+            TimedState<Pose2dWithCurvature> getPathSetpoint();
+            TimedState<Rotation2d> getHeadingSetpoint();
 
             void setFollowerType(FollowerType type);
-
-            void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory);
-
-            Output updateRamsete(ck::physics::DriveDynamics dynamics);
-
-            Output* update(double timestamp, team254_geometry::Pose2d current_state);
 
         private:
             static constexpr double kMaxDx = 2.0;
@@ -124,7 +104,7 @@ namespace ck
             double mLastTime = math::POS_INF;
 
             TimedState<Pose2dWithCurvature> *mLastPathSetpoint = nullptr;
-            TimedState<Pose2dWithCurvature> *mPaetSetpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature::identity());
+            TimedState<Pose2dWithCurvature> *mPathSetpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature::identity());
             TimedState<Rotation2d> *mHeadingSetpoint = nullptr;
             TimedState<Rotation2d> *mLastHeadingSetpoint = new TimedState<Rotation2d>(Rotation2d::identity());
 
@@ -142,12 +122,11 @@ namespace ck
             double mStartTime = math::POS_INF;
             double mDTheta = 0.0;
 
-            ChassisSpeeds mOutput;
+            ChassisSpeeds *mOutput = new ChassisSpeeds();
 
             Lookahead mSpeedLookahead;
 
             double mDt = 0.0;
-
         };
 
     } // namespace planners

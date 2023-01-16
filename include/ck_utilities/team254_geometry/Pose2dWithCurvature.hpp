@@ -21,7 +21,7 @@ namespace ck
 
             Pose2dWithCurvature();
             Pose2dWithCurvature(const Pose2d &pose, double curvature);
-            Pose2dWithCurvature(const Pose2d &pose, double curvature, double dcurvature_ds = 0);
+            Pose2dWithCurvature(const Pose2d &pose, double curvature, double dcurvature_ds);
             Pose2dWithCurvature(const Translation2d &translation, const Rotation2d &rotation, double curvature);
             Pose2dWithCurvature(const Translation2d &translation, const Rotation2d &rotation, double curvature, double dcurvature_ds = 0);
             virtual ~Pose2dWithCurvature() {};

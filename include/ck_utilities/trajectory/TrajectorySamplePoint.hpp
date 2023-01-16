@@ -26,6 +26,14 @@ namespace ck
             S state(){ return state_; }
             T heading(){ return heading_; }
 
+            TrajectorySamplePoint()
+                : state_(),
+                  heading_(),
+                  index_floor_(0),
+                  index_ceil_(0)
+            {
+            }
+
             TrajectorySamplePoint(const TrajectoryPoint<S, T> &point)
                 : state_(point.state_),
                   heading_(point.heading_),
