@@ -2,41 +2,42 @@
 
 #include "ck_utilities/CKMath.hpp"
 #include "ck_utilities/Constants.hpp"
-#include "ck_utilities/team254_geometry/Pose2dWithCurvature.hpp"
+#include "ck_utilities/team254_geometry/Geometry.hpp"
 #include "ck_utilities/physics/DifferentialDrive.hpp"
+#include "ck_utilities/trajectory/Lookahead.hpp"
 #include "ck_utilities/trajectory/Trajectory.hpp"
 #include "ck_utilities/trajectory/TrajectoryIterator.hpp"
 #include "ck_utilities/trajectory/timing/TimingConstraint.hpp"
 #include "ck_utilities/trajectory/timing/TimedState.hpp"
 
+using namespace ck::trajectory;
+using namespace ck::trajectory::timing;
+using namespace ck::team254_geometry;
+
 namespace ck
 {
     namespace planners
     {
-        class Output
+        class ChassisSpeeds
         {
         public:
-            Output() {}
+            ChassisSpeeds();
+            ChassisSpeeds(double vxMPerSec, double vyMPerSec, double omegaRadPerSec);
 
-            Output(double leftVelocity,
-                   double rightVelocity,
-                   double leftAcceleration,
-                   double rightAcceleration,
-                   double leftFeedForwardVoltage,
-                   double rightFeedForwardVoltage);
+            static ChassisSpeeds fromFieldRelativeSpeeds(double vxMPerSec,
+                                                         double vyMPerSec,
+                                                         double omegaRadPerSec,
+                                                         Rotation2d robotAngle);
 
-            double mLeftVelocity;  // Radians per Second
-            double mRightVelocity; // Radians per Second
+            static ChassisSpeeds fromRobotRelativeSpeeds(double vxMPerSec,
+                                                         double vyMPerSec,
+                                                         double omegaRadPerSec);
 
-            double mLeftAcceleration;  // Radians per Second^2
-            double mRightAcceleration; // Radians per Second^2
+            Twist2d toTwist2d() const;
 
-            double mLeftFeedForwardVoltage;
-            double mRightFeedForwardVoltage;
-
-            void flip(void);
-
-            void setZeros(void);
+            double vxMetersPerSecond;
+            double vyMetersPerSecond;
+            double omegaRadiansPerSecond;
         };
 
         class DriveMotionPlanner
@@ -47,58 +48,85 @@ namespace ck
                 FEEDFORWARD_ONLY,
                 PURE_PURSUIT,
                 PID,
-                NONLINEAR_FEEDBACK
             };
 
             DriveMotionPlanner(void);
 
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> generateTrajectory(bool reversed,
-                                                                                                                     std::vector<team254_geometry::Pose2d> waypoints,
-                                                                                                                     double maximumVelocity,   // Inches per Second
-                                                                                                                     double maximumAcceleration, // Inches per Second^2
-                                                                                                                     double maximumVoltage);
-                                                                                                                     
-            trajectory::Trajectory<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> generateTrajectory(bool reversed,
-                                                                                                                     std::vector<team254_geometry::Pose2d> waypoints,
-                                                                                                                     double startVelocity, // Inches per Second
-                                                                                                                     double endVelocity, // Inches per Second
-                                                                                                                     double maximumVelocity, // Inches per Second
-                                                                                                                     double maximumAcceleration, // Inches per Second^2
-                                                                                                                     double maximumVoltage);
-            bool isDone(void);
-
+            void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory);
             void reset(void);
 
+            Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> generateTrajectory(bool reversed,
+                                                                                                   std::vector<Pose2d> waypoints,
+                                                                                                   std::vector<Rotation2d> headings,
+                                                                                                   double maximumVelocity,   // Inches per Second
+                                                                                                   double maximumAcceleration, // Inches per Second^2
+                                                                                                   double maximumVoltage);
+                                                                                                                     
+            Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> generateTrajectory(bool reversed,
+                                                                                                   std::vector<Pose2d> waypoints,
+                                                                                                   std::vector<Rotation2d> headings,
+                                                                                                   double startVelocity, // Inches per Second
+                                                                                                   double endVelocity, // Inches per Second
+                                                                                                   double maximumVelocity, // Inches per Second
+                                                                                                   double maximumAcceleration, // Inches per Second^2
+                                                                                                   double maximumVoltage);
+
+            ChassisSpeeds updatePurePursuit(Pose2d current_state, double feedforwardOmegaRadiansPerSecond);
+            ChassisSpeeds update(double timestamp, Pose2d current_state);
+
+            bool isDone(void);
+
+            Translation2d getTranslationalError();
+            Rotation2d getHeadingError();
+
+            double distance(Pose2d current_state, double additional_progress);
+
+            TimedState<Pose2dWithCurvature> getPathSetpoint();
+            TimedState<Rotation2d> getHeadingSetpoint();
+
             void setFollowerType(FollowerType type);
-
-            void setTrajectory(trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> trajectory);
-
-            Output updateRamsete(ck::physics::DriveDynamics dynamics);
-
-            Output* update(double timestamp, team254_geometry::Pose2d current_state);
 
         private:
             static constexpr double kMaxDx = 2.0;
             static constexpr double kMaxDy = 0.25;
-            static constexpr double kMaxDtheta = 0.0872665; // 5 Degrees
+            // static constexpr double kMaxDtheta = 0.0872665; // 5 Degrees
+            double kMaxDTheta = math::deg2rad(1.0);
             static constexpr double kMaxCentripetalAccel = 60.0;
 
-            trajectory::TrajectoryIterator<trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>> *mCurrentTrajectory = NULL;
-            trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature> *mSetpoint = new trajectory::timing::TimedState<team254_geometry::Pose2dWithCurvature>(team254_geometry::Pose2dWithCurvature::identity());
-    
-            FollowerType mFollowerType = FollowerType::NONLINEAR_FEEDBACK;
-            
+            FollowerType mFollowerType = FollowerType::PURE_PURSUIT;
+
+            double defaultCook = 0.4;
+            bool useDefaultCook = true;
+
+            TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> *mCurrentTrajectory = nullptr;
+
             bool mIsReversed = false;
+            double mLastTime = math::POS_INF;
 
-            physics::DifferentialDrive *mModel;
+            TimedState<Pose2dWithCurvature> *mLastPathSetpoint = nullptr;
+            TimedState<Pose2dWithCurvature> *mPathSetpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature::identity());
+            TimedState<Rotation2d> *mHeadingSetpoint = nullptr;
+            TimedState<Rotation2d> *mLastHeadingSetpoint = new TimedState<Rotation2d>(Rotation2d::identity());
 
-            team254_geometry::Pose2d mError = team254_geometry::Pose2d::identity();
-            double mLastTime = ck::math::POS_INF_F;
-            Output *mOutput = new Output();
+            Pose2d *mError = new Pose2d(Pose2d::identity());
 
-            physics::ChassisState prev_velocity_;
+            Translation2d *mTranslationError = new Translation2d(Translation2d::identity());
+            Rotation2d *mHeadingError = new Rotation2d(Rotation2d::identity());
+            Rotation2d *mInitialHeading = new Rotation2d(Rotation2d::identity());
+            Rotation2d *mRotationDiff = new Rotation2d(Rotation2d::identity());
 
-            double mDt;
+            Pose2d *mCurrentState = new Pose2d(Pose2d::identity());
+
+            double mCurrentTrajectoryLength = 0.0;
+            double mTotalTime = math::POS_INF;
+            double mStartTime = math::POS_INF;
+            double mDTheta = 0.0;
+
+            ChassisSpeeds *mOutput = new ChassisSpeeds();
+
+            Lookahead mSpeedLookahead;
+
+            double mDt = 0.0;
         };
 
     } // namespace planners

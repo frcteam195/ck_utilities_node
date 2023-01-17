@@ -10,7 +10,7 @@ namespace ck
 {
     namespace trajectory
     {
-        template <class S>
+        template <class S, class T>
         class PurePursuitController;
 
         template <class S>

@@ -2,6 +2,7 @@
 
 #include "ck_utilities/team254_geometry/Translation2d.hpp"
 #include "ck_utilities/team254_geometry/Rotation2d.hpp"
+#include "ck_utilities/team254_geometry/Transform2d.hpp"
 #include "ck_utilities/team254_geometry/Twist2d.hpp"
 #include "ck_utilities/team254_geometry/IPose2d.hpp"
 
@@ -11,6 +12,9 @@ namespace ck
 {
     namespace team254_geometry
     {
+        class Transform2d;
+        class Pose2dWithCurvature;
+
         class Pose2d : public IPose2d<Pose2d>
         {
         protected:
@@ -23,6 +27,7 @@ namespace ck
             Pose2d();
             Pose2d(double x, double y, const Rotation2d &rotation);
             Pose2d(const Translation2d &translation, const Rotation2d &rotation);
+            Pose2d(const Pose2dWithCurvature &other);
 
             bool operator==(const Pose2d &obj) const;
             friend std::ostream &operator<<(std::ostream &os, const Pose2d &t2d);
@@ -43,7 +48,13 @@ namespace ck
 
             Translation2d getTranslation() const override;
             Rotation2d getRotation() const override;
+            Pose2d rotateBy(const Rotation2d &other) const override;
             Pose2d transformBy(const Pose2d &other) const override;
+            Pose2d transformBy(const Transform2d &other) const;
+
+            Pose2d add(const Pose2d &other) const override;
+            Transform2d minus(const Pose2d &other) const;
+            Pose2d relativeTo(const Pose2d &other) const;
 
             Pose2d inverse() const;
             Pose2d normal() const;

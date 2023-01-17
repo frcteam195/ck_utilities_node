@@ -1,4 +1,5 @@
 #include "ck_utilities/team254_geometry/Pose2d.hpp"
+#include "ck_utilities/team254_geometry/Pose2dWithCurvature.hpp"
 
 namespace ck
 {
@@ -12,6 +13,7 @@ namespace ck
         Pose2d::Pose2d() : translation(), rotation() {}
         Pose2d::Pose2d(double x, double y, const Rotation2d &rotation) : translation(x, y), rotation(rotation) {}
         Pose2d::Pose2d(const Translation2d &translation, const Rotation2d &rotation) : translation(translation), rotation(rotation) {}
+        Pose2d::Pose2d(const Pose2dWithCurvature &other) : translation(other.getTranslation()), rotation(other.getRotation()) {}
 
         bool Pose2d::operator==(const Pose2d &obj) const
         {
@@ -83,9 +85,37 @@ namespace ck
             return rotation;
         }
 
+        Pose2d Pose2d::rotateBy(const Rotation2d &other) const
+        {
+            return transformBy(Pose2d(Translation2d::identity(), other));
+        }
+
         Pose2d Pose2d::transformBy(const Pose2d &other) const
         {
             return Pose2d(translation.translateBy(other.translation.rotateBy(rotation)), rotation.rotateBy(other.rotation));
+        }
+
+        Pose2d Pose2d::transformBy(const Transform2d &other) const
+        {
+            return Pose2d(translation + other.getTranslation().rotateBy(rotation),
+                          rotation.rotateBy(other.getRotation()));
+        }
+
+        Pose2d Pose2d::add(const Pose2d &other) const
+        {
+            return transformBy(other);
+        }
+
+        Transform2d Pose2d::minus(const Pose2d &other) const
+        {
+            Pose2d pose = relativeTo(other);
+            return Transform2d(pose.getTranslation(), pose.getRotation());
+        }
+
+        Pose2d Pose2d::relativeTo(const Pose2d &other) const
+        {
+            Transform2d transform(other, *this);
+            return Pose2d(transform.getTranslation(), transform.getRotation());
         }
 
         Pose2d Pose2d::inverse() const

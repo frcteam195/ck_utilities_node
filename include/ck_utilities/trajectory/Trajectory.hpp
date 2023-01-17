@@ -12,14 +12,16 @@ namespace ck
 {
     namespace trajectory
     {
-        template <class S>
+        template <class S, class T>
         class Trajectory
         {
             static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State<S>");
+            static_assert(std::is_base_of<ck::team254_geometry::State<T>, T>::value, "T must inherit from State<T>");
 
         protected:
-            std::vector<TrajectoryPoint<S>> points_;
-            IndexView<S> index_view_;
+            std::vector<TrajectoryPoint<S, T>> points_;
+            IndexView<S, T> index_view_;
+            double default_velocity_ = 0.0;
 
         public:
             Trajectory()
@@ -28,18 +30,37 @@ namespace ck
                 index_view_.initialize(this);
             }
 
-            Trajectory(std::vector<S> &states)
+            Trajectory(std::vector<S> &states, std::vector<T> &headings)
                 : points_()
             {
                 index_view_.initialize(this);
                 for (int i = 0; i < (int)states.size(); ++i)
                 {
-                    points_.push_back(TrajectoryPoint<S>{states[i], i});
+                    points_.push_back(TrajectoryPoint<S, T>{states[i], headings[i], i});
+                }
+            }
+
+            Trajectory(const std::vector<TrajectoryPoint<S, T>> &points) : points_()
+            {
+                index_view_.initialize(this);
+                for (int i = 0; i < (int)points.size(); i++)
+                {
+                    points_.push_back(TrajectoryPoint<S, T>{points[i].state_, points[i].heading_, i});
                 }
             }
 
             Trajectory( const Trajectory& in ) : Trajectory() {
                 points_ = in.points_;
+            }
+
+            void setDefaultVelocity(double velocity)
+            {
+                default_velocity_ = velocity;
+            }
+
+            double getDefaultVelocity() const
+            {
+                return default_velocity_;
             }
 
             Trajectory& operator=( const Trajectory& in ){
@@ -49,12 +70,14 @@ namespace ck
 
             bool isEmpty() {return points_.empty();}
             int length() { return points_.size(); }
-            TrajectoryPoint<S> getPoint(int index) { return points_[index]; }
+            TrajectoryPoint<S, T> getPoint(int index) { return points_[index]; }
+            TrajectoryPoint<S, T> getLastPoint() { return points_[points_.size() - 1]; }
             S getState(int index) { return points_[index].state_; }
+            T getHeading(int index) { return points_[index].heading_; }
             S getFirstState() { return getState(0); }
             S getLastState() { return getState(length() - 1); }
 
-            TrajectorySamplePoint<S> getInterpolated(double index)
+            TrajectorySamplePoint<S, T> getInterpolated(double index)
             {
                 if (isEmpty())
                 {
@@ -63,28 +86,31 @@ namespace ck
                 }
                 else if (index <= 0.0)
                 {
-                    return TrajectorySamplePoint<S>(points_[0]);
+                    return TrajectorySamplePoint<S, T>(points_[0]);
                 }
                 else if (index >= length() - 1)
                 {
-                    return TrajectorySamplePoint<S>(points_[length() - 1]);
+                    return TrajectorySamplePoint<S, T>(points_[length() - 1]);
                 }
                 int i = (int)std::floor(index);
                 double frac = index - i;
                 if (frac <= std::numeric_limits<double>::min())
                 {
-                    return TrajectorySamplePoint<S>(points_[i]);
+                    return TrajectorySamplePoint<S, T>(points_[i]);
                 }
                 else if (frac >= 1.0 - std::numeric_limits<double>::min())
                 {
-                    return TrajectorySamplePoint<S>(points_[i + 1]);
+                    return TrajectorySamplePoint<S, T>(points_[i + 1]);
                 }
                 else
                 {
-                    return TrajectorySamplePoint<S> { getState(i).interpolate(getState(i + 1), frac), i, i + 1 };
+                    return TrajectorySamplePoint<S, T> { getState(i).interpolate(getState(i + 1), frac),
+                                                         getHeading(i).interpolate(getHeading(i + 1), frac),
+                                                         i,
+                                                         i + 1 };
                 }
             }
-            IndexView<S>& getIndexView() { return index_view_; }
+            IndexView<S, T>& getIndexView() { return index_view_; }
         };
     } // namespace trajectory
 } // namespace ck

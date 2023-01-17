@@ -10,8 +10,12 @@ namespace ck
             return kIdentity;
         }
         Pose2dWithCurvature::Pose2dWithCurvature() : pose(), curvature(0), dcurvature_ds(0) {}
+        Pose2dWithCurvature::Pose2dWithCurvature(const Pose2d &pose, double curvature)
+            : pose(pose), curvature(curvature), dcurvature_ds(0.0) {}
         Pose2dWithCurvature::Pose2dWithCurvature(const Pose2d &pose, double curvature, double dcurvature_ds)
             : pose(pose), curvature(curvature), dcurvature_ds(dcurvature_ds) {}
+        Pose2dWithCurvature::Pose2dWithCurvature(const Translation2d &translation, const Rotation2d &rotation, double curvature)
+            : pose(Pose2d(translation, rotation)), curvature(curvature), dcurvature_ds(0.0) {}
         Pose2dWithCurvature::Pose2dWithCurvature(const Translation2d &translation, const Rotation2d &rotation, double curvature, double dcurvature_ds)
             : pose(Pose2d(translation, rotation)), curvature(curvature), dcurvature_ds(dcurvature_ds) {}
 
@@ -76,6 +80,16 @@ namespace ck
         bool Pose2dWithCurvature::equals(const Pose2dWithCurvature &other)
         {
             return getPose().equals(other.getPose()) && ck::math::epsilonEquals(getCurvature(), other.getCurvature()) && ck::math::epsilonEquals(getDCurvatureDs(), other.getDCurvatureDs());
+        }
+
+        Pose2dWithCurvature Pose2dWithCurvature::rotateBy(const Rotation2d &rotation) const
+        {
+            return Pose2dWithCurvature(getPose().rotateBy(rotation), getCurvature(), getDCurvatureDs());
+        }
+
+        Pose2dWithCurvature Pose2dWithCurvature::add(const Pose2dWithCurvature &pose) const
+        {
+            return transformBy(pose.getPose());
         }
     } // namespace team254_geometry
 } // namespace ck

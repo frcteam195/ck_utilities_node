@@ -23,6 +23,7 @@ namespace ck
                 double acceleration_;
 
             public:
+                TimedState() : state_() {}
                 TimedState(S state) : state_(state) {}
                 TimedState(S state, double t, double velocity, double acceleration) : state_(state), t_(t), velocity_(velocity), acceleration_(acceleration) {}
                 virtual ~TimedState() {}
@@ -46,6 +47,11 @@ namespace ck
                     double new_v = velocity() + acceleration() * delta_t;
                     double new_s = (reversing ? -1.0 : 1.0) * (velocity() * delta_t + .5 * acceleration() * delta_t * delta_t);
                     return TimedState<S>(state().interpolate(other.state(), new_s / state().distance(other.state())), new_t, new_v, acceleration());
+                }
+
+                TimedState<S> add(const TimedState<S> &other) const override
+                {
+                    return TimedState<S>(state().add(other.state()));
                 }
 
                 double distance(const TimedState<S> &other) const override

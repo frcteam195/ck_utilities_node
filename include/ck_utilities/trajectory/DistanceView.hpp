@@ -11,17 +11,18 @@ namespace ck
 {
     namespace trajectory
     {
-        template <class S>
-        class DistanceView : public TrajectoryView<S>
+        template <class S, class T>
+        class DistanceView : public TrajectoryView<S, T>
         {
             static_assert(std::is_base_of<ck::team254_geometry::State<S>, S>::value, "S must inherit from State<S>");
+            static_assert(std::is_base_of<ck::team254_geometry::State<T>, T>::value, "T must inherit from State<T>");
 
         protected:
-            Trajectory<S> *trajectory_;
+            Trajectory<S, T> *trajectory_;
             std::vector<double> distances_;
 
         public:
-            DistanceView(Trajectory<S> &trajectory) : trajectory_(&trajectory), distances_(trajectory.length())
+            DistanceView(Trajectory<S, T> &trajectory) : trajectory_(&trajectory), distances_(trajectory.length())
             {
                 distances_[0] = 0.0;
                 for (int i = 1; i < trajectory_->length(); ++i)
@@ -30,25 +31,30 @@ namespace ck
                 }
             }
 
-            TrajectorySamplePoint<S> sample(double distance) override
+            TrajectorySamplePoint<S, T> sample(double distance) override
             {
                 if (distance >= last_interpolant())
-                    return TrajectorySamplePoint<S>(trajectory_->getPoint(trajectory_->length() - 1));
+                    return TrajectorySamplePoint<S, T>(trajectory_->getPoint(trajectory_->length() - 1));
                 if (distance <= 0.0)
-                    return TrajectorySamplePoint<S>(trajectory_->getPoint(0));
+                    return TrajectorySamplePoint<S, T>(trajectory_->getPoint(0));
                 for (size_t i = 1; i < distances_.size(); ++i)
                 {
-                    TrajectoryPoint<S> s = trajectory_->getPoint(i);
+                    TrajectoryPoint<S, T> s = trajectory_->getPoint(i);
                     if (distances_[i] >= distance)
                     {
-                        TrajectoryPoint<S> prev_s = trajectory_->getPoint(i - 1);
+                        TrajectoryPoint<S, T> prev_s = trajectory_->getPoint(i - 1);
                         if (ck::math::epsilonEquals(distances_[i], distances_[i - 1]))
                         {
-                            return TrajectorySamplePoint<S>(s);
+                            return TrajectorySamplePoint<S, T>(s);
                         }
                         else
                         {
-                            return TrajectorySamplePoint<S>(prev_s.state_.interpolate(s.state_, (distance - distances_[i - 1]) / (distances_[i] - distances_[i - 1])), i - 1, i);
+                            // return TrajectorySamplePoint<S, T>(prev_s.state_.interpolate(s.state_, (distance - distances_[i - 1]) / (distances_[i] - distances_[i - 1])), i - 1, i);
+                            return TrajectorySamplePoint<S, T>(prev_s.state_.interpolate(s.state_,
+                                                                                         (distance - distances_[i - 1]) / (distances_[i] - distances_[i - 1])),
+                                                               prev_s.heading_.interpolate(s.heading_,
+                                                                                           (distance - distances_[i - 1]) / (distances_[i] - distances_[i - 1])),
+                                                               i - 1, i);
                         }
                     }
                 }
@@ -65,7 +71,7 @@ namespace ck
                 return 0.0;
             }
 
-            Trajectory<S> trajectory() override
+            Trajectory<S, T> trajectory() override
             {
                 return *trajectory_;
             }

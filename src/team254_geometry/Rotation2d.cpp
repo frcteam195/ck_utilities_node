@@ -10,7 +10,19 @@ namespace ck
             return kIdentity;
         }
 
-        Rotation2d::Rotation2d() : cos_angle(1), sin_angle(0) {}
+        const Rotation2d &Rotation2d::kPi()
+        {
+            static Rotation2d kPi(math::PI, false);
+            return kPi;
+        }
+
+        const Rotation2d &Rotation2d::kHalfPi()
+        {
+            static Rotation2d kHalfPi(math::PI / 2.0, false);
+            return kHalfPi;
+        }
+
+        Rotation2d::Rotation2d() : cos_angle(1), sin_angle(0), radians_(0) {}
         Rotation2d::Rotation2d(double x, double y, bool normalize)
         {
             if (normalize)
@@ -34,6 +46,22 @@ namespace ck
                 cos_angle = x;
                 sin_angle = y;
             }
+            calcRadians();
+        }
+        Rotation2d::Rotation2d(double radians, bool normalize)
+        {
+            if (normalize)
+            {
+                radians = WrapRadians(radians);
+            }
+            radians_ = radians;
+            calcTrig();
+        }
+        Rotation2d::Rotation2d(double x, double y, double radians)
+        {
+            cos_angle = x;
+            sin_angle = y;
+            radians_ = radians;
         }
         Rotation2d::Rotation2d(const Translation2d &direction, bool normalize)
         {
@@ -85,16 +113,32 @@ namespace ck
         }
         double Rotation2d::getRadians() const
         {
-            return std::atan2(sin_angle, cos_angle);
+            return radians_;
         }
         double Rotation2d::getDegrees() const
         {
             return ck::math::rad2deg(getRadians());
         }
+        Rotation2d Rotation2d::unaryMinus() const
+        {
+            return Rotation2d(-radians_, true);
+        }
+        Rotation2d Rotation2d::minus(const Rotation2d &other) const
+        {
+            return rotateBy(other.unaryMinus());
+        }
+        Rotation2d Rotation2d::times(double scalar) const
+        {
+            return Rotation2d(radians_ * scalar, true);
+        }
         Rotation2d Rotation2d::rotateBy(const Rotation2d &other) const
         {
             return Rotation2d(cos_angle * other.cos_angle - sin_angle * other.sin_angle,
                               cos_angle * other.sin_angle + sin_angle * other.cos_angle, true);
+        }
+        Rotation2d Rotation2d::mirror() const
+        {
+            return fromRadians(-radians_);
         }
         Rotation2d Rotation2d::normal() const
         {
@@ -103,6 +147,10 @@ namespace ck
         Rotation2d Rotation2d::inverse() const
         {
             return Rotation2d(cos_angle, -sin_angle, false);
+        }
+        Rotation2d Rotation2d::flip() const
+        {
+            return Rotation2d(-cos_angle, -sin_angle, false);
         }
         bool Rotation2d::isParallel(const Rotation2d &other) const
         {
@@ -140,5 +188,32 @@ namespace ck
             return distance(other) < ck::math::kEpsilon;
         }
 
+        Rotation2d Rotation2d::add(const Rotation2d &other) const
+        {
+            return rotateBy(other);
+        }
+
+        double Rotation2d::WrapRadians(double radians) const
+        {
+            double k2Pi = 2.0 * math::PI;
+            radians = std::fmod(radians, k2Pi);
+            radians = std::fmod(radians + k2Pi, k2Pi);
+            if (radians > math::PI)
+            {
+                radians -= k2Pi;
+            }
+            return radians;
+        }
+
+        void Rotation2d::calcRadians()
+        {
+            radians_ = std::atan2(sin_angle, cos_angle);
+        }
+
+        void Rotation2d::calcTrig()
+        {
+            cos_angle = std::cos(radians_);
+            sin_angle = std::sin(radians_);
+        }
     } // namespace team254_geometry
 } // namespace ck
