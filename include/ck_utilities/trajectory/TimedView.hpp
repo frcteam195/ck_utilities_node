@@ -24,6 +24,8 @@ namespace ck
             double end_t_;
 
         public:
+            TimedView() {}
+
             TimedView(Trajectory<timing::TimedState<S>, timing::TimedState<T>> &traj)
                 : trajectory_(&traj),
                   start_t_(traj.getState(0).t()),
