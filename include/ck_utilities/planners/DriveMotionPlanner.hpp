@@ -98,14 +98,14 @@ namespace ck
             double defaultCook = 0.4;
             bool useDefaultCook = true;
 
-            TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> *mCurrentTrajectory = nullptr;
+            TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> *mCurrentTrajectory = new TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>>();
 
             bool mIsReversed = false;
             double mLastTime = math::POS_INF;
 
             TimedState<Pose2dWithCurvature> *mLastPathSetpoint = nullptr;
             TimedState<Pose2dWithCurvature> *mPathSetpoint = new TimedState<Pose2dWithCurvature>(Pose2dWithCurvature::identity());
-            TimedState<Rotation2d> *mHeadingSetpoint = nullptr;
+            TimedState<Rotation2d> *mHeadingSetpoint = new TimedState<Rotation2d>(Rotation2d::identity());
             TimedState<Rotation2d> *mLastHeadingSetpoint = new TimedState<Rotation2d>(Rotation2d::identity());
 
             Pose2d *mError = new Pose2d(Pose2d::identity());

@@ -7,6 +7,8 @@
 #include "ck_utilities/trajectory/timing/TimingUtil.hpp"
 #include "ck_utilities/trajectory/timing/TimingConstraint.hpp"
 
+#include "ck_utilities/Logger.hpp"
+
 namespace ck
 {
     namespace planners

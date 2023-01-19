@@ -31,6 +31,13 @@ namespace ck
                     current_sample_ = new TrajectorySamplePoint<S, T>( view->sample(view->first_interpolant()) );
                 }
 
+            TrajectoryIterator()
+                {
+                    view_ = nullptr;
+                    progress_ = 0.0;
+                    current_sample_ = nullptr;
+                }
+
             bool isDone()
                 {
                     return getRemainingProgress() == 0.0;
