@@ -242,10 +242,10 @@ namespace ck
                         successor = constraint_state;
                     }
 
-                    for (ConstrainedState<S, T> cs : constraint_states)
-                    {
-                        std::cout << cs.max_translational_velocity << std::endl;
-                    }
+                    // for (ConstrainedState<S, T> cs : constraint_states)
+                    // {
+                    //     std::cout << cs.max_translational_velocity << std::endl;
+                    // }
 
                     
                     // Integrate the constrained states forward in time to obtain the TimedStates.
