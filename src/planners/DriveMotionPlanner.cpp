@@ -243,6 +243,17 @@ namespace ck
             *mHeadingSetpoint = TimedState<Rotation2d>(mInitialHeading->rotateBy(mRotationDiff->times(math::min(1.0, (timestamp - mStartTime) / mTotalTime))));
             // maybe use this to contol the heading per waypoint, rather than just the start and end points
             // *mHeadingSetpoint = TimedState<Rotation2d>(mCurrentTrajectory->getHeading());
+            // int index = (int)std::floor(mCurrentTrajectory->trajectory().length() * (timestamp - mStartTime) / mTotalTime);
+            // *mHeadingSetpoint = mCurrentTrajectory->trajectory().getHeading(index);
+
+            // mDTheta = mHeadingSetpoint->state().getRadians();
+            // if (index > 0)
+            // {
+            //     mDTheta -= mCurrentTrajectory->trajectory().getHeading(index - 1).state().getRadians();
+            // }
+
+            // mDTheta /= mDt;
+
             *mCurrentState = current_state;
 
             if (!isDone())
