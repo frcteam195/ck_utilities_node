@@ -241,6 +241,8 @@ namespace ck
             TrajectorySamplePoint<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> sample_point;
 
             *mHeadingSetpoint = TimedState<Rotation2d>(mInitialHeading->rotateBy(mRotationDiff->times(math::min(1.0, (timestamp - mStartTime) / mTotalTime))));
+            // maybe use this to contol the heading per waypoint, rather than just the start and end points
+            // *mHeadingSetpoint = TimedState<Rotation2d>(mCurrentTrajectory->getHeading());
             *mCurrentState = current_state;
 
             if (!isDone())
