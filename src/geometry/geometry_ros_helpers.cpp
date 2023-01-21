@@ -187,4 +187,5 @@ boost::array<double, 36UL> to_msg(geometry::Covariance &c)
             output[i*6+j] = c(i,j);
         }
     }
+    return output;
 }
