@@ -30,5 +30,5 @@ namespace geometry
     geometry_msgs::Pose to_msg(geometry::Pose p);
     geometry_msgs::Twist to_msg(geometry::Twist t);
     geometry_msgs::Transform to_msg(geometry::Transform t);
-    boost::array<double, 36UL> to_msg(geometry::Covariance c);
+    boost::array<double, 36UL> to_msg(geometry::Covariance &c);
 }
