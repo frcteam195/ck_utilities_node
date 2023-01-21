@@ -1,8 +1,8 @@
 #include <cstdint>
 #if __has_include("ros/ros.h")
-#include "rio_control_node/Motor_Control.h"
-#include "rio_control_node/Motor_Configuration.h"
-#include "rio_control_node/Robot_Status.h"
+#include "ck_ros_base_msgs_node/Motor_Control.h"
+#include "ck_ros_base_msgs_node/Motor_Configuration.h"
+#include "ck_ros_base_msgs_node/Robot_Status.h"
 #include "ck_utilities/Motor.hpp"
 
 #include "ros/ros.h"
@@ -19,7 +19,7 @@ class MotorMaster
 {
 public:
 
-    static void robot_status_callback(const rio_control_node::Robot_Status& msg)
+    static void robot_status_callback(const ck_ros_base_msgs_node::Robot_Status& msg)
     {
         robot_mode = msg.robot_state;
     }
@@ -72,8 +72,8 @@ public:
     MotorMaster()
     {
         std::lock_guard<std::recursive_mutex> lock(motor_mutex);
-        control_publisher = node->advertise<rio_control_node::Motor_Control>("/MotorControl", 50);
-        config_publisher = node->advertise<rio_control_node::Motor_Configuration>("/MotorConfiguration", 50);
+        control_publisher = node->advertise<ck_ros_base_msgs_node::Motor_Control>("/MotorControl", 50);
+        config_publisher = node->advertise<ck_ros_base_msgs_node::Motor_Configuration>("/MotorConfiguration", 50);
         robot_mode = 0;
         robot_data_subscriber = node->subscribe("RobotStatus", 10, robot_status_callback);
 
@@ -127,7 +127,7 @@ private:
     {
         std::lock_guard<std::recursive_mutex> lock(motor_mutex);
 
-        rio_control_node::Motor_Configuration config_list;
+        ck_ros_base_msgs_node::Motor_Configuration config_list;
 
         for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
             i != configuration_map.end();
@@ -142,7 +142,7 @@ private:
     static void send_master_controls_periodic()
     {
         std::lock_guard<std::recursive_mutex> lock(motor_mutex);
-        static rio_control_node::Motor_Control motor_control_list;
+        static ck_ros_base_msgs_node::Motor_Control motor_control_list;
         motor_control_list.motors.clear();
 
         for(std::map<uint8_t, Motor *>::iterator i = motor_map.begin();
@@ -152,10 +152,10 @@ private:
             Motor* m = (*i).second;
             if (m->mValueLock.try_lock())
             {
-                if(m->config().active_config.motor_config.controller_mode == rio_control_node::Motor_Config::MASTER ||
-                m->config().active_config.motor_config.controller_mode == rio_control_node::Motor_Config::FAST_MASTER)
+                if(m->config().active_config.motor_config.controller_mode == ck_ros_base_msgs_node::Motor_Config::MASTER ||
+                m->config().active_config.motor_config.controller_mode == ck_ros_base_msgs_node::Motor_Config::FAST_MASTER)
                 {
-                    rio_control_node::Motor motor;
+                    ck_ros_base_msgs_node::Motor motor;
                     motor.controller_type = m->config().active_config.motor_config.controller_type;
                     motor.id = m->id;
                     Motor::Control_Mode tmpCtrl = m->mControlMode;
@@ -176,19 +176,19 @@ private:
     {
         std::lock_guard<std::recursive_mutex> lock(motor_mutex);
 
-        rio_control_node::Motor_Control motor_control_list;
+        ck_ros_base_msgs_node::Motor_Control motor_control_list;
 
         for(std::map<uint8_t, MotorConfig *>::iterator i = configuration_map.begin();
             i != configuration_map.end();
             i++)
         {
-            if((*i).second->active_config.motor_config.invert_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
-               (*i).second->active_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
+            if((*i).second->active_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::FOLLOW_MASTER ||
+               (*i).second->active_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::OPPOSE_MASTER)
             {
-                rio_control_node::Motor motor;
+                ck_ros_base_msgs_node::Motor motor;
                 motor.controller_type = (*i).second->active_config.motor_config.controller_type;
                 motor.id = (*i).second->active_config.motor_config.id;
-                motor.control_mode = rio_control_node::Motor::FOLLOWER;
+                motor.control_mode = ck_ros_base_msgs_node::Motor::FOLLOWER;
                 motor.output_value = (*i).second->active_config.master_id;
                 motor_control_list.motors.push_back(motor);
             }
@@ -234,11 +234,11 @@ void MotorConfig::set_fast_master(bool enable)
     std::lock_guard<std::recursive_mutex> lock(motor_mutex);
     if(enable)
     {
-        this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::FAST_MASTER;
+        this->pending_config.motor_config.controller_mode = ck_ros_base_msgs_node::Motor_Config::FAST_MASTER;
     }
     else
     {
-        this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::MASTER;
+        this->pending_config.motor_config.controller_mode = ck_ros_base_msgs_node::Motor_Config::MASTER;
     }
 }
 
@@ -353,13 +353,13 @@ void MotorConfig::set_voltage_compensation_enabled(bool enabled)
 void MotorConfig::set_inverted(bool enabled)
 {
     std::lock_guard<std::recursive_mutex> lock(motor_mutex);
-    if(this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::FOLLOW_MASTER ||
-       this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER)
+    if(this->pending_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::FOLLOW_MASTER ||
+       this->pending_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::OPPOSE_MASTER)
     {
-        this->pending_config.motor_config.invert_type = enabled ? rio_control_node::Motor_Config::OPPOSE_MASTER : rio_control_node::Motor_Config::FOLLOW_MASTER;
+        this->pending_config.motor_config.invert_type = enabled ? ck_ros_base_msgs_node::Motor_Config::OPPOSE_MASTER : ck_ros_base_msgs_node::Motor_Config::FOLLOW_MASTER;
         return;
     }
-    this->pending_config.motor_config.invert_type = enabled ? rio_control_node::Motor_Config::INVERT_MOTOR_OUTPUT : rio_control_node::Motor_Config::NONE;
+    this->pending_config.motor_config.invert_type = enabled ? ck_ros_base_msgs_node::Motor_Config::INVERT_MOTOR_OUTPUT : ck_ros_base_msgs_node::Motor_Config::NONE;
 
 }
 
@@ -411,25 +411,25 @@ void MotorConfig::set_follower(bool enabled, uint8_t master_id)
     if(enabled)
     {
         this->pending_config.master_id = master_id;
-        if(this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER ||
-        this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::INVERT_MOTOR_OUTPUT)
+        if(this->pending_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::OPPOSE_MASTER ||
+        this->pending_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::INVERT_MOTOR_OUTPUT)
         {
-            this->pending_config.motor_config.invert_type = rio_control_node::Motor_Config::OPPOSE_MASTER;
+            this->pending_config.motor_config.invert_type = ck_ros_base_msgs_node::Motor_Config::OPPOSE_MASTER;
             return;
         }
-        this->pending_config.motor_config.invert_type = rio_control_node::Motor_Config::FOLLOW_MASTER;
-        this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::FOLLOWER;
+        this->pending_config.motor_config.invert_type = ck_ros_base_msgs_node::Motor_Config::FOLLOW_MASTER;
+        this->pending_config.motor_config.controller_mode = ck_ros_base_msgs_node::Motor_Config::FOLLOWER;
         return;
     }
     this->pending_config.master_id = 0;
-    this->pending_config.motor_config.controller_mode = rio_control_node::Motor_Config::MASTER;
-    if(this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::OPPOSE_MASTER ||
-       this->pending_config.motor_config.invert_type == rio_control_node::Motor_Config::INVERT_MOTOR_OUTPUT)
+    this->pending_config.motor_config.controller_mode = ck_ros_base_msgs_node::Motor_Config::MASTER;
+    if(this->pending_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::OPPOSE_MASTER ||
+       this->pending_config.motor_config.invert_type == ck_ros_base_msgs_node::Motor_Config::INVERT_MOTOR_OUTPUT)
     {
-        this->pending_config.motor_config.invert_type = rio_control_node::Motor_Config::INVERT_MOTOR_OUTPUT;
+        this->pending_config.motor_config.invert_type = ck_ros_base_msgs_node::Motor_Config::INVERT_MOTOR_OUTPUT;
         return;
     }
-    this->pending_config.motor_config.invert_type = rio_control_node::Motor_Config::NONE;
+    this->pending_config.motor_config.invert_type = ck_ros_base_msgs_node::Motor_Config::NONE;
 }
 
 void MotorConfig::set_forward_limit_switch(LimitSwitchSource forward_limit_switch_source, LimitSwitchNormal forward_limit_switch_normal)
@@ -459,7 +459,7 @@ void MotorConfig::set_peak_output_reverse(double value)
 }
 
 void MotorConfig::set_defaults()
-{    
+{
     this->set_fast_master(false);
     this->set_kP(0.0);
     this->set_kI(0.0);
@@ -512,15 +512,15 @@ void Motor::set(Control_Mode mode, double output, double arbitrary_feedforward)
     mOutput = output;
     mArbFF = arbitrary_feedforward;
 
-    rio_control_node::Motor_Control motors;
-    rio_control_node::Motor motor;
+    ck_ros_base_msgs_node::Motor_Control motors;
+    ck_ros_base_msgs_node::Motor motor;
     motor.controller_type = this->config().active_config.motor_config.controller_type;
     motor.id = id;
     motor.control_mode = (uint8_t) mode;
     motor.output_value = output;
     motor.arbitrary_feedforward = arbitrary_feedforward;
     motors.motors.push_back(motor);
-    static ros::Publisher motor_control_pub = node->advertise<rio_control_node::Motor_Control>("MotorControl", 50);
+    static ros::Publisher motor_control_pub = node->advertise<ck_ros_base_msgs_node::Motor_Control>("MotorControl", 50);
     motor_control_pub.publish(motors);
 }
 

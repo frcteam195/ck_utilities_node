@@ -1,8 +1,8 @@
 #pragma once
 #if __has_include("ros/ros.h")
 #include <cstdint>
-#include "rio_control_node/Motor_Control.h"
-#include "rio_control_node/Motor_Configuration.h"
+#include "ck_ros_base_msgs_node/Motor_Control.h"
+#include "ck_ros_base_msgs_node/Motor_Configuration.h"
 #include <atomic>
 #include <mutex>
 
@@ -12,7 +12,7 @@ class MotorData
 {
 public:
     uint8_t motor_id;
-    rio_control_node::Motor_Config motor_config;
+    ck_ros_base_msgs_node::Motor_Config motor_config;
     uint8_t master_id;
 };
 

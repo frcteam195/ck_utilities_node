@@ -2,8 +2,8 @@
 #include "ck_utilities/CKMath.hpp"
 
 #if __has_include("ros/ros.h")
-rio_control_node::Joystick_Status Joystick::joystick_status;
-std::map<int, rio_control_node::Joystick> Joystick::joystick_map;
+ck_ros_base_msgs_node::Joystick_Status Joystick::joystick_status;
+std::map<int, ck_ros_base_msgs_node::Joystick> Joystick::joystick_map;
 
 Joystick::Joystick(uint joystickID)
 : mJoystickID(joystickID)
@@ -14,11 +14,11 @@ Joystick::Joystick(uint joystickID)
     }
 }
 
-void Joystick::update(const rio_control_node::Joystick_Status& joystick_status_msg)
+void Joystick::update(const ck_ros_base_msgs_node::Joystick_Status& joystick_status_msg)
 {
     joystick_status = joystick_status_msg;
     joystick_map.clear();
-    for (const rio_control_node::Joystick& j : joystick_status_msg.joysticks)
+    for (const ck_ros_base_msgs_node::Joystick& j : joystick_status_msg.joysticks)
     {
         joystick_map.emplace(j.index, j);
     }

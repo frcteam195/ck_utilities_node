@@ -4,7 +4,7 @@
 #include <map>
 #include <mutex>
 #include "ros/ros.h"
-#include "rio_control_node/Solenoid_Control.h"
+#include "ck_ros_base_msgs_node/Solenoid_Control.h"
 
 static std::map<uint8_t, Solenoid *> solenoid_map;
 static std::recursive_mutex solenoid_mutex;
@@ -34,7 +34,7 @@ public:
     SolenoidMaster()
     {
         std::lock_guard<std::recursive_mutex> lock(solenoid_mutex);
-        control_publisher = node->advertise<rio_control_node::Solenoid_Control>("/SolenoidControl", 50);
+        control_publisher = node->advertise<ck_ros_base_msgs_node::Solenoid_Control>("/SolenoidControl", 50);
         solenoid_master_thread = new std::thread(solenoid_master_loop);
     }
 
@@ -69,7 +69,7 @@ private:
     static void send_master_controls_periodic()
     {
         std::lock_guard<std::recursive_mutex> lock(solenoid_mutex);
-        static rio_control_node::Solenoid_Control solenoid_control_list;
+        static ck_ros_base_msgs_node::Solenoid_Control solenoid_control_list;
         solenoid_control_list.solenoids.clear();
 
         for(std::map<uint8_t, Solenoid *>::iterator i = solenoid_map.begin();
@@ -77,7 +77,7 @@ private:
             i++)
         {
             Solenoid* s = (*i).second;
-            rio_control_node::Solenoid solenoid;
+            ck_ros_base_msgs_node::Solenoid solenoid;
             solenoid.solenoid_type = (int8_t)s->type;
             solenoid.id = s->id;
             Solenoid::SolenoidState tmpState = s->mOutput;
@@ -123,11 +123,11 @@ void Solenoid::set(Solenoid::SolenoidState state)
     std::lock_guard<std::recursive_mutex> lock(solenoid_mutex);
     mOutput = state;
 
-    rio_control_node::Solenoid_Control solenoid_control;
-    rio_control_node::Solenoid solenoid;
+    ck_ros_base_msgs_node::Solenoid_Control solenoid_control;
+    ck_ros_base_msgs_node::Solenoid solenoid;
     solenoid.id = (int32_t) this->id;
     solenoid.solenoid_type = (int8_t) this->type;
-    solenoid.module_type = rio_control_node::Solenoid::CTREPCM;
+    solenoid.module_type = ck_ros_base_msgs_node::Solenoid::CTREPCM;
     solenoid.output_value = (int8_t) state;
     solenoid_control.solenoids.push_back(solenoid);
 
