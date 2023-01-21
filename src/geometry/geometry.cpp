@@ -180,6 +180,17 @@ Rotation Transform::get_Rotation_To()
     return result;
 }
 
+geometry::Covariance::Covariance()
+{
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 6; j++)
+        {
+            (*this)(i,j) = 0.0;
+        }
+    }
+}
+
 float geometry::Covariance::x_var()
 {
     return  (*this)(0,0);

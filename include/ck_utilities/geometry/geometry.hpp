@@ -73,7 +73,7 @@ namespace geometry
     class Covariance : Eigen::Matrix<float, 6, 6>
     {
         public:
-        Covariance() { }
+        Covariance();
         float x_var();
         void x_var(float var);
         float y_var();
