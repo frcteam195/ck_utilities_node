@@ -70,6 +70,25 @@ namespace geometry
         Rotation angular;
     };
 
+    class Covariance : Eigen::Matrix<float, 6, 6>
+    {
+        public:
+        Covariance() { }
+        float x_var();
+        void x_var(float var);
+        float y_var();
+        void y_var(float var);
+        float z_var();
+        void z_var(float var);
+        float roll_var();
+        void roll_var(float var);
+        float yaw_var();
+        void yaw_var(float var);
+        float pitch_var();
+        void pitch_var(float var);
+        using Eigen::DenseCoeffsBase<Eigen::Matrix<float, 6, 6>, 1>::operator();
+    };
+
 }
 
 std::ostream& operator<<(std::ostream& os, const geometry::Pose& value);

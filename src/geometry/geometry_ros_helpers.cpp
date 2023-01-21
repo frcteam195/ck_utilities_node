@@ -1,5 +1,6 @@
 #include "ck_utilities/geometry/geometry_ros_helpers.hpp"
 
+
 geometry::Rotation geometry::to_rotation(tf2::Quaternion q)
 {
     geometry::Rotation result;
@@ -79,6 +80,19 @@ geometry::Twist geometry::to_twist(geometry_msgs::Twist t)
     result.linear = to_translation(t.linear);
     result.angular = to_rotation(t.angular);
     return result;
+}
+
+geometry::Covariance geometry::to_covariance(boost::array<double, 36UL> &c)
+{
+    geometry::Covariance new_covariance;
+    for(int i = 0; i < 6; i++)
+    {
+        for(int j = 0; j < 6; j++)
+        {
+            new_covariance(i, j) = c[i*6+j];
+        }
+    }
+    return new_covariance;
 }
 
 tf2::Quaternion geometry::to_tf2_quat(geometry::Rotation r)
@@ -161,4 +175,16 @@ geometry_msgs::Twist geometry::to_msg(geometry::Twist t)
     result.angular = geometry::to_msg(t.angular);
     result.linear = geometry::to_msg(t.linear);
     return result;
+}
+
+boost::array<double, 36UL> to_msg(geometry::Covariance &c)
+{
+    boost::array<double, 36UL> output;
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 6; j++)
+        {
+            output[i*6+j] = c(i,j);
+        }
+    }
 }

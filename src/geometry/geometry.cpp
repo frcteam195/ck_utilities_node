@@ -180,6 +180,66 @@ Rotation Transform::get_Rotation_To()
     return result;
 }
 
+float geometry::Covariance::x_var()
+{
+    return  (*this)(0,0);
+}
+
+void geometry::Covariance::x_var(float var)
+{
+    (*this)(0,0) = var;
+}
+
+float geometry::Covariance::y_var()
+{
+    return  (*this)(1,1);
+}
+
+void geometry::Covariance::y_var(float var)
+{
+    (*this)(1,1) = var;
+}
+
+float geometry::Covariance::z_var()
+{
+    return  (*this)(2,2);
+}
+
+void geometry::Covariance::z_var(float var)
+{
+    (*this)(2,2) = var;
+}
+
+float geometry::Covariance::roll_var()
+{
+    return  (*this)(3,3);
+}
+
+void geometry::Covariance::roll_var(float var)
+{
+    (*this)(3,3) = var;
+}
+
+float geometry::Covariance::yaw_var()
+{
+    return  (*this)(4,4);
+}
+
+void geometry::Covariance::yaw_var(float var)
+{
+    (*this)(4,4) = var;
+}
+
+float geometry::Covariance::pitch_var()
+{
+    return  (*this)(5,5);
+}
+
+void geometry::Covariance::pitch_var(float var)
+{
+    (*this)(5,5) = var;
+}
+
 std::ostream& operator<<(std::ostream& os, const geometry::Pose& value)
 {
     std::stringstream s;
