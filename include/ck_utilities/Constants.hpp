@@ -26,6 +26,7 @@ namespace ck
 
     constexpr double  K_DRIVE_WHEEL_TRACK_WIDTH_INCHES = 25.625;
     constexpr double  K_DRIVE_WHEEL_DIAMETER_INCHES = 4.0025;
+    // constexpr double  K_DRIVE_WHEEL_DIAMETER_INCHES = 4.00;
     constexpr double  K_DRIVE_WHEEL_RADIUS_INCHES = K_DRIVE_WHEEL_DIAMETER_INCHES / 2.0;
     constexpr double K_TRACK_SCRUB_FACTOR = 1.0; // Tune me!
 
@@ -45,5 +46,5 @@ namespace ck
     constexpr double kAdaptivePathMinLookaheadDistance = 6.0;
     constexpr double kAdaptivePathMaxLookaheadDistance = 24.0;
     constexpr double kAdaptiveErrorLookaheadCoefficient = 0.01;
-    constexpr double kMaxVelocityMetersPerSecond = 3.2; // from da poofs (calculate this for our robot)
+    constexpr double kMaxVelocityMetersPerSecond = 1; // from da poofs (calculate this for our robot)
 } // namespace ck
