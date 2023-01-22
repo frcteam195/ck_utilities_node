@@ -48,5 +48,5 @@ namespace ck
     constexpr double kAdaptivePathMinLookaheadDistance = 6.0;
     constexpr double kAdaptivePathMaxLookaheadDistance = 24.0;
     constexpr double kAdaptiveErrorLookaheadCoefficient = 0.01;
-    constexpr double kMaxVelocityMetersPerSecond = 1; // from da poofs (calculate this for our robot)
+    constexpr double kMaxVelocityMetersPerSecond = 3; // from da poofs (calculate this for our robot)
 } // namespace ck
