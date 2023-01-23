@@ -6,6 +6,7 @@
 #include "ros/ros.h"
 
 #include <string>
+#include <thread>
 
 namespace ck
 {
@@ -15,6 +16,7 @@ namespace ck
     {
     public:
         PIDTuner(ros::NodeHandle *n, std::string topic_basename, PIDController *pid);
+        ~PIDTuner();
 
         void update();
 
@@ -28,5 +30,7 @@ namespace ck
         ros::Publisher actual_gains_pub;
         ros::Publisher set_gains_pub;
         ros::Subscriber set_gains_sub;
+
+        std::thread pub_thread;
     };
 } // namespace ck

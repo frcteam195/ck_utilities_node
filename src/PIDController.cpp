@@ -2,23 +2,13 @@
 
 namespace ck
 {
-    PIDController::PIDController()
-    {
-        setGains(0.0, 0.0, 0.0);
-        error = 0.0;
-        errorSum = 0.0;
-        lastError = 0.0;
-        errorD = 0.0;
-        lastTimestamp = 0.0;
-    } 
-
-    PIDController::PIDController(double kP, double kI, double kD)
+    PIDController::PIDController(double kP, double kI, double kD, double filter_r)
     {
         setGains(kP, kI, kD);
+        this->filter_r = filter_r;
         error = 0.0;
         errorSum = 0.0;
         lastError = 0.0;
-        lastTimestamp = 0.0;
     }
 
     PIDController::~PIDController()
@@ -36,23 +26,22 @@ namespace ck
         this->kD = kD;
     }
 
-    double PIDController::update(double setpoint, double actual, double timestamp)
+    void PIDController::setGains(double kP, double kI, double kD, double filter_r)
     {
-        return update(setpoint - actual, timestamp);
+        // TODO: suck it <3
+        setGains(kP, kI, kD);
+        this->filter_r = filter_r;
     }
 
-    double PIDController::update(double error, double timestamp)
+    double PIDController::update(double setpoint, double actual)
     {
-        if (pidTuner != nullptr)
-        {
-            pidTuner->update();
-        }
+        return update(setpoint - actual);
+    }
 
-        double dt = lastTimestamp > 0 ? timestamp - lastTimestamp : 1.0;
-        lastTimestamp = timestamp;
-
-        errorSum += error * dt;
-        errorD = (error - lastError) / dt;
+    double PIDController::update(double error)
+    {
+        errorSum += error;
+        errorD += (1 - filter_r) * (error - lastError);
         lastError = error;
 
         return error * kP + errorSum * kI + errorD * kD;

@@ -13,12 +13,6 @@ namespace ck
         actual_gains_pub = n->advertise<ck_ros_base_msgs_node::PID_Tuning>(
             topic_name + "Actual",
             10);
-        
-        std::string set_gains_topic = "/" + topic_basename + "GainsSet";
-
-        // set_gains_pub = n->advertise<ck_ros_base_msgs_node::PID_Tuning>(
-        //     set_gains_topic,
-        //     10);
 
         set_gains_sub = n->subscribe(
             std::string(topic_name + "Set"),
@@ -27,24 +21,35 @@ namespace ck
             this,
             ros::TransportHints().tcpNoDelay());
 
-        // ROS_ERROR("TOPIC NAME: %s", set_gains_topic.c_str());
+        pub_thread = std::thread(&PIDTuner::update, this);
+    }
+
+    PIDTuner::~PIDTuner()
+    {
+        pub_thread.join();
     }
 
     void PIDTuner::update()
     {
-        ck_ros_base_msgs_node::PID_Tuning tuning;
-        tuning.kP = pid->kP;
-        tuning.kI = pid->kI;
-        tuning.kD = pid->kD;
-        tuning.filter_r = 0.0;
+        ros::Rate rate(10);
 
-        actual_gains_pub.publish(tuning);
+        while (ros::ok())
+        {
+            ck_ros_base_msgs_node::PID_Tuning tuning;
+            tuning.kP = pid->kP;
+            tuning.kI = pid->kI;
+            tuning.kD = pid->kD;
+            tuning.filter_r = pid->filter_r;
+
+            actual_gains_pub.publish(tuning);
+
+            rate.sleep();
+        }
     }
 
     void PIDTuner::set_gains_callback(const ck_ros_base_msgs_node::PID_Tuning &tuning)
     {
-        ROS_ERROR("Got gains %0.2f, %0.2f, %0.2f", tuning.kP, tuning.kI, tuning.kD);
-
-        pid->setGains(tuning.kP, tuning.kI, tuning.kD);
+        ROS_ERROR("Got gains p=%0.2f, i=%0.2f, d=%0.2f, filter_r=%0.2f", tuning.kP, tuning.kI, tuning.kD, tuning.filter_r);
+        pid->setGains(tuning.kP, tuning.kI, tuning.kD, tuning.filter_r);
     }
 } // namespace ck
