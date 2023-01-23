@@ -8,24 +8,26 @@ namespace ck
         this->topic_basename = topic_basename;
         this->pid = pid;
 
-        actual_gains_pub = n->advertise<ck_ros_base_msgs_node::PID_Tuning>(
-            "/" + topic_basename + "GainsActual",
-            10);
+        std::string topic_name = "/" + topic_basename + "Gains";
 
+        actual_gains_pub = n->advertise<ck_ros_base_msgs_node::PID_Tuning>(
+            topic_name + "Actual",
+            10);
+        
         std::string set_gains_topic = "/" + topic_basename + "GainsSet";
 
-        set_gains_pub = n->advertise<ck_ros_base_msgs_node::PID_Tuning>(
-            set_gains_topic,
-            10);
+        // set_gains_pub = n->advertise<ck_ros_base_msgs_node::PID_Tuning>(
+        //     set_gains_topic,
+        //     10);
 
         set_gains_sub = n->subscribe(
-            set_gains_topic,
+            std::string(topic_name + "Set"),
             10,
             &PIDTuner::set_gains_callback,
             this,
             ros::TransportHints().tcpNoDelay());
 
-        ROS_ERROR("TOPIC NAME: %s", set_gains_topic.c_str());
+        // ROS_ERROR("TOPIC NAME: %s", set_gains_topic.c_str());
     }
 
     void PIDTuner::update()

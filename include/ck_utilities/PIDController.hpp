@@ -5,6 +5,7 @@
 #include "ros/ros.h"
 
 #include <string>
+#include <atomic>
 
 namespace ck
 {
@@ -28,9 +29,9 @@ namespace ck
         void initTuner(ros::NodeHandle *n, std::string topic_basename);
 
     private:
-        double kP;
-        double kI;
-        double kD;
+        std::atomic<double> kP{0.0};
+        std::atomic<double> kI{0.0};
+        std::atomic<double> kD{0.0};
         double error;
         double errorSum;
         double lastError;
