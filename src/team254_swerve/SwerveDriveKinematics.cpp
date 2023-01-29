@@ -78,7 +78,7 @@ namespace ck
 
         ChassisSpeeds SwerveDriveKinematics::toChassisSpeeds(std::vector<SwerveModuleState> wheelStates)
         {
-            if (wheelStates.size() != m_numModules)
+            if ((int)wheelStates.size() != m_numModules)
             {
                 throw;
             }
@@ -100,7 +100,7 @@ namespace ck
 
         ChassisSpeeds SwerveDriveKinematics::toChassisSpeedWheelConstraints(std::vector<SwerveModuleState> wheelStates)
         {
-            if (wheelStates.size() != m_numModules)
+            if ((int)wheelStates.size() != m_numModules)
             {
                 throw;
             }
@@ -124,6 +124,8 @@ namespace ck
             }
 
             auto pseudoInv = constrainsMatrix.completeOrthogonalDecomposition().pseudoInverse();
+
+            return ChassisSpeeds();
         }
 
     } // namespace team254_swerve
