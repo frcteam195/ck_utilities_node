@@ -240,16 +240,16 @@ namespace ck
             mLastTime = timestamp;
             TrajectorySamplePoint<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> sample_point;
 
-            *mHeadingSetpoint = TimedState<Rotation2d>(mInitialHeading->rotateBy(mRotationDiff->times(math::min(1.0, (timestamp - mStartTime) / mTotalTime))));
+            // *mHeadingSetpoint = TimedState<Rotation2d>(mInitialHeading->rotateBy(mRotationDiff->times(math::min(1.0, (timestamp - mStartTime) / mTotalTime))));
             // maybe use this to contol the heading per waypoint, rather than just the start and end points
             // *mHeadingSetpoint = TimedState<Rotation2d>(mCurrentTrajectory->getHeading());
-            // int index = (int)std::floor(mCurrentTrajectory->trajectory().length() * (timestamp - mStartTime) / mTotalTime);
-            // *mHeadingSetpoint = mCurrentTrajectory->trajectory().getHeading(index);
+            int index = (int)std::floor(mCurrentTrajectory->trajectory().length() * (timestamp - mStartTime) / mTotalTime);
+            *mHeadingSetpoint = mCurrentTrajectory->trajectory().getHeading(index);
 
-            // mDTheta = mHeadingSetpoint->state().getRadians();
+            mDTheta = mHeadingSetpoint->state().getRadians();
             // if (index > 0)
             // {
-            //     mDTheta -= mCurrentTrajectory->trajectory().getHeading(index - 1).state().getRadians();
+            mDTheta -= current_state.getRotation().getRadians();
             // }
 
             // mDTheta /= mDt;
