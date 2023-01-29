@@ -55,6 +55,7 @@ namespace ck
             *mPathSetpoint = trajectory.getState();
             *mHeadingSetpoint = trajectory.getHeading();
             *mLastHeadingSetpoint = trajectory.getHeading();
+            lastProgress = 0.0;
             mLastPathSetpoint = nullptr;
             useDefaultCook = true;
             mCurrentTrajectoryLength = mCurrentTrajectory->trajectory().getLastPoint().state_.t();
@@ -213,6 +214,7 @@ namespace ck
             if (mCurrentTrajectory->getProgress() == 0.0 && !std::isfinite(mLastTime))
             {
                 mLastTime = timestamp;
+                lastProgress = 0.0;
 
                 *mInitialHeading = Rotation2d(mCurrentTrajectory->trajectory().getHeading(0).state());
                 Rotation2d finalHeading = mCurrentTrajectory->trajectory().getLastPoint().heading_.state();
