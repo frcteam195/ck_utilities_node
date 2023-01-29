@@ -54,7 +54,7 @@ namespace ck
             *mCurrentTrajectory = trajectory;
             *mPathSetpoint = trajectory.getState();
             *mHeadingSetpoint = trajectory.getHeading();
-            mLastHeadingSetpoint = nullptr;
+            *mLastHeadingSetpoint = trajectory.getHeading();
             mLastPathSetpoint = nullptr;
             useDefaultCook = true;
             mCurrentTrajectoryLength = mCurrentTrajectory->trajectory().getLastPoint().state_.t();
@@ -76,7 +76,7 @@ namespace ck
         {
             *mTranslationError = Translation2d::identity();
             *mHeadingError = Rotation2d::identity();
-            mLastHeadingSetpoint = nullptr;
+            // mLastHeadingSetpoint = nullptr;
             mLastPathSetpoint = nullptr;
             *mOutput = ChassisSpeeds();
             mLastTime = math::POS_INF;
@@ -241,18 +241,34 @@ namespace ck
             TrajectorySamplePoint<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> sample_point;
 
             // *mHeadingSetpoint = TimedState<Rotation2d>(mInitialHeading->rotateBy(mRotationDiff->times(math::min(1.0, (timestamp - mStartTime) / mTotalTime))));
-            // maybe use this to contol the heading per waypoint, rather than just the start and end points
-            // *mHeadingSetpoint = TimedState<Rotation2d>(mCurrentTrajectory->getHeading());
-            int index = (int)std::floor(mCurrentTrajectory->trajectory().length() * (timestamp - mStartTime) / mTotalTime);
-            *mHeadingSetpoint = mCurrentTrajectory->trajectory().getHeading(index);
 
-            mDTheta = mHeadingSetpoint->state().getRadians();
-            // if (index > 0)
-            // {
-            mDTheta -= current_state.getRotation().getRadians();
-            // }
+            *mHeadingSetpoint = mCurrentTrajectory->getHeading();
 
-            // mDTheta /= mDt;
+            if (!math::epsilonEquals(mHeadingSetpoint->state().getRadians(), mLastHeadingSetpoint->state().getRadians(), 0.001) && mCurrentTrajectory->getProgress() > lastProgress)
+            {
+                if (math::epsilonEquals(mDt, 0.0, 0.0001))
+                {
+                    mDTheta = 0;
+                }
+                else
+                {
+                    static bool firstDTheta = true;
+                    if (firstDTheta)
+                    {
+                        mDTheta = 0;
+                        firstDTheta = false;
+                    }
+                    else
+                    {
+                        mDTheta = (mHeadingSetpoint->state().getRadians() - mLastHeadingSetpoint->state().getRadians()) / (mTotalTime / mCurrentTrajectory->trajectory().length());
+                    }
+                    // std::cout << mCurrentTrajectory->getProgress() << ", ";
+                    // std::cout << mHeadingSetpoint->state().getRadians() << ", " << mLastHeadingSetpoint->state().getRadians();
+                    // std::cout << ", dtheta: " << mDTheta << std::endl;
+                }
+                *mLastHeadingSetpoint = *mHeadingSetpoint;
+                lastProgress = mCurrentTrajectory->getProgress();
+            }
 
             *mCurrentState = current_state;
 

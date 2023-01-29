@@ -127,6 +127,7 @@ namespace ck
             Lookahead mSpeedLookahead;
 
             double mDt = 0.0;
+            double lastProgress = 0.0;
         };
 
     } // namespace planners
