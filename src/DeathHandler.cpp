@@ -29,6 +29,8 @@
  *  @copyright 2012 Samsung R&D Institute Russia, 2016 Moscow Institute of Physics and Technology
  */
 
+#ifndef __MINGW32__
+
 #include "ck_utilities/DeathHandler.hpp"
 #include <assert.h>
 #include <execinfo.h>
@@ -729,3 +731,5 @@ void DeathHandler::HandleSignal(int sig, void * /* info */, void *secret) {
 #endif
 
 }  // namespace Debug
+   //
+#endif

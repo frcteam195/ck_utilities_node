@@ -34,7 +34,7 @@ namespace ck
                 for (int i = 0; i < trajectory.length(); ++i)
                 {
                     timing::TimedState<S> timedState = trajectory.getState(i);
-                    waypoints.push_back(timing::TimedState(timedState.state().mirror(), timedState.t(), timedState.velocity(), timedState.acceleration()));
+                    waypoints.push_back(timing::TimedState<S>(timedState.state().mirror(), timedState.t(), timedState.velocity(), timedState.acceleration()));
                 }
 
                 return Trajectory<timing::TimedState<S>>(waypoints);
