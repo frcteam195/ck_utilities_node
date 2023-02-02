@@ -9,6 +9,18 @@
 
 #include "ck_utilities/Logger.hpp"
 
+
+double smallest_traversal(double angle, double target_angle)
+{
+    double left = -ck::math::normalize_to_2_pi(angle - target_angle);
+    double right = ck::math::normalize_to_2_pi(target_angle - angle);
+    if(fabs(left) < fabs(right))
+    {
+        return left;
+    }
+    return right;
+}
+
 namespace ck
 {
     namespace planners
@@ -31,7 +43,7 @@ namespace ck
                 vxMPerSec * robotAngle.cos() + vyMPerSec * robotAngle.sin(),
                 -vxMPerSec * robotAngle.sin() + vyMPerSec * robotAngle.cos(),
                 omegaRadPerSec);
-        } 
+        }
 
         ChassisSpeeds ChassisSpeeds::fromRobotRelativeSpeeds(double vxMPerSec,
                                                         double vyMPerSec,
@@ -127,7 +139,7 @@ namespace ck
 
             Trajectory<Pose2dWithCurvature, Rotation2d> trajectory = TrajectoryUtil::trajectoryFromWaypoints(
                 waypoints_maybe_flipped, headings_maybe_flipped, kMaxDx, kMaxDy, kMaxDTheta);
-            
+
             if (reversed)
             {
                 std::vector<Pose2dWithCurvature> flipped_points(trajectory.length());
@@ -262,7 +274,8 @@ namespace ck
                     }
                     else
                     {
-                        mDTheta = (mHeadingSetpoint->state().getRadians() - mLastHeadingSetpoint->state().getRadians()) / (mTotalTime / mCurrentTrajectory->trajectory().length());
+                        float angle_delta = smallest_traversal(mLastHeadingSetpoint->state().getRadians(), mHeadingSetpoint->state().getRadians());
+                        mDTheta = angle_delta / (mTotalTime / mCurrentTrajectory->trajectory().length());
                     }
                     // std::cout << mCurrentTrajectory->getProgress() << ", ";
                     // std::cout << mHeadingSetpoint->state().getRadians() << ", " << mLastHeadingSetpoint->state().getRadians();
