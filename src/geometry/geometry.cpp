@@ -180,6 +180,18 @@ Rotation Transform::get_Rotation_To()
     return result;
 }
 
+Twist Twist::rotate(Rotation rotation)
+{
+    Twist result = *this;
+
+    Eigen::Quaternionf q = quaternion_from_rotation(rotation);
+    result.linear = q * this->linear;
+
+    Eigen::Quaternionf base = quaternion_from_rotation(this->angular);
+    result.angular = rotation_from_quaternion(base * q);
+    return result;
+}
+
 geometry::Covariance::Covariance()
 {
     for (int i = 0; i < 6; i++)

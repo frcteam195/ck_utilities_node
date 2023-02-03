@@ -66,6 +66,7 @@ namespace geometry
     {
     public:
         Twist() { }
+        Twist rotate(Rotation rotation);
         Translation linear;
         Rotation angular;
     };
