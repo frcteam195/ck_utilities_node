@@ -9,6 +9,9 @@
 
 #include "ck_utilities/Logger.hpp"
 
+#include <ros/ros.h>
+#include <tf2_ros/transform_broadcaster.h>
+
 
 double smallest_traversal(double angle, double target_angle)
 {
@@ -194,11 +197,30 @@ namespace ck
             }
 
             Translation2d lookaheadTranslation(current_state.getTranslation(), lookahead_state.state().getTranslation());
+
+            static tf2_ros::TransformBroadcaster tfBroadcaster;
+
+            geometry_msgs::TransformStamped lookahead;
+            lookahead.header.frame_id = "unaligned_base_link";
+            lookahead.header.stamp = ros::Time().now();
+            lookahead.child_frame_id = "traj_look";
+            lookahead.transform.translation.x = math::inches_to_meters(lookaheadTranslation.x());
+            lookahead.transform.translation.y = math::inches_to_meters(lookaheadTranslation.y());
+            lookahead.transform.translation.z = 0;
+            lookahead.transform.rotation.x = 0;
+            lookahead.transform.rotation.y = 0;
+            lookahead.transform.rotation.z = 0;
+            lookahead.transform.rotation.w = 1;
+
+            tfBroadcaster.sendTransform(lookahead);
+
             Rotation2d steeringDirection = lookaheadTranslation.direction().rotateBy(current_state.inverse().getRotation());
 
             double normalizedSpeed = std::abs(mPathSetpoint->velocity()) / math::meters_to_inches(kMaxVelocityMetersPerSecond);
 
-            if (normalizedSpeed > defaultCook || mPathSetpoint->t() > (mCurrentTrajectoryLength / 2.0))
+            useDefaultCook = true;
+
+            if (normalizedSpeed > defaultCook)// || mPathSetpoint->t() > (mCurrentTrajectoryLength / 2.0))
             {
                 useDefaultCook = false;
             }
