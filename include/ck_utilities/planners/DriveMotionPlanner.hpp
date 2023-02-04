@@ -61,7 +61,7 @@ namespace ck
                                                                                                    double maximumVelocity,   // Inches per Second
                                                                                                    double maximumAcceleration, // Inches per Second^2
                                                                                                    double maximumVoltage);
-                                                                                                                     
+
             Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> generateTrajectory(bool reversed,
                                                                                                    std::vector<Pose2d> waypoints,
                                                                                                    std::vector<Rotation2d> headings,
@@ -97,7 +97,7 @@ namespace ck
 
             FollowerType mFollowerType = FollowerType::PURE_PURSUIT;
 
-            double defaultCook = 0.4;
+            double defaultCook = 0.1;
             bool useDefaultCook = true;
 
             TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> *mCurrentTrajectory = new TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>>();
