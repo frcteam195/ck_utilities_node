@@ -50,7 +50,7 @@ namespace ck
                 PID,
             };
 
-            DriveMotionPlanner(void);
+            DriveMotionPlanner(double max_translational_velocity=3.0);
 
             void setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory);
             void reset(void);
@@ -87,6 +87,8 @@ namespace ck
             void setFollowerType(FollowerType type);
 
         private:
+            const double kMaxVelocityMetersPerSecond;
+
             static constexpr double kMaxDx = 2.0;
             static constexpr double kMaxDy = 0.25;
             // static constexpr double kMaxDtheta = 0.0872665; // 5 Degrees

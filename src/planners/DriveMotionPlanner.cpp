@@ -60,8 +60,9 @@ namespace ck
             return Twist2d(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
         }
 
-        DriveMotionPlanner::DriveMotionPlanner(void)
-            : mSpeedLookahead(kAdaptivePathMinLookaheadDistance, kAdaptivePathMaxLookaheadDistance, 0.0, math::meters_to_inches(kMaxVelocityMetersPerSecond))
+        DriveMotionPlanner::DriveMotionPlanner(double max_translational_velocity)
+            : kMaxVelocityMetersPerSecond(max_translational_velocity),
+              mSpeedLookahead(kAdaptivePathMinLookaheadDistance, kAdaptivePathMaxLookaheadDistance, 0.0, math::meters_to_inches(kMaxVelocityMetersPerSecond))
         {}
 
         void DriveMotionPlanner::setTrajectory(TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> trajectory)
