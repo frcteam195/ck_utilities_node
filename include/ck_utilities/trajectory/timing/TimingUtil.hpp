@@ -262,6 +262,7 @@ namespace ck
                         // Advance t.
                         double ds = constrained_state.distance - s;
                         double accel = (constrained_state.max_translational_velocity * constrained_state.max_translational_velocity - v * v) / (2.0 * ds);
+                        double heading_accel = 60.0; // why poofs why
                         double dt = 0.0;
                         if (i > 0)
                         {
@@ -288,7 +289,7 @@ namespace ck
                         v = constrained_state.max_translational_velocity;
                         s = constrained_state.distance;
                         timed_states.push_back(TimedState<S>(constrained_state.state, t, reverse ? -v : v, reverse ? -accel : accel));
-                        timed_headings.push_back(TimedState<T>(constrained_state.heading, t, reverse ? -v : v, reverse ? -accel : accel));
+                        timed_headings.push_back(TimedState<T>(constrained_state.heading, t, reverse ? -v : v, reverse ? -heading_accel : heading_accel));
                     }
                     return Trajectory<TimedState<S>, TimedState<T>>(timed_states, timed_headings);
                 }
