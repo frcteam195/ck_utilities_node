@@ -76,6 +76,8 @@ namespace ck
             T getHeading(int index) { return points_[index].heading_; }
             S getFirstState() { return getState(0); }
             S getLastState() { return getState(length() - 1); }
+            T getFirstHeading() { return getHeading(0); }
+            T getLastHeading() { return getHeading(length() - 1); }
 
             TrajectorySamplePoint<S, T> getInterpolated(double index)
             {
