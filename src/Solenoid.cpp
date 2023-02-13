@@ -105,10 +105,11 @@ friend class Solenoid;
 static SolenoidMaster * solenoid_master = nullptr;
 std::thread * SolenoidMaster::solenoid_master_thread;
 
-Solenoid::Solenoid(uint8_t id, Solenoid::SolenoidType type)
+Solenoid::Solenoid(uint32_t id, uint32_t module_id, Solenoid::SolenoidType type)
 {
     std::lock_guard<std::recursive_mutex> lock(solenoid_mutex);
     this->id = id;
+    this->id |= ((module_id << 16) & 0xFFFF0000);
     this->type = type;
     if(solenoid_master == nullptr)
     {

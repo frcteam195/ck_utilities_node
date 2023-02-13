@@ -21,10 +21,10 @@ public:
         REVERSE = 2,
     };
 
-    Solenoid(uint8_t id, SolenoidType type);
+    Solenoid(uint32_t id, uint32_t module_id, SolenoidType type);
     void set(SolenoidState state);
 private:
-    uint8_t id;
+    uint32_t id;
     SolenoidType type = SolenoidType::SINGLE;
     SolenoidState mOutput = SolenoidState::OFF;
     Solenoid() = delete;
