@@ -53,6 +53,11 @@ namespace ck
                     return ck::math::max(0.0, view_->last_interpolant() - progress_);
                 }
 
+            double getTotalLength()
+                {
+                    return view_->last_interpolant();
+                }
+
             TrajectorySamplePoint<S, T> getSample()
                 {
                     return *current_sample_;
