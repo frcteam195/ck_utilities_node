@@ -76,6 +76,8 @@ namespace ck
 
             bool isDone(void);
 
+            double getCurrentProgress();
+
             Translation2d getTranslationalError();
             Rotation2d getHeadingError();
 

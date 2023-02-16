@@ -355,6 +355,17 @@ namespace ck
             return mCurrentTrajectory != NULL && mCurrentTrajectory->isDone();
         }
 
+        // Returns the progress of the trajectory as a percentage of the total progress
+        double DriveMotionPlanner::getCurrentProgress()
+        {
+            if (mCurrentTrajectory != nullptr)
+            {
+                return mCurrentTrajectory->getProgress() / mCurrentTrajectory->getTotalLength();
+            }
+
+            return 0.0;
+        }
+
         Translation2d DriveMotionPlanner::getTranslationalError()
         {
             return Translation2d(math::inches_to_meters(mError->getTranslation().x()),
