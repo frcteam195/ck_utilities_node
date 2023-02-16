@@ -50,6 +50,8 @@ namespace geometry
         Transform get_Transform(Pose pose_);
         Translation position;
         Rotation orientation;
+        Pose operator+(const Pose &other);
+        Pose operator/(const float &other);
     };
 
     class Transform

@@ -157,6 +157,23 @@ Transform Pose::get_Transform(Pose pose_)
     return result;
 }
 
+
+Pose Pose::operator+(const Pose &other)
+{
+    Pose result;
+    result.position = this->position + other.position;
+    result.orientation = this->orientation + other.orientation;
+    return result;
+}
+
+Pose Pose::operator/(const float &other)
+{
+    Pose result = *this;
+    result.position /= other;
+    result.orientation /= other;
+    return result;
+}
+
 Transform Transform::rotate(Rotation rotation)
 {
     Transform result = *this;
