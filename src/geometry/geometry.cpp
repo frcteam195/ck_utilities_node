@@ -153,7 +153,7 @@ Transform Pose::get_Transform(Pose pose_)
 {
     Transform result;
     result.linear = pose_.position - this->position;
-    result.angular = rotation_from_quaternion(quaternion_from_rotation(pose_.orientation) * quaternion_from_rotation(this->orientation).inverse());
+    result.angular = rotation_from_quaternion(quaternion_from_rotation(this->orientation) * quaternion_from_rotation(pose_.orientation));
     return result;
 }
 
