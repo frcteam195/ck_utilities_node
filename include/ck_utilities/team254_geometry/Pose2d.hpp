@@ -67,6 +67,8 @@ namespace ck
             bool equals(const Pose2d &other) override;
             Pose2d getPose() const override;
             Pose2d mirror() const override;
+
+            std::string to_string() const;
         };
     } // namespace team254_geometry
 } // namespace ck

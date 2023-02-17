@@ -211,5 +211,15 @@ namespace ck
             return Pose2d(Translation2d(getTranslation().x(), -getTranslation().y()), getRotation().inverse());
         }
 
+        std::string Pose2d::to_string() const
+        {
+            std::stringstream ss;
+            ss << "x: " << std::to_string(getTranslation().x()) << ", ";
+            ss << "y: " << std::to_string(getTranslation().y()) << ", ";
+            ss << "theta: " << std::to_string(getRotation().getDegrees());
+
+            return ss.str();
+        }
+
     } // namespace team254_geometry
 } // namespace ck
