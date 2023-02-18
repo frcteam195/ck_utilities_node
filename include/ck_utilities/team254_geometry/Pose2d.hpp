@@ -7,6 +7,8 @@
 #include "ck_utilities/team254_geometry/IPose2d.hpp"
 
 #include <cmath>
+#include <string>
+#include <sstream>
 
 namespace ck
 {

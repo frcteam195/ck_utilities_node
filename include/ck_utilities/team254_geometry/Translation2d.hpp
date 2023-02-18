@@ -63,7 +63,7 @@ namespace ck
 
             double distance(const Translation2d &other) const override;
 
-            Translation2d add(const Translation2d &other) const;
+            Translation2d add(const Translation2d &other) const override;
 
             Translation2d getTranslation() const override;
 

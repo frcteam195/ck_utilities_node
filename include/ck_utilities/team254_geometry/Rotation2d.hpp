@@ -47,8 +47,8 @@ namespace ck
             Rotation2d minus(const Rotation2d &other) const;
             Rotation2d times(double scalar) const;
             Rotation2d getRotation() const override;
-            Rotation2d rotateBy(const Rotation2d &other) const;
-            Rotation2d mirror() const;
+            Rotation2d rotateBy(const Rotation2d &other) const override;
+            Rotation2d mirror() const override;
             Rotation2d normal() const;
             Rotation2d inverse() const;
             Rotation2d flip() const;
