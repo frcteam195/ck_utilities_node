@@ -162,6 +162,11 @@ namespace ck
             return getTranslation().epsilonEquals(other.getTranslation(), epsilon) && getRotation().isParallel(other.getRotation());
         }
 
+        bool Pose2d::epsilonAllEquals(const Pose2d &other, double epsilon) const
+        {
+            return getTranslation().epsilonEquals(other.getTranslation(), epsilon) && getRotation().isParallelLoose(other.getRotation(), epsilon);
+        }
+
         Translation2d Pose2d::intersectionInternal(const Pose2d &a, const Pose2d &b)
         {
             Rotation2d a_r = a.getRotation();

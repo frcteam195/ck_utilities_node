@@ -63,6 +63,7 @@ namespace ck
             Translation2d intersection(const Pose2d &other) const;
             bool isColinear(const Pose2d &other) const;
             bool epsilonEquals(const Pose2d &other, double epsilon) const;
+            bool epsilonAllEquals(const Pose2d &other, double epsilon) const;
             static Translation2d intersectionInternal(const Pose2d &a, const Pose2d &b);
             Pose2d interpolate(const Pose2d &other, double x) const override;
             double distance(const Pose2d &other) const override;
