@@ -52,6 +52,11 @@ public:
     void set_kI(double value);
     void set_kD(double value);
     void set_kF(double value);
+    void set_kP_Slot1(double value);
+    void set_kI_Slot1(double value);
+    void set_kD_Slot1(double value);
+    void set_kF_Slot1(double value);
+    void set_active_gain_slot(int8_t slotIdx);
     void set_i_zone(double value);
     void set_max_i_accum(double value);
     void set_allowed_closed_loop_error(double value);

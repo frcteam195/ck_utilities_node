@@ -266,6 +266,36 @@ void MotorConfig::set_kF(double value)
     this->pending_config.motor_config.kF = value;
 }
 
+void MotorConfig::set_kP_Slot1(double value)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.kP_1 = value;
+}
+
+void MotorConfig::set_kI_Slot1(double value)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.kI_1 = value;
+}
+
+void MotorConfig::set_kD_Slot1(double value)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.kD_1 = value;
+}
+
+void MotorConfig::set_kF_Slot1(double value)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.kF_1 = value;
+}
+
+void MotorConfig::set_active_gain_slot(int8_t slotIdx)
+{
+    std::lock_guard<std::recursive_mutex> lock(motor_mutex);
+    this->pending_config.motor_config.active_gain_slot = slotIdx;
+}
+
 void MotorConfig::set_i_zone(double value)
 {
     std::lock_guard<std::recursive_mutex> lock(motor_mutex);
@@ -465,6 +495,11 @@ void MotorConfig::set_defaults()
     this->set_kI(0.0);
     this->set_kD(0.0);
     this->set_kF(0.0);
+    this->set_kP_Slot1(0.0);
+    this->set_kI_Slot1(0.0);
+    this->set_kD_Slot1(0.0);
+    this->set_kF_Slot1(0.0);
+    this->set_active_gain_slot(0);
     this->set_i_zone(0.0);
     this->set_max_i_accum(0.0);
     this->set_allowed_closed_loop_error(0.0);
