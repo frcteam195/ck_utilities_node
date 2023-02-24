@@ -156,6 +156,10 @@ namespace ck
         {
             return ck::math::epsilonEquals(Translation2d::cross(toTranslation(), other.toTranslation()), 0.0);
         }
+        bool Rotation2d::isParallelLoose(const Rotation2d &other, double epsilon) const
+        {
+            return ck::math::epsilonEquals(Translation2d::cross(toTranslation(), other.toTranslation()), 0.0, epsilon);
+        }
         Translation2d Rotation2d::toTranslation() const
         {
             return Translation2d(cos_angle, sin_angle);
