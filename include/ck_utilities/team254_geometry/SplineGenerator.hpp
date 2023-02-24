@@ -29,7 +29,8 @@ namespace ck
                                       double maxDx,
                                       double maxDy,
                                       double maxDTheta,
-                                      double totalTime);
+                                      double totalTime,
+									  int depth=0);
 
         public:
             /**

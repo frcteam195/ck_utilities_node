@@ -12,18 +12,27 @@ namespace ck
                                             double maxDx,
                                             double maxDy,
                                             double maxDTheta,
-                                            double totalTime)
+                                            double totalTime,
+											int depth)
         {
+	        if (depth > 50)
+	        {
+		        // Prevent seg fault from infinite recursion
+				// A normal depth for a working spline is usually less than 10
+		        return;
+	        }
+
             Translation2d p0 = s.getPoint(t0);
             Translation2d p1 = s.getPoint(t1);
             Rotation2d r0 = s.getHeading(t0);
             Rotation2d r1 = s.getHeading(t1);
             Pose2d transformation(Translation2d(p0, p1).rotateBy(r0.inverse()), r1.rotateBy(r0.inverse()));
             Twist2d twist = Pose2d::log(transformation);
+
             if (twist.dy > maxDy || twist.dx > maxDx || twist.dtheta > maxDTheta)
             {
-                getSegmentArc(s, headings, rv, t0, (t0 + t1) / 2, maxDx, maxDy, maxDTheta, totalTime);
-                getSegmentArc(s, headings, rv, (t0 + t1) / 2, t1, maxDx, maxDy, maxDTheta, totalTime);
+                getSegmentArc(s, headings, rv, t0, (t0 + t1) / 2, maxDx, maxDy, maxDTheta, totalTime, depth+1);
+                getSegmentArc(s, headings, rv, (t0 + t1) / 2, t1, maxDx, maxDy, maxDTheta, totalTime, depth+1);
             }
             else
             {
@@ -36,7 +45,7 @@ namespace ck
 
                 rv.push_back(trajectory::TrajectoryPoint<Pose2dWithCurvature, Rotation2d>{s.getPose2dWithCurvature(t1), interpolated_heading, (int)rv.size()-1});
             }
-        }                                    
+        }
 
         std::vector<trajectory::TrajectoryPoint<Pose2dWithCurvature, Rotation2d>> SplineGenerator::parameterizeSpline(QuinticHermiteSpline &s,
                                                                                                                       std::vector<Rotation2d> &headings,
@@ -54,7 +63,7 @@ namespace ck
                 getSegmentArc(s, headings, rv, t, t + dt / kMinSampleSize, maxDx, maxDy, maxDTheta, dt);
             }
             return rv;
-        }                                                                                                    
+        }
         std::vector<trajectory::TrajectoryPoint<Pose2dWithCurvature, Rotation2d>> SplineGenerator::parameterizeSpline(QuinticHermiteSpline &s, std::vector<Rotation2d> &headings)
         {
             return parameterizeSpline(s, headings, kMaxDX, kMaxDY, kMaxDTheta, 0.0, 1.0);
