@@ -221,7 +221,7 @@ namespace ck
 
             useDefaultCook = true;
 
-            if (normalizedSpeed > defaultCook)// || mPathSetpoint->t() > (mCurrentTrajectoryLength / 2.0))
+            if (normalizedSpeed > defaultCook || mPathSetpoint->t() > (mCurrentTrajectoryLength / 2.0))
             {
                 useDefaultCook = false;
             }
