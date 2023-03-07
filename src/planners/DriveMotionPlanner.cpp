@@ -74,6 +74,7 @@ namespace ck
             lastProgress = 0.0;
             mLastPathSetpoint = nullptr;
             useDefaultCook = true;
+            useDefaultServe = false;
             mCurrentTrajectoryLength = mCurrentTrajectory->trajectory().getLastPoint().state_.t();
             for (int i = 0; i < trajectory.trajectory().length(); i++)
             {
@@ -220,14 +221,24 @@ namespace ck
             double normalizedSpeed = std::abs(mPathSetpoint->velocity()) / math::meters_to_inches(kMaxVelocityMetersPerSecond);
 
             useDefaultCook = true;
+            useDefaultServe = false;
 
             if (normalizedSpeed > defaultCook || mPathSetpoint->t() > (mCurrentTrajectoryLength / 2.0))
             {
                 useDefaultCook = false;
             }
+            if (normalizedSpeed < defaultServe && mPathSetpoint->t() > (mCurrentTrajectoryLength / 2.0))
+            {
+                useDefaultServe = true;
+            }
+
             if (useDefaultCook)
             {
                 normalizedSpeed = defaultCook;
+            }
+            if (useDefaultServe)
+            {
+                normalizedSpeed = defaultServe;
             }
 
             Translation2d steeringVector(steeringDirection.cos() * normalizedSpeed, steeringDirection.sin() * normalizedSpeed);

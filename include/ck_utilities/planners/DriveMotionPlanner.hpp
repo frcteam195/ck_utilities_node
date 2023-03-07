@@ -101,6 +101,8 @@ namespace ck
 
             double defaultCook = 0.3;
             bool useDefaultCook = true;
+            double defaultServe = 0.1;
+            bool useDefaultServe = false;
 
             TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> *mCurrentTrajectory = new TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>>();
 
