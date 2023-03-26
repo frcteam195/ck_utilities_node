@@ -119,11 +119,16 @@ namespace ck
                             constraint_state.max_acceleration = max_abs_acceleration;
 
                             // if (i <= accel_window_idx)
-                            if (static_cast<Pose2dWithCurvature>(states[i]).getTranslation().norm() <= non_lin_cutoff)
+                            double dist_from_start = std::abs(states[i].getTranslation().norm() - states[0].getTranslation().norm());
+                            if (dist_from_start <= non_lin_cutoff)
                             {
-                                double pct = std::max(states[i].getTranslation().norm() / non_lin_cutoff, min_accel_pct);
-                                constraint_state.max_acceleration *= pct;
-                                constraint_state.min_translational_acceleration *= pct;
+                                // double pct = std::max(dist_from_start / non_lin_cutoff, min_accel_pct);
+                                double pct = dist_from_start / non_lin_cutoff;
+                                double pct_norm = ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0);
+                                // double pct_norm = pct;
+                                std::cout << pct_norm << std::endl;
+                                constraint_state.max_acceleration *= pct_norm;
+                                constraint_state.min_translational_acceleration *= pct_norm;
                             }
 
                             // At this point, the state is full constructed, but no constraints have been applied aside from
@@ -217,13 +222,18 @@ namespace ck
                         constraint_state.max_acceleration = max_abs_decceleration;
                         constraint_state.min_translational_acceleration = -max_abs_decceleration;
 
-                        if (static_cast<ck::team254_geometry::Pose2dWithCurvature>(states[i]).getTranslation().norm() > states[states.size()-1].getTranslation().norm() - non_lin_cutoff)
+                        double dist_to_end = std::abs(states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm());
+                        if (dist_to_end <= non_lin_cutoff)
                         {
                             double distance = states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm();
-                            double pct = std::max(distance / non_lin_cutoff, min_accel_pct);
-                            constraint_state.max_acceleration *= pct;
-                            constraint_state.min_translational_acceleration *= pct;
-                        }                        
+                            (void)distance;
+                            // double pct = std::max(dist_to_end / non_lin_cutoff, min_accel_pct);
+                            double pct = dist_to_end / non_lin_cutoff;
+                            double pct_norm = ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0);
+                            // pct_norm = pct;
+                            constraint_state.max_acceleration *= pct_norm;
+                            constraint_state.min_translational_acceleration *= pct_norm;
+                        }
 
                         while (true)
                         {
