@@ -65,10 +65,19 @@ namespace ck
             Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> generateTrajectory(bool reversed,
                                                                                                    std::vector<Pose2d> waypoints,
                                                                                                    std::vector<Rotation2d> headings,
+                                                                                                   double maximumVelocity,   // Inches per Second
+                                                                                                   double maximumAcceleration, // Inches per Second^2
+                                                                                                   double maximumDecceleration,
+                                                                                                   double maximumVoltage);
+
+            Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> generateTrajectory(bool reversed,
+                                                                                                   std::vector<Pose2d> waypoints,
+                                                                                                   std::vector<Rotation2d> headings,
                                                                                                    double startVelocity, // Inches per Second
                                                                                                    double endVelocity, // Inches per Second
                                                                                                    double maximumVelocity, // Inches per Second
                                                                                                    double maximumAcceleration, // Inches per Second^2
+                                                                                                   double maximumDecceleration,
                                                                                                    double maximumVoltage);
 
             ChassisSpeeds updatePurePursuit(Pose2d current_state, double feedforwardOmegaRadiansPerSecond);

@@ -114,6 +114,26 @@ namespace ck
                                             0.0,
                                             maximumVelocity,
                                             maximumAcceleration,
+                                            maximumAcceleration,
+                                            maximumVoltage);
+        }
+
+        Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> DriveMotionPlanner::generateTrajectory(bool reversed,
+                                                                                                                   std::vector<Pose2d> waypoints,
+                                                                                                                   std::vector<Rotation2d> headings,
+                                                                                                                   double maximumVelocity,     // Inches per Second
+                                                                                                                   double maximumAcceleration, // Inches per Second^2
+                                                                                                                   double maximumDecceleration,
+                                                                                                                   double maximumVoltage)
+        {
+            return this->generateTrajectory(reversed,
+                                            waypoints,
+                                            headings,
+                                            0.0,
+                                            0.0,
+                                            maximumVelocity,
+                                            maximumAcceleration,
+                                            maximumDecceleration,
                                             maximumVoltage);
         }
 
@@ -124,6 +144,7 @@ namespace ck
                                                                                                                    double endVelocity,         // Inches per Second
                                                                                                                    double maximumVelocity,     // Inches per Second
                                                                                                                    double maximumAcceleration, // Inches per Second^2
+                                                                                                                   double maximumDecceleration,
                                                                                                                    double maximumVoltage)
         {
             (void)maximumVoltage;
@@ -169,7 +190,8 @@ namespace ck
                                                                                                                                           startVelocity,
                                                                                                                                           endVelocity,
                                                                                                                                           maximumVelocity,
-                                                                                                                                          maximumAcceleration);
+                                                                                                                                          maximumAcceleration,
+                                                                                                                                          maximumDecceleration);
 
             return timed_trajectory;
         }
