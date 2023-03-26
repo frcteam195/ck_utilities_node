@@ -78,6 +78,11 @@ namespace ck
                     constraint_states.reserve(states.size());
                     constexpr double kEpsilon = 1e-6;
 
+                    double non_lin_cutoff = 10.0;
+                    double min_accel_pct = 0.25;
+                    (void)non_lin_cutoff;
+                    (void)min_accel_pct;
+
                     // Forward pass. We look at pairs of consecutive states, where the start state has already been velocity
                     // parameterized (though we may adjust the velocity downwards during the backwards pass). We wish to find an
                     // acceleration that is admissible at both the start and end state, as well as an admissible end velocity. If
@@ -112,6 +117,14 @@ namespace ck
                             // Enforce global max absolute acceleration.
                             constraint_state.min_translational_acceleration = -max_abs_acceleration;
                             constraint_state.max_acceleration = max_abs_acceleration;
+
+                            // if (i <= accel_window_idx)
+                            if (static_cast<Pose2dWithCurvature>(states[i]).getTranslation().norm() <= non_lin_cutoff)
+                            {
+                                double pct = std::max(states[i].getTranslation().norm() / non_lin_cutoff, min_accel_pct);
+                                constraint_state.max_acceleration *= pct;
+                                constraint_state.min_translational_acceleration *= pct;
+                            }
 
                             // At this point, the state is full constructed, but no constraints have been applied aside from
                             // predecessor
@@ -200,6 +213,17 @@ namespace ck
                     {
                         ConstrainedState<S, T> &constraint_state = constraint_states[i];
                         double ds = constraint_state.distance - successor.distance; // will be negative.
+
+                        constraint_state.max_acceleration = max_abs_decceleration;
+                        constraint_state.min_translational_acceleration = -max_abs_decceleration;
+
+                        if (static_cast<ck::team254_geometry::Pose2dWithCurvature>(states[i]).getTranslation().norm() > states[states.size()-1].getTranslation().norm() - non_lin_cutoff)
+                        {
+                            double distance = states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm();
+                            double pct = std::max(distance / non_lin_cutoff, min_accel_pct);
+                            constraint_state.max_acceleration *= pct;
+                            constraint_state.min_translational_acceleration *= pct;
+                        }                        
 
                         while (true)
                         {
