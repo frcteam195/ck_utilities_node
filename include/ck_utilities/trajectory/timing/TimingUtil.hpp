@@ -80,8 +80,6 @@ namespace ck
 
                     double non_lin_cutoff = 10.0;
                     double min_accel_pct = 0.25;
-                    (void)non_lin_cutoff;
-                    (void)min_accel_pct;
 
                     // Forward pass. We look at pairs of consecutive states, where the start state has already been velocity
                     // parameterized (though we may adjust the velocity downwards during the backwards pass). We wish to find an
@@ -122,11 +120,8 @@ namespace ck
                             double dist_from_start = std::abs(states[i].getTranslation().norm() - states[0].getTranslation().norm());
                             if (dist_from_start <= non_lin_cutoff)
                             {
-                                // double pct = std::max(dist_from_start / non_lin_cutoff, min_accel_pct);
                                 double pct = dist_from_start / non_lin_cutoff;
                                 double pct_norm = ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0);
-                                // double pct_norm = pct;
-                                std::cout << pct_norm << std::endl;
                                 constraint_state.max_acceleration *= pct_norm;
                                 constraint_state.min_translational_acceleration *= pct_norm;
                             }
@@ -225,12 +220,8 @@ namespace ck
                         double dist_to_end = std::abs(states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm());
                         if (dist_to_end <= non_lin_cutoff)
                         {
-                            double distance = states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm();
-                            (void)distance;
-                            // double pct = std::max(dist_to_end / non_lin_cutoff, min_accel_pct);
                             double pct = dist_to_end / non_lin_cutoff;
                             double pct_norm = ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0);
-                            // pct_norm = pct;
                             constraint_state.max_acceleration *= pct_norm;
                             constraint_state.min_translational_acceleration *= pct_norm;
                         }
