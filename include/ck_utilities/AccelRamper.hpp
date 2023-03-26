@@ -7,10 +7,10 @@
  * Ramp rate is given in seconds from full off to full on and full on to full off
  * The minimum value is not the most negative value, but rather the value at 0
  */
-class ValueRamper
+class AccelRamper
 {
 public:
-    ValueRamper(double accelRampRate, double decelRampRate, double zeroValue, double maxValue);
+    AccelRamper(double accelRampRate, double decelRampRate, double zeroValue, double maxValue);
     double calculateOutput(double currValue);
     double get_value();
     void update_params(double accelRampRate, double decelRampRate, double zeroValue, double maxValue);

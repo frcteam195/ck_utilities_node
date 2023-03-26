@@ -1,12 +1,13 @@
-#include "ck_utilities/ValueRamper.hpp"
+#include "ck_utilities/AccelRamper.hpp"
+#include "ck_utilities/CKMath.hpp"
 #if __has_include("ros/ros.h")
 #include "ros/ros.h"
 
-ValueRamper::ValueRamper(double accelRampRate, double decelRampRate, double zeroValue, double maxValue)
+AccelRamper::AccelRamper(double accelRampRate, double decelRampRate, double zeroValue, double maxValue)
 : mAccelRampRate(accelRampRate), mDecelRampRate(decelRampRate), mZeroValue(zeroValue), mMaxValue(maxValue)
 {}
 
-void ValueRamper::update_params(double accelRampRate, double decelRampRate, double zeroValue, double maxValue)
+void AccelRamper::update_params(double accelRampRate, double decelRampRate, double zeroValue, double maxValue)
 {
     mAccelRampRate = accelRampRate;
     mDecelRampRate = decelRampRate;
@@ -14,25 +15,24 @@ void ValueRamper::update_params(double accelRampRate, double decelRampRate, doub
     mMaxValue = maxValue;
 }
 
-void ValueRamper::reset()
+void AccelRamper::reset()
 {
-    mPrevTime = ros::Time::now();
     mPrevValue = mZeroValue;
 }
 
-double ValueRamper::get_value()
+double AccelRamper::get_value()
 {
     return mPrevValue;
 }
 
-double ValueRamper::calculateOutput(double currValue)
+double AccelRamper::calculateOutput(double currValue)
 {
     ros::Time timeNow = ros::Time::now();
     if (mPrevTime != ros::Time(0))
     {
         double dt = (timeNow - mPrevTime).toSec();
-        double accelStep = (mMaxValue - mZeroValue) * dt / mAccelRampRate;
-        double decelStep = (mMaxValue - mZeroValue) * dt / mDecelRampRate;
+        double accelStep = dt * mAccelRampRate;
+        double decelStep = dt * mDecelRampRate;
         mPrevTime = timeNow;
         // std::stringstream o;
         // o << "DT: " << dt << " accel " << accelStep << " decel " << decelStep << " prev " << mPrevValue << " curr " << currValue;
@@ -70,6 +70,9 @@ double ValueRamper::calculateOutput(double currValue)
             mPrevValue = currValue;
             return currValue;
         }
+
+        mPrevValue = ck::math::limit(mPrevValue, mMaxValue);
+
     }
     mPrevTime = timeNow;
     return 0;
