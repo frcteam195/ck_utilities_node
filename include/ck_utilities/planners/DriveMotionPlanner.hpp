@@ -108,9 +108,9 @@ namespace ck
 
             FollowerType mFollowerType = FollowerType::PURE_PURSUIT;
 
-            double defaultCook = 0.2;
+            double defaultCook = 0.01;
             bool useDefaultCook = true;
-            double defaultServe = 0.1;
+            double defaultServe = 0.0;
             bool useDefaultServe = false;
 
             TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> *mCurrentTrajectory = new TrajectoryIterator<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>>();

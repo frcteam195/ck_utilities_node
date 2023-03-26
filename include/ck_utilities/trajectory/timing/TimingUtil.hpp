@@ -78,7 +78,7 @@ namespace ck
                     constraint_states.reserve(states.size());
                     constexpr double kEpsilon = 1e-6;
 
-                    double non_lin_cutoff = 10.0;
+                    double non_lin_cutoff = 30.0;
                     double min_accel_pct = 0.25;
 
                     // Forward pass. We look at pairs of consecutive states, where the start state has already been velocity
