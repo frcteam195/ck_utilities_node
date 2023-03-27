@@ -68,6 +68,7 @@ namespace ck
                                                                                                    double maximumVelocity,   // Inches per Second
                                                                                                    double maximumAcceleration, // Inches per Second^2
                                                                                                    double maximumDeceleration,
+                                                                                                   bool apply_smoothing,
                                                                                                    double maximumVoltage);
 
             Trajectory<TimedState<Pose2dWithCurvature>, TimedState<Rotation2d>> generateTrajectory(bool reversed,
@@ -78,6 +79,7 @@ namespace ck
                                                                                                    double maximumVelocity, // Inches per Second
                                                                                                    double maximumAcceleration, // Inches per Second^2
                                                                                                    double maximumDeceleration,
+                                                                                                   bool apply_smoothing,
                                                                                                    double maximumVoltage);
 
             ChassisSpeeds updatePurePursuit(Pose2d current_state, double feedforwardOmegaRadiansPerSecond);

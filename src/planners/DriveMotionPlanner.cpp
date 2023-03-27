@@ -115,6 +115,7 @@ namespace ck
                                             maximumVelocity,
                                             maximumAcceleration,
                                             maximumAcceleration,
+                                            false,
                                             maximumVoltage);
         }
 
@@ -124,6 +125,7 @@ namespace ck
                                                                                                                    double maximumVelocity,     // Inches per Second
                                                                                                                    double maximumAcceleration, // Inches per Second^2
                                                                                                                    double maximumDeceleration,
+                                                                                                                   bool apply_smoothing,
                                                                                                                    double maximumVoltage)
         {
             return this->generateTrajectory(reversed,
@@ -134,6 +136,7 @@ namespace ck
                                             maximumVelocity,
                                             maximumAcceleration,
                                             maximumDeceleration,
+                                            apply_smoothing,
                                             maximumVoltage);
         }
 
@@ -145,6 +148,7 @@ namespace ck
                                                                                                                    double maximumVelocity,     // Inches per Second
                                                                                                                    double maximumAcceleration, // Inches per Second^2
                                                                                                                    double maximumDeceleration,
+                                                                                                                   bool apply_smoothing,
                                                                                                                    double maximumVoltage)
         {
             (void)maximumVoltage;
@@ -191,7 +195,8 @@ namespace ck
                                                                                                                                           endVelocity,
                                                                                                                                           maximumVelocity,
                                                                                                                                           maximumAcceleration,
-                                                                                                                                          maximumDeceleration);
+                                                                                                                                          maximumDeceleration,
+                                                                                                                                          apply_smoothing);
 
             return timed_trajectory;
         }

@@ -49,7 +49,8 @@ namespace ck
                     double end_velocity,
                     double max_translational_velocity,
                     double max_abs_acceleration,
-                    double max_abs_deceleration)
+                    double max_abs_deceleration,
+                    bool apply_smoothing)
                 {
                     int num_states = (int)std::ceil(distance_view.last_interpolant() / step_size + 1);
                     std::vector<S> states;
@@ -59,7 +60,7 @@ namespace ck
                         states.push_back(distance_view.sample(math::min(i * step_size, distance_view.last_interpolant())).state_);
                         headings.push_back(distance_view.sample(math::min(i * step_size, distance_view.last_interpolant())).heading_);
                     }
-                    return timeParameterizeTrajectory(reverse, states, headings, constraints, start_velocity, end_velocity, max_translational_velocity, max_abs_acceleration, max_abs_deceleration);
+                    return timeParameterizeTrajectory(reverse, states, headings, constraints, start_velocity, end_velocity, max_translational_velocity, max_abs_acceleration, max_abs_deceleration, apply_smoothing);
                 }
 
                 template <class S, class T>
@@ -72,7 +73,8 @@ namespace ck
                     double end_velocity,
                     double max_translational_velocity,
                     double max_abs_acceleration,
-                    double max_abs_deceleration)
+                    double max_abs_deceleration,
+                    bool apply_smoothing)
                 {
                     std::vector<ConstrainedState<S, T>> constraint_states;
                     constraint_states.reserve(states.size());
@@ -117,7 +119,7 @@ namespace ck
                             constraint_state.max_acceleration = max_abs_acceleration;
 
                             double dist_from_start = std::abs(states[i].getTranslation().norm() - states[0].getTranslation().norm());
-                            if (dist_from_start <= non_lin_cutoff)
+                            if (apply_smoothing && dist_from_start <= non_lin_cutoff)
                             {
                                 double pct = dist_from_start / non_lin_cutoff;
                                 double pct_norm = ck::math::map(pct, 0.0, 1.0, 0.5, 1.0);
@@ -217,7 +219,7 @@ namespace ck
                         constraint_state.min_translational_acceleration = -max_abs_deceleration;
 
                         double dist_to_end = std::abs(states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm());
-                        if (dist_to_end <= non_lin_cutoff)
+                        if (apply_smoothing && dist_to_end <= non_lin_cutoff)
                         {
                             double pct = dist_to_end / non_lin_cutoff;
                             double pct_norm = ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0);
