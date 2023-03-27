@@ -78,7 +78,7 @@ namespace ck
                     constraint_states.reserve(states.size());
                     constexpr double kEpsilon = 1e-6;
 
-                    double non_lin_cutoff = 30.0;
+                    double non_lin_cutoff = 10.0;
                     double min_accel_pct = 0.25;
 
                     // Forward pass. We look at pairs of consecutive states, where the start state has already been velocity
@@ -116,12 +116,11 @@ namespace ck
                             constraint_state.min_translational_acceleration = -max_abs_acceleration;
                             constraint_state.max_acceleration = max_abs_acceleration;
 
-                            // if (i <= accel_window_idx)
                             double dist_from_start = std::abs(states[i].getTranslation().norm() - states[0].getTranslation().norm());
                             if (dist_from_start <= non_lin_cutoff)
                             {
                                 double pct = dist_from_start / non_lin_cutoff;
-                                double pct_norm = ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0);
+                                double pct_norm = ck::math::map(pct, 0.0, 1.0, 0.5, 1.0);
                                 constraint_state.max_acceleration *= pct_norm;
                                 constraint_state.min_translational_acceleration *= pct_norm;
                             }
