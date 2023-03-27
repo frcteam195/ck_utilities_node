@@ -49,7 +49,7 @@ namespace ck
                     double end_velocity,
                     double max_translational_velocity,
                     double max_abs_acceleration,
-                    double max_abs_decceleration)
+                    double max_abs_deceleration)
                 {
                     int num_states = (int)std::ceil(distance_view.last_interpolant() / step_size + 1);
                     std::vector<S> states;
@@ -59,7 +59,7 @@ namespace ck
                         states.push_back(distance_view.sample(math::min(i * step_size, distance_view.last_interpolant())).state_);
                         headings.push_back(distance_view.sample(math::min(i * step_size, distance_view.last_interpolant())).heading_);
                     }
-                    return timeParameterizeTrajectory(reverse, states, headings, constraints, start_velocity, end_velocity, max_translational_velocity, max_abs_acceleration, max_abs_decceleration);
+                    return timeParameterizeTrajectory(reverse, states, headings, constraints, start_velocity, end_velocity, max_translational_velocity, max_abs_acceleration, max_abs_deceleration);
                 }
 
                 template <class S, class T>
@@ -72,7 +72,7 @@ namespace ck
                     double end_velocity,
                     double max_translational_velocity,
                     double max_abs_acceleration,
-                    double max_abs_decceleration)
+                    double max_abs_deceleration)
                 {
                     std::vector<ConstrainedState<S, T>> constraint_states;
                     constraint_states.reserve(states.size());
@@ -178,8 +178,8 @@ namespace ck
 
                     for (size_t i = 0; i < constraint_states.size(); i++)
                     {
-                        constraint_states[i].max_acceleration = max_abs_decceleration;
-                        constraint_states[i].min_translational_acceleration = -max_abs_decceleration;
+                        constraint_states[i].max_acceleration = max_abs_deceleration;
+                        constraint_states[i].min_translational_acceleration = -max_abs_deceleration;
                     }
 
                     // for (ConstrainedState<S, T> cs : constraint_states)
@@ -194,8 +194,8 @@ namespace ck
                     successor.heading = headings[headings.size() - 1];
                     successor.distance = constraint_states[states.size() - 1].distance;
                     successor.max_translational_velocity = end_velocity;
-                    successor.min_translational_acceleration = -max_abs_decceleration;
-                    successor.max_acceleration = max_abs_decceleration;
+                    successor.min_translational_acceleration = -max_abs_deceleration;
+                    successor.max_acceleration = max_abs_deceleration;
                     for (int i = states.size() - 1; i >= 0; --i)
                     {
                         ConstrainedState<S, T> &constraint_state = constraint_states[i];
@@ -260,7 +260,7 @@ namespace ck
                     //     std::cout << cs.max_translational_velocity << std::endl;
                     // }
 
-                    
+
                     // Integrate the constrained states forward in time to obtain the TimedStates.
                     std::vector<TimedState<S>> timed_states;
                     std::vector<TimedState<T>> timed_headings;

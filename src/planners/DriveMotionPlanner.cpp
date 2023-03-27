@@ -123,7 +123,7 @@ namespace ck
                                                                                                                    std::vector<Rotation2d> headings,
                                                                                                                    double maximumVelocity,     // Inches per Second
                                                                                                                    double maximumAcceleration, // Inches per Second^2
-                                                                                                                   double maximumDecceleration,
+                                                                                                                   double maximumDeceleration,
                                                                                                                    double maximumVoltage)
         {
             return this->generateTrajectory(reversed,
@@ -133,7 +133,7 @@ namespace ck
                                             0.0,
                                             maximumVelocity,
                                             maximumAcceleration,
-                                            maximumDecceleration,
+                                            maximumDeceleration,
                                             maximumVoltage);
         }
 
@@ -144,7 +144,7 @@ namespace ck
                                                                                                                    double endVelocity,         // Inches per Second
                                                                                                                    double maximumVelocity,     // Inches per Second
                                                                                                                    double maximumAcceleration, // Inches per Second^2
-                                                                                                                   double maximumDecceleration,
+                                                                                                                   double maximumDeceleration,
                                                                                                                    double maximumVoltage)
         {
             (void)maximumVoltage;
@@ -191,7 +191,7 @@ namespace ck
                                                                                                                                           endVelocity,
                                                                                                                                           maximumVelocity,
                                                                                                                                           maximumAcceleration,
-                                                                                                                                          maximumDecceleration);
+                                                                                                                                          maximumDeceleration);
 
             return timed_trajectory;
         }
