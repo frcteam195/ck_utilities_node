@@ -201,5 +201,11 @@ namespace ck
         {
             return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
         }
+        
+        template <typename T>
+        inline T map2(T value, T deadband)
+        {
+            return deadband + (value) * (1.0 - deadband);
+        }
     } // namespace math
 } // namespace ck
