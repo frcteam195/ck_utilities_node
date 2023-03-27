@@ -108,7 +108,7 @@ namespace ck
 
             FollowerType mFollowerType = FollowerType::PURE_PURSUIT;
 
-            double defaultCook = 0.2;
+            double defaultCook = 0.1;
             bool useDefaultCook = true;
             double defaultServe = 0.1;
             bool useDefaultServe = false;
