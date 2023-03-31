@@ -81,7 +81,10 @@ namespace ck
                     constexpr double kEpsilon = 1e-6;
 
                     double non_lin_cutoff = 10.0;
-                    double min_accel_pct = 0.25;
+                    double min_accel_pct = 0.5;
+                    double accel_power = 1;
+                    double min_decel_pct = 0.25;
+                    double decel_power = 3;
 
                     // Forward pass. We look at pairs of consecutive states, where the start state has already been velocity
                     // parameterized (though we may adjust the velocity downwards during the backwards pass). We wish to find an
@@ -122,7 +125,8 @@ namespace ck
                             if (apply_smoothing && dist_from_start <= non_lin_cutoff)
                             {
                                 double pct = dist_from_start / non_lin_cutoff;
-                                double pct_norm = ck::math::map(pct, 0.0, 1.0, 0.5, 1.0);
+                                // double pct_norm = std::pow(ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0), accel_power);
+                                double pct_norm = std::pow(ck::math::map2(pct, min_accel_pct), accel_power);
                                 constraint_state.max_acceleration *= pct_norm;
                                 constraint_state.min_translational_acceleration *= pct_norm;
                             }
@@ -222,7 +226,8 @@ namespace ck
                         if (apply_smoothing && dist_to_end <= non_lin_cutoff)
                         {
                             double pct = dist_to_end / non_lin_cutoff;
-                            double pct_norm = ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0);
+                            // double pct_norm = std::pow(ck::math::map(pct, 0.0, 1.0, min_decel_pct, 1.0), decel_power);
+                            double pct_norm = std::pow(ck::math::map2(pct, min_decel_pct), decel_power);
                             constraint_state.max_acceleration *= pct_norm;
                             constraint_state.min_translational_acceleration *= pct_norm;
                         }
