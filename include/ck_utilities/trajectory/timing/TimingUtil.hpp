@@ -83,8 +83,8 @@ namespace ck
                     double non_lin_cutoff = 10.0;
                     double min_accel_pct = 0.5;
                     double accel_power = 1;
-                    double min_decel_pct = 0.25;
-                    double decel_power = 3;
+                    double min_decel_pct = 0.5;
+                    double decel_power = 2;
 
                     // Forward pass. We look at pairs of consecutive states, where the start state has already been velocity
                     // parameterized (though we may adjust the velocity downwards during the backwards pass). We wish to find an
