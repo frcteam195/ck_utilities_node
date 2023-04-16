@@ -80,11 +80,13 @@ namespace ck
                     constraint_states.reserve(states.size());
                     constexpr double kEpsilon = 1e-6;
 
-                    double non_lin_cutoff = 10.0;
+                    // double non_lin_cutoff = 10.0;
                     double min_accel_pct = 0.5;
                     double accel_power = 1;
                     double min_decel_pct = 0.5;
                     double decel_power = 2;
+
+                    size_t non_lin_index = ceil(states.size() * 0.05);
 
                     // Forward pass. We look at pairs of consecutive states, where the start state has already been velocity
                     // parameterized (though we may adjust the velocity downwards during the backwards pass). We wish to find an
@@ -121,10 +123,12 @@ namespace ck
                             constraint_state.min_translational_acceleration = -max_abs_acceleration;
                             constraint_state.max_acceleration = max_abs_acceleration;
 
-                            double dist_from_start = std::abs(states[i].getTranslation().norm() - states[0].getTranslation().norm());
-                            if (apply_smoothing && dist_from_start <= non_lin_cutoff)
+                            // double dist_from_start = std::abs(states[i].getTranslation().norm() - states[0].getTranslation().norm());
+                            // if (apply_smoothing && dist_from_start <= non_lin_cutoff)
+                            if (apply_smoothing && i < non_lin_index)
                             {
-                                double pct = dist_from_start / non_lin_cutoff;
+                                // double pct = dist_from_start / non_lin_cutoff;
+                                double pct = i / non_lin_index;
                                 // double pct_norm = std::pow(ck::math::map(pct, 0.0, 1.0, min_accel_pct, 1.0), accel_power);
                                 double pct_norm = std::pow(ck::math::map2(pct, min_accel_pct), accel_power);
                                 constraint_state.max_acceleration *= pct_norm;
@@ -222,10 +226,12 @@ namespace ck
                         constraint_state.max_acceleration = max_abs_deceleration;
                         constraint_state.min_translational_acceleration = -max_abs_deceleration;
 
-                        double dist_to_end = std::abs(states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm());
-                        if (apply_smoothing && dist_to_end <= non_lin_cutoff)
+                        // double dist_to_end = std::abs(states[states.size()-1].getTranslation().norm() - states[i].getTranslation().norm());
+                        // if (apply_smoothing && dist_to_end <= non_lin_cutoff)
+                        if (apply_smoothing && i > ((int)states.size() - (int)non_lin_index))
                         {
-                            double pct = dist_to_end / non_lin_cutoff;
+                            // double pct = dist_to_end / non_lin_cutoff;
+                            double pct = ((int)states.size() - i) / non_lin_index;
                             // double pct_norm = std::pow(ck::math::map(pct, 0.0, 1.0, min_decel_pct, 1.0), decel_power);
                             double pct_norm = std::pow(ck::math::map2(pct, min_decel_pct), decel_power);
                             constraint_state.max_acceleration *= pct_norm;
