@@ -396,6 +396,7 @@ namespace ck
         // Returns the progress of the trajectory as a percentage of the total progress
         double DriveMotionPlanner::getCurrentProgress()
         {
+            // TODO (Chris): Get distance progress though traj rather than time
             if (mCurrentTrajectory != nullptr)
             {
                 return mCurrentTrajectory->getProgress() / mCurrentTrajectory->getTotalLength();
