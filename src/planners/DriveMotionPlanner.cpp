@@ -398,6 +398,7 @@ namespace ck
         {
             if (mCurrentTrajectory != nullptr)
             {
+                // TODO (Chris): Fix to use distance progress through traj rather than time.
                 return mCurrentTrajectory->getProgress() / mCurrentTrajectory->getTotalLength();
             }
 
