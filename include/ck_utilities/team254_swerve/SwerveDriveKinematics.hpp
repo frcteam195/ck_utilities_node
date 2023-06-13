@@ -10,7 +10,7 @@
 #include "ck_utilities/team254_geometry/Translation2d.hpp"
 #include "ck_utilities/team254_geometry/Rotation2d.hpp"
 
-#include "ck_utilities/planners/DriveMotionPlanner.hpp"
+#include "ck_utilities/planners/ChassisSpeeds.hpp"
 
 #include "Eigen/Dense"
 
