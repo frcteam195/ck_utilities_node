@@ -31,7 +31,10 @@ namespace ck
             planners::ChassisSpeeds toChassisSpeeds(std::vector<SwerveModuleState> wheelStates);
             planners::ChassisSpeeds toChassisSpeedWheelConstraints(std::vector<SwerveModuleState> wheelStates);
 
-            void desaturateWheelSpeeds(std::vector<SwerveModuleState> moduleStates, double attainableMaxSpeedMetersPerSecond);
+            static void desaturateWheelSpeeds(std::vector<SwerveModuleState> moduleStates, double attainableMaxSpeedMetersPerSecond);
+
+            std::vector<team254_geometry::Translation2d> getModuleLocations() const;
+            int getNumModules() const;
 
         private:
             Eigen::MatrixXd m_inverseKinematics;

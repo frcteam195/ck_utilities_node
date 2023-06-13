@@ -37,12 +37,12 @@ namespace ck
                 for (int i = 0; i < m_numModules; i++)
                 {
                     m_inverseKinematics.row(i * 2 + 0) <<
-                        0,
                         1,
+                        0,
                         -m_modules.at(i).y() + centerOfRotationMeters.y();
                     m_inverseKinematics.row(i * 2 + 1) <<
                         0,
-                        0,
+                        1,
                         m_modules.at(i).x() - centerOfRotationMeters.x();
                 }
             }
@@ -125,7 +125,51 @@ namespace ck
 
             auto pseudoInv = constrainsMatrix.completeOrthogonalDecomposition().pseudoInverse();
 
-            return ChassisSpeeds();
+            Eigen::MatrixXd enforcedConstraints(m_numModules * 2, 1);
+
+            for (int i = 0; i < m_numModules; i++)
+            {
+                enforcedConstraints.row(i*2) << wheelStates.at(i).speedMetersPerSecond;
+                enforcedConstraints.row(i*2+1) << 0;
+            }
+
+            auto chassisSpeedsVector = pseudoInv * enforcedConstraints;
+
+            return ChassisSpeeds(
+                chassisSpeedsVector.coeff(0, 0),
+                chassisSpeedsVector.coeff(1, 0),
+                chassisSpeedsVector.coeff(2, 0));
+        }
+
+        void SwerveDriveKinematics::desaturateWheelSpeeds(
+            std::vector<SwerveModuleState> moduleStates,
+            double attainableMaxSpeedMetersPerSecond)
+        {
+            double realMaxSpeed = moduleStates.at(0).speedMetersPerSecond;
+
+            for (size_t i = 1; i < moduleStates.size(); i++)
+            {
+                realMaxSpeed = std::max(realMaxSpeed, moduleStates.at(i).speedMetersPerSecond);
+            }
+
+            if (realMaxSpeed > attainableMaxSpeedMetersPerSecond)
+            {
+                for (SwerveModuleState& moduleState : moduleStates)
+                {
+                    moduleState.speedMetersPerSecond = moduleState.speedMetersPerSecond / realMaxSpeed * attainableMaxSpeedMetersPerSecond;
+                }
+            }
+
+        }
+
+        std::vector<team254_geometry::Translation2d> SwerveDriveKinematics::getModuleLocations() const
+        {
+            return m_modules;
+        }
+
+        int SwerveDriveKinematics::getNumModules() const
+        {
+            return m_numModules;
         }
 
     } // namespace team254_swerve
