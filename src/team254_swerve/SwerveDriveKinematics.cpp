@@ -59,8 +59,8 @@ namespace ck
 
             for (int i = 0; i < m_numModules; i++)
             {
-                std::cout << "did x " << i << std::endl;
-                std::cout << "did y " << i << std::endl;
+                double x = moduleStatesMatrix(i*2, 0);
+                double y = moduleStatesMatrix(i*2+1, 0);
 
                 double speed = math::hypotenuse(x, y);
                 Rotation2d angle(x, y, true);
