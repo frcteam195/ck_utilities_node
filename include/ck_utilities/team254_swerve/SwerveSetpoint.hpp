@@ -18,6 +18,16 @@ namespace ck
                 mModuleStates = initialStates;
             }
 
+            friend std::ostream& operator<<(std::ostream& os, const SwerveSetpoint& setpoint)
+            {
+                os << setpoint.mChassisSpeeds << "\n";
+                for (size_t i = 0; i < setpoint.mModuleStates.size(); i++)
+                {
+                    os << "  " << setpoint.mModuleStates.at(i) << "\n";
+                }
+                return os;
+            }
+
             planners::ChassisSpeeds mChassisSpeeds;
             std::vector<SwerveModuleState> mModuleStates;
         };

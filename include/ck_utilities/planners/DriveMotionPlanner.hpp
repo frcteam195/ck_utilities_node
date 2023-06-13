@@ -35,6 +35,8 @@ namespace ck
 
             Twist2d toTwist2d() const;
 
+            friend std::ostream& operator<<(std::ostream& os, const ChassisSpeeds& speeds);
+
             double vxMetersPerSecond;
             double vyMetersPerSecond;
             double omegaRadiansPerSecond;
