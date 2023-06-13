@@ -59,8 +59,8 @@ namespace ck
 
             for (int i = 0; i < m_numModules; i++)
             {
-                double x = moduleStatesMatrix.coeff(i*2, 0);
-                double y = moduleStatesMatrix.coeff(i*2+1, 0);
+                std::cout << "did x " << i << std::endl;
+                std::cout << "did y " << i << std::endl;
 
                 double speed = math::hypotenuse(x, y);
                 Rotation2d angle(x, y, true);
@@ -93,9 +93,9 @@ namespace ck
 
             auto chassisSpeedsVector = m_forwardKinematics * moduleStatesMatrix;
             return ChassisSpeeds(
-                chassisSpeedsVector.coeff(0, 0),
-                chassisSpeedsVector.coeff(1, 0),
-                chassisSpeedsVector.coeff(2, 0));
+                chassisSpeedsVector(0, 0),
+                chassisSpeedsVector(1, 0),
+                chassisSpeedsVector(2, 0));
         }
 
         ChassisSpeeds SwerveDriveKinematics::toChassisSpeedWheelConstraints(std::vector<SwerveModuleState> wheelStates)
@@ -136,9 +136,9 @@ namespace ck
             auto chassisSpeedsVector = pseudoInv * enforcedConstraints;
 
             return ChassisSpeeds(
-                chassisSpeedsVector.coeff(0, 0),
-                chassisSpeedsVector.coeff(1, 0),
-                chassisSpeedsVector.coeff(2, 0));
+                chassisSpeedsVector(0, 0),
+                chassisSpeedsVector(1, 0),
+                chassisSpeedsVector(2, 0));
         }
 
         void SwerveDriveKinematics::desaturateWheelSpeeds(
@@ -159,7 +159,6 @@ namespace ck
                     moduleState.speedMetersPerSecond = moduleState.speedMetersPerSecond / realMaxSpeed * attainableMaxSpeedMetersPerSecond;
                 }
             }
-
         }
 
         std::vector<team254_geometry::Translation2d> SwerveDriveKinematics::getModuleLocations() const
