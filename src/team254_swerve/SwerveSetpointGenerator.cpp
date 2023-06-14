@@ -63,7 +63,7 @@ namespace ck::team254_swerve
             if (all_modules_should_flip)
             {
                 double required_rotation_rad = std::abs(prev_heading.at(i).inverse().rotateBy(desired_heading.at(i)).getRadians());
-                if (required_rotation_rad < M_PI / 2.0)
+                if (required_rotation_rad < M_PI_2)
                 {
                     all_modules_should_flip = false;
                 }

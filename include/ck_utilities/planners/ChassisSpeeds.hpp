@@ -27,9 +27,9 @@ namespace ck
 
             friend std::ostream& operator<<(std::ostream& os, const ChassisSpeeds& speeds);
 
-            double vxMetersPerSecond;
-            double vyMetersPerSecond;
-            double omegaRadiansPerSecond;
+            double vxMetersPerSecond = 0;
+            double vyMetersPerSecond = 0;
+            double omegaRadiansPerSecond = 0;
         };
     }
 }
