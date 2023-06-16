@@ -27,7 +27,7 @@ namespace ck
         class SwerveSetpointGenerator
         {
         public:
-            SwerveSetpointGenerator(const SwerveDriveKinematics KinematicLimits);
+            SwerveSetpointGenerator(const SwerveDriveKinematics kinematics);
 
             SwerveSetpoint generateSetpoint(const KinematicLimits limits, const SwerveSetpoint prevSetpoint, planners::ChassisSpeeds desiredState, double dt);
 
