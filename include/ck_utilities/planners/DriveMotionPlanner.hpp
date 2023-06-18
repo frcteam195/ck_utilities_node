@@ -2,6 +2,7 @@
 
 #include "ck_utilities/CKMath.hpp"
 #include "ck_utilities/Constants.hpp"
+#include "ck_utilities/planners/ChassisSpeeds.hpp"
 #include "ck_utilities/team254_geometry/Geometry.hpp"
 #include "ck_utilities/physics/DifferentialDrive.hpp"
 #include "ck_utilities/trajectory/Lookahead.hpp"
@@ -18,27 +19,6 @@ namespace ck
 {
     namespace planners
     {
-        class ChassisSpeeds
-        {
-        public:
-            ChassisSpeeds();
-            ChassisSpeeds(double vxMPerSec, double vyMPerSec, double omegaRadPerSec);
-
-            static ChassisSpeeds fromFieldRelativeSpeeds(double vxMPerSec,
-                                                         double vyMPerSec,
-                                                         double omegaRadPerSec,
-                                                         Rotation2d robotAngle);
-
-            static ChassisSpeeds fromRobotRelativeSpeeds(double vxMPerSec,
-                                                         double vyMPerSec,
-                                                         double omegaRadPerSec);
-
-            Twist2d toTwist2d() const;
-
-            double vxMetersPerSecond;
-            double vyMetersPerSecond;
-            double omegaRadiansPerSecond;
-        };
 
         class DriveMotionPlanner
         {

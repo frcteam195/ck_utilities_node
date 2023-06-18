@@ -15,5 +15,14 @@ namespace ck
         SwerveModuleState::SwerveModuleState(double speedMps, double distanceM, Rotation2d angle)
             : speedMetersPerSecond(speedMps), distanceMeters(distanceM), angle(angle) {} 
 
+        
+        std::ostream& operator<<(std::ostream& os, const SwerveModuleState& state)
+        {
+            os << "SwerveModuleState(";
+            os << "Speed: " << state.speedMetersPerSecond << " m/s, ";
+            os << "Angle: " << state.angle.getDegrees() << " deg)";
+            return os;
+        }
+
     } // namespace team254_swerve
 } // namespace ck
